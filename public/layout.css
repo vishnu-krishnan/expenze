@@ -1,0 +1,140 @@
+/* ===== VIEW HEADER ===== */
+.view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.view-header h2 {
+    margin: 0;
+}
+
+.dashboard-nav {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.dashboard-nav button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.dashboard-nav input[type="month"] {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.budget-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+}
+
+.budget-input label {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.budget-input input {
+    width: 150px;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+/* ===== TABLE TOTAL ROW ===== */
+.data-table tfoot {
+    background: var(--bg-secondary);
+    font-weight: 700;
+    border-top: 3px solid var(--primary);
+}
+
+.data-table tfoot td {
+    padding: 1rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.data-table tfoot td:first-child {
+    text-align: left;
+    font-size: 1.125rem;
+    color: var(--primary);
+}
+
+.data-table tfoot td:nth-child(2),
+.data-table tfoot td:nth-child(3),
+.data-table tfoot td:nth-child(4) {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+}
+
+/* ===== CONSISTENT CONTENT WIDTH ===== */
+#view-dashboard,
+#view-month,
+#view-categories,
+#view-templates {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ===== TOOLBAR ALIGNMENT ===== */
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    justify-content: flex-end;
+    /* Align to right */
+}
+
+.toolbar.left {
+    justify-content: flex-start;
+    /* Override for left alignment if needed */
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .view-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .dashboard-nav,
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .dashboard-nav button,
+    .dashboard-nav input,
+    .header-actions button {
+        width: 100%;
+    }
+
+    .budget-input {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .budget-input input {
+        flex: 1;
+    }
+}

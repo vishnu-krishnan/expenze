@@ -1,0 +1,258 @@
+/* ===== ENHANCED BUTTON STYLES ===== */
+
+/* Base button reset */
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Primary buttons - Teal */
+button.primary,
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, #0f766e 100%);
+    color: white;
+    border: none;
+}
+
+button.primary:hover,
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0f766e 0%, var(--primary) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+/* Action buttons - Same teal color for both edit and delete */
+button.danger,
+.btn-danger,
+.btn-delete,
+.btn-edit {
+    background: linear-gradient(135deg, var(--primary) 0%, #0f766e 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-width: 90px;
+    font-weight: 500;
+}
+
+button.danger:hover,
+.btn-danger:hover,
+.btn-delete:hover,
+.btn-edit:hover {
+    background: linear-gradient(135deg, #0f766e 0%, #0d7c72 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+}
+
+/* Secondary buttons - Gray */
+.btn-secondary {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+/* Action button container */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.action-buttons button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-width: 90px;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.badge-inactive {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+/* ===== CARD COLOR GRADIENTS ===== */
+
+/* Savings Goal Card - Green when positive, Red when negative */
+#card-savings-goal {
+    position: relative;
+    overflow: hidden;
+}
+
+#card-savings-goal.positive {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+#card-savings-goal.negative {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+/* Total Expenses Card - Red when high, Orange when medium, Green when low */
+#card-total-expense {
+    position: relative;
+    overflow: hidden;
+}
+
+#card-total-expense.high-expense {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+#card-total-expense.medium-expense {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+#card-total-expense.low-expense {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+/* Pending Expenses Card - Red when high, Orange when medium, Green when low */
+#card-pending {
+    position: relative;
+    overflow: hidden;
+}
+
+#card-pending.high-pending {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+#card-pending.medium-pending {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+#card-pending.low-pending {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+/* ===== STATUS INFO ===== */
+.status-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date-info small {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+    opacity: 0.8;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* ===== TABLE IMPROVEMENTS ===== */
+.data-table .active-duration {
+    min-width: 200px;
+}
+
+.data-table td.text-right {
+    text-align: right;
+    font-weight: 600;
+}
+
+/* ===== HEADING COLORS ===== */
+h1 {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+h2 {
+    color: var(--text-primary);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary) 0%, #0f766e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h3 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Panel headings */
+.panel h3 {
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary-light);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* ===== RESPONSIVE BUTTONS ===== */
+@media (max-width: 768px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons button {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .data-table .active-duration {
+        min-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .action-buttons button {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .data-table .active-duration {
+        min-width: 120px;
+    }
+}

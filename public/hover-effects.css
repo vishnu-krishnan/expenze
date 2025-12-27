@@ -1,0 +1,138 @@
+/* ===== GLOBAL HOVER EFFECTS ===== */
+
+/* Beautiful circular hover effect for all interactive elements */
+button,
+.card,
+.panel,
+input[type="month"],
+input[type="text"],
+input[type="number"],
+select,
+.item-list li {
+    position: relative;
+    overflow: hidden;
+}
+
+button::before,
+.card::before,
+.panel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
+button:hover::before,
+.card:hover::before,
+.panel:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Ensure text stays above the ripple effect */
+button>*,
+.card>*,
+.panel>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* Enhanced button styles with circular ripple */
+button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Floating effect for cards */
+.card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(13, 148, 136, 0.2);
+}
+
+/* Smooth glow effect for inputs on focus */
+input:focus,
+select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2), 0 0 20px rgba(13, 148, 136, 0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Panel hover with subtle lift */
+.panel {
+    transition: all 0.3s ease;
+}
+
+.panel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* List items with circular reveal */
+.item-list li {
+    transition: all 0.3s ease;
+}
+
+.item-list li:hover {
+    transform: translateX(8px);
+    background: linear-gradient(90deg, rgba(13, 148, 136, 0.05) 0%, transparent 100%);
+}
+
+/* Table rows with smooth highlight */
+.data-table tbody tr {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(13, 148, 136, 0.08) 0%, rgba(13, 148, 136, 0.02) 100%);
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.1);
+}
+
+/* Circular loading animation */
+@keyframes ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+/* Pulse effect for important elements */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(13, 148, 136, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(13, 148, 136, 0.6);
+    }
+}
+
+.primary {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
