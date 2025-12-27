@@ -5,7 +5,7 @@ const { run, get, all } = require('./database');
 const logger = require('./logger');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -340,9 +340,7 @@ app.delete('/api/items/:id', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    logger.info(`Server running at http://localhost:${PORT}`);
-    console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    logger.info(`Server running at http://0.0.0.0:${PORT}`);
+    console.log(`Server running at http://0.0.0.0:${PORT}`);
 });
-// Duplicate listen removed – only one server instance
-
