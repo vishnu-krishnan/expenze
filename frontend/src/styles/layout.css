@@ -16,7 +16,7 @@ main {
 
 .view.active {
     display: block;
-    animation: fadeIn 0.3s ease;
+    animation: fadeInUp 0.5s var(--ease-out) forwards;
 }
 
 .view-header {
