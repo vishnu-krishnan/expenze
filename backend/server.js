@@ -1,7 +1,7 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const bodyParser = require('body-parser');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { run, get, all } = require('./database');
@@ -12,12 +12,19 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 // Request logging middleware
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path}`, { query: req.query, body: req.body });
     next();
+});
+
+// API routes are defined below... Use prefix /api to avoid conflicts.
+// API routes are defined below... Use prefix /api to avoid conflicts.
+// Catch-all for React Frontend
+app.get(/^\/(?!api).*/, (req, res, next) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // --- AUTHENTICATION ---
@@ -35,54 +42,123 @@ function authenticateToken(req, res, next) {
     });
 }
 
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+async function sendOtpEmail(email, otp, username) {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Expenze - Verify your Account',
+        html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <h2 style="color: #646cff; text-align: center;">Welcome to Expenze!</h2>
+                <p>Hello <strong>${username}</strong>,</p>
+                <p>Use the following OTP to verify your account:</p>
+                <div style="background: #f4f4f4; padding: 15px; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; border-radius: 5px;">
+                    ${otp}
+                </div>
+                <p style="color: #666; font-size: 12px; margin-top: 20px;">This OTP is valid for 10 minutes.</p>
+            </div>
+        `
+    };
+    return transporter.sendMail(mailOptions);
+}
+
 app.post('/api/register', async (req, res) => {
     const { username, password, email, phone } = req.body;
     if (!username || !password || !email) return res.status(400).json({ error: 'Username, password, and email required' });
 
     try {
+        // 1. Check if user already exists in MAIN table
+        const existing = await get('SELECT id FROM users WHERE email = ? OR username = ?', [email, username]);
+        if (existing) {
+            return res.status(400).json({ error: 'Username or Email already registered' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpiry = new Date(Date.now() + 10 * 60000); // 10 mins
+        // 5 Minutes Expiry
+        const expiresAt = new Date(Date.now() + 5 * 60000);
 
-        const result = await run(
-            'INSERT INTO users (username, password, email, phone, otp_code, otp_expiry, is_verified) VALUES (?, ?, ?, ?, ?, ?, 0)',
-            [username, hashedPassword, email, phone, otp, otpExpiry]
+        // 2. Upsert into Temp Table (Postgres ON CONFLICT)
+        // Since we can't easily use ON CONFLICT with our helper 'run', we'll try INSERT, fallback to UPDATE.
+        // Actually, 'run' is a wrapper -> let's use raw SQL for upsert pattern or simple check-delete-insert.
+
+        // Simpler: Delete any existing pending verification for this email
+        await run('DELETE FROM user_verifications WHERE email = ?', [email]);
+
+        await run(
+            'INSERT INTO user_verifications (email, username, password, phone, otp_code, expires_at) VALUES (?, ?, ?, ?, ?, ?) RETURNING email',
+            [email, username, hashedPassword, phone, otp, expiresAt]
         );
 
-        // In a real app, send OTP via Email/SMS here.
-        // For development, we log it and return it in response for easy testing.
+        // Send Email OTP
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            try {
+                await sendOtpEmail(email, otp, username);
+                logger.info(`OTP sent to ${email}`);
+            } catch (emailErr) {
+                logger.error('Failed to send email OTP', emailErr);
+            }
+        } else {
+            logger.warn('Email credentials not configured. OTP not sent via email.');
+        }
+
         console.log(`[OTP] User: ${username}, Code: ${otp}`);
 
-        res.json({
-            message: 'Registration successful. Please verify OTP.',
-            userId: result.lastID,
-            testOtp: otp // REMOVE IN PRODUCTION
-        });
-    } catch (err) {
-        if (err.message.includes('unique constraint') || err.message.includes('UNIQUE constraint')) {
-            return res.status(400).json({ error: 'Username or Email already exists' });
+        const response = {
+            message: 'OTP sent. Verification required within 5 minutes.',
+            email: email // Frontend needs this for verify step
+        };
+
+        if (!process.env.EMAIL_USER) {
+            response.testOtp = otp;
+            response.message = 'OTP Generated (Dev Mode). Verify within 5 mins.';
         }
+
+        res.json(response);
+    } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
 app.post('/api/verify-otp', async (req, res) => {
-    const { userId, otp } = req.body;
+    const { email, otp } = req.body; // Changed from userId to email
     try {
-        const user = await get('SELECT * FROM users WHERE id = ?', [userId]);
-        if (!user) return res.status(400).json({ error: 'User not found' });
+        const record = await get('SELECT * FROM user_verifications WHERE email = ?', [email]);
+        if (!record) return res.status(400).json({ error: 'Invalid or expired verification request.' });
 
-        if (user.is_verified) return res.json({ message: 'Already verified' });
+        if (record.otp_code !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+        if (new Date(record.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'OTP Expired. Please register again.' });
+        }
 
-        if (user.otp_code !== otp) return res.status(400).json({ error: 'Invalid OTP' });
-        if (new Date(user.otp_expiry) < new Date()) return res.status(400).json({ error: 'OTP Expired' });
+        // OTP Valid. Move to Users Table.
+        const result = await run(
+            'INSERT INTO users (username, password, email, phone, role) VALUES (?, ?, ?, ?, ?)',
+            [record.username, record.password, record.email, record.phone, 'user']
+        );
 
-        await run('UPDATE users SET is_verified = 1, otp_code = NULL, otp_expiry = NULL WHERE id = ?', [userId]);
+        // Cleanup Temp
+        await run('DELETE FROM user_verifications WHERE email = ?', [email]);
 
-        const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
-        res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
+        const user = { id: result.lastID, username: record.username, role: 'user' };
+        const token = jwt.sign(user, JWT_SECRET, { expiresIn: '24h' });
+
+        res.json({ token, user });
 
     } catch (err) {
+        if (err.message.includes('unique constraint')) {
+            return res.status(400).json({ error: 'User already exists (Race condition)' });
+        }
         res.status(500).json({ error: err.message });
     }
 });
@@ -96,9 +172,7 @@ app.post('/api/login', async (req, res) => {
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
 
-        if (!user.is_verified) {
-            return res.status(403).json({ error: 'User not verified', userId: user.id });
-        }
+        // No need to check is_verified, because they are only in this table IF verified.
 
         const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
         res.json({ token, user: { id: user.id, username: user.username, role: user.role } });

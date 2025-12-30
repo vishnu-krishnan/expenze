@@ -1,7 +1,6 @@
-require('dotenv').config();
-const { Pool } = require('pg');
 const path = require('path');
-
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+const { Pool } = require('pg');
 // Connect to Postgres
 const pool = new Pool({
     user: process.env.PGUSER,
@@ -30,6 +29,19 @@ async function initSchema() {
     try {
         await client.query('BEGIN');
 
+        // User Verifications (Temp Table)
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS user_verifications (
+                email TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                password TEXT NOT NULL,
+                phone TEXT,
+                otp_code TEXT NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Users
         await client.query(`
             CREATE TABLE IF NOT EXISTS users (
@@ -39,9 +51,6 @@ async function initSchema() {
                 email TEXT UNIQUE,
                 phone TEXT,
                 role TEXT DEFAULT 'user',
-                otp_code TEXT,
-                otp_expiry TIMESTAMP,
-                is_verified INTEGER DEFAULT 0,
                 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);

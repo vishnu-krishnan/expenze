@@ -75,7 +75,7 @@ start_server() {
     
     echo ""
     
-    # Step 2: Check Node Dependencies
+    # Step 2: Check Node Dependencies (Root)
     print_info "Checking Node.js dependencies..."
     if [ ! -d "node_modules" ]; then
         print_warning "node_modules not found. Installing..."
@@ -84,28 +84,49 @@ start_server() {
     else
         print_info "Dependencies found."
     fi
-    
+
+    # Step 3: Build Frontend
+    print_info "Building Frontend..."
+    npm run build:frontend
+
     echo ""
     
-    # Step 3: Start Node Server
-    print_info "Starting Node.js server..."
+    # Step 4: Start Services
+    print_info "Starting Services..."
+
+    # Start Backend
+    print_info "Starting Backend on port 3000..."
+    nohup npm run dev:backend > "expenze.log" 2>&1 &
+    BACKEND_PID=$!
     
-    # Start node in background
-    nohup node server.js > "$LOG_FILE" 2>&1 &
-    sleep 2
+    # Start Frontend (Dev)
+    print_info "Starting Frontend (Vite) on port 5173..."
+    # We use >> to append to same log, or could use separate if really needed, but user asked for single.
+    # Mixing logs might be messy but it's what was asked.
+    nohup npm run dev:frontend >> "expenze.log" 2>&1 &
+    FRONTEND_PID=$!
+
+    sleep 3
     
-    if is_server_running; then
-        print_success "Server started successfully (PID: $(get_server_pid))"
+    if ps -p $BACKEND_PID > /dev/null; then
+        print_success "Backend started (PID: $BACKEND_PID)"
     else
-        print_error "Server failed to start. Check $LOG_FILE"
-        return 1
+        print_error "Backend failed to start. Check expenze.log"
+    fi
+
+    if ps -p $FRONTEND_PID > /dev/null; then
+        print_success "Frontend started (PID: $FRONTEND_PID)"
+    else
+        print_error "Frontend failed to start. Check expenze.log"
     fi
     
     echo ""
     print_success "Expenze started!"
     echo ""
-    print_info "Access URL:"
-    print_info "  Web App:   http://localhost:3000"
+    print_info "Access URLs:"
+    print_info "  Production/API: http://localhost:3000"
+    print_info "  Dev Frontend:   http://localhost:5173"
+    print_info "  Logs:           expenze.log"
     echo ""
 }
 
@@ -115,30 +136,23 @@ stop_server() {
     echo "=========================================="
     echo ""
     
-    if ! is_server_running; then
-        print_warning "Server is not running"
-    else
-        local pid=$(get_server_pid)
-        print_info "Stopping server (PID: $pid)..."
-        
-        # Try graceful shutdown first
-        kill $pid 2>/dev/null || true
-        sleep 2
-        
-        # Force kill if still running
-        if is_server_running; then
-            print_warning "Server still running, force killing..."
-            kill -9 $pid 2>/dev/null || true
-            sleep 1
-        fi
-        
-        if is_server_running; then
-            print_error "Failed to stop server"
-        else
-            print_success "Server stopped"
-        fi
+    # Kill by pattern match is risky if multiple nodes run, but simplest for now.
+    # Pattern matching 'node backend/server.js' and 'vite'
+    
+    local node_pid=$(pgrep -f "node backend/server.js")
+    if [ -n "$node_pid" ]; then
+        print_info "Stopping Backend (PID: $node_pid)..."
+        kill $node_pid 2>/dev/null || true
+    fi
+
+    local vite_pid=$(lsof -t -i:5173)
+    if [ -n "$vite_pid" ]; then
+        print_info "Stopping Frontend (PID: $vite_pid)..."
+        kill $vite_pid 2>/dev/null || true
     fi
     
+    sleep 2
+    print_success "Stopped."
     echo ""
 }
 
