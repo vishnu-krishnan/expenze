@@ -36,24 +36,8 @@ async function initSchema() {
                 id SERIAL PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                email TEXT UNIQUE,
-                phone TEXT,
-                role TEXT DEFAULT 'user',
-                otp_code TEXT,
-                otp_expiry TIMESTAMP,
-                is_verified INTEGER DEFAULT 0,
                 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        `);
-
-        // Migration: Add new columns if they don't exist (Idempotent)
-        await client.query(`
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user';
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_code TEXT;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expiry TIMESTAMP;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified INTEGER DEFAULT 0;
         `);
 
         // Categories
@@ -131,14 +115,13 @@ async function initSchema() {
     }
 }
 
-const initPromise = initSchema().catch(err => console.error(err));
+// Run schema init
+initSchema().catch(err => console.error(err));
 
 // Wrapper functions to mimic sqlite3 API
 
 async function run(sql, params = []) {
-    await initPromise; // Wait for schema
     const adapted = adaptSql(sql);
-    // ...
     let finalSql = adapted;
 
     // Auto-append RETURNING id for INSERTs to mimic sqlite3 lastID
@@ -159,7 +142,6 @@ async function run(sql, params = []) {
 }
 
 async function get(sql, params = []) {
-    await initPromise;
     const adapted = adaptSql(sql);
     try {
         const res = await pool.query(adapted, params);
@@ -170,7 +152,6 @@ async function get(sql, params = []) {
 }
 
 async function all(sql, params = []) {
-    await initPromise;
     const adapted = adaptSql(sql);
     try {
         const res = await pool.query(adapted, params);

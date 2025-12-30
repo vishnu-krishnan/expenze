@@ -233,6 +233,57 @@
                 </form>
             </div>
         </section>
+
+        <!-- Profile View -->
+        <section id="view-profile" class="view hidden">
+            <h2>User Profile</h2>
+            <div class="panel" style="max-width: 600px;">
+                <form onsubmit="App.updateProfile(event)">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Username</label>
+                        <input type="text" id="profile-username" disabled style="background:var(--bg-primary);">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Email</label>
+                        <input type="email" id="profile-email" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Phone</label>
+                        <input type="tel" id="profile-phone">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Role</label>
+                        <div id="profile-role" class="badge badge-inactive"
+                            style="display:inline-block; margin-top:0.5rem;">User</div>
+                    </div>
+                    <button type="submit" class="primary">Save Changes</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Admin View -->
+        <section id="view-admin" class="view hidden">
+            <h2>Admin Panel - User Management</h2>
+            <div class="panel">
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Verified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-users">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
     <script src="app.js"></script>
 </body>

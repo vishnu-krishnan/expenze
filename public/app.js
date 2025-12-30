@@ -1,18 +1,108 @@
+// Auth Interceptor
+const originalFetch = window.fetch;
+window.fetch = async (url, options = {}) => {
+    const token = localStorage.getItem('token');
+
+    // Ensure headers object exists
+    if (!options.headers) {
+        options.headers = {};
+    }
+
+    // Add Auth header
+    if (token) {
+        // Handle both simple object and Headers object
+        if (options.headers instanceof Headers) {
+            options.headers.append('Authorization', `Bearer ${token}`);
+        } else {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+    }
+
+    const response = await originalFetch(url, options);
+
+    if (response.status === 401) {
+        console.warn('Unauthorized - redirecting to login');
+        localStorage.removeItem('token');
+        window.location.href = '/login.html';
+        // Return a dummy promise that never resolves or just throw to stop execution flow?
+        // Throwing might cause Uncaught errors in existing async functions, but that's better than continuing.
+        throw new Error('Unauthorized');
+    }
+
+    return response;
+};
+
 // app.js – Frontend logic with full CRUD & improved features
 const App = {
     state: {
+        user: null, // Current user
         categories: [],
         templates: [],
-        currentMonth: new Date().toISOString().slice(0, 7), // YYYY-MM (for Monthly Plan)
-        dashboardMonth: new Date().toISOString().slice(0, 7), // YYYY-MM (for Dashboard)
+        currentMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
+        dashboardMonth: new Date().toISOString().slice(0, 7),
         monthPlan: null,
-        monthItems: []
+        monthItems: [],
+        adminUsers: [] // For admin view
     },
     init: async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        // Fetch User Profile
+        try {
+            const res = await fetch('/api/profile');
+            if (res.status === 401) {
+                window.location.href = '/login.html';
+                return;
+            }
+            App.state.user = await res.json();
+        } catch (e) {
+            console.error(e);
+        }
+
+        // Setup Nav
+        const nav = document.querySelector('.desktop-nav');
+        if (nav) {
+            // Profile Link
+            if (!document.getElementById('nav-profile')) {
+                const profileBtn = document.createElement('button');
+                profileBtn.id = 'nav-profile';
+                profileBtn.innerText = 'Profile';
+                profileBtn.onclick = () => View.showProfile();
+                nav.appendChild(profileBtn);
+            }
+
+            // Admin Link
+            if (App.state.user.role === 'admin' && !document.getElementById('nav-admin')) {
+                const adminBtn = document.createElement('button');
+                adminBtn.id = 'nav-admin';
+                adminBtn.innerText = 'Admin';
+                adminBtn.className = 'danger'; // Distinguish admin
+                adminBtn.onclick = () => View.showAdmin();
+                nav.appendChild(adminBtn);
+            }
+
+            // Logout
+            if (!document.getElementById('nav-logout')) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'nav-logout';
+                logoutBtn.innerText = 'Logout';
+                logoutBtn.onclick = () => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login.html';
+                };
+                nav.appendChild(logoutBtn);
+            }
+        }
+
         await App.fetchCategories();
         await App.fetchTemplates();
 
-        // Set both month pickers to current month
+        // Set date pickers...
         const currentMonth = App.state.currentMonth;
         const monthPicker = document.getElementById('month-picker');
         const dashPicker = document.getElementById('dash-month-picker');
@@ -22,15 +112,57 @@ const App = {
         await View.showDashboard();
         View.populateCategorySelects();
     },
-    // ---------- HELPERS ----------
-    formatMonth: (monthKey) => {
-        // Convert YYYY-MM to MMM-YY (e.g., 2025-10 → Oct-25)
-        const [year, month] = monthKey.split('-');
-        const date = new Date(year, month - 1, 1);
-        const monthName = date.toLocaleString('en-US', { month: 'short' });
-        const shortYear = year.slice(2);
-        return `${monthName}-${shortYear}`;
+
+    // ... (Existing Helpers) ...
+
+    // ---------- PROFILE & ADMIN ----------
+    updateProfile: async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('profile-email').value;
+        const phone = document.getElementById('profile-phone').value;
+
+        try {
+            const res = await fetch('/api/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, phone })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            alert('Profile updated successfully');
+            App.state.user.email = email;
+            App.state.user.phone = phone;
+        } catch (err) {
+            alert(err.message);
+        }
     },
+
+    fetchUsers: async () => {
+        const res = await fetch('/api/admin/users');
+        if (res.ok) {
+            App.state.adminUsers = await res.json();
+            View.renderAdminUsers();
+        }
+    },
+
+    toggleUserRole: async (id, currentRole) => {
+        const newRole = currentRole === 'admin' ? 'user' : 'admin';
+        if (!confirm(`Change role to ${newRole}?`)) return;
+
+        await fetch(`/api/admin/users/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ role: newRole, is_verified: 1 }) // Keep verification status or read from UI? Assuming just role toggle for now
+        });
+        await App.fetchUsers();
+    },
+
+    deleteUser: async (id) => {
+        if (!confirm('Are you sure you want to delete this user? This cannot be undone.')) return;
+        await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        await App.fetchUsers();
+    },
+
     // ---------- API ----------
     fetchCategories: async () => {
         const res = await fetch('/api/categories');
@@ -416,6 +548,49 @@ const View = {
     showTemplates: () => {
         View.switchTab('view-templates');
         View.updateBreadcrumb('Templates');
+    },
+    showProfile: () => {
+        View.switchTab('view-profile');
+        View.updateBreadcrumb('User Profile');
+        // Populate form
+        const u = App.state.user;
+        if (u) {
+            document.getElementById('profile-username').value = u.username;
+            document.getElementById('profile-email').value = u.email || '';
+            document.getElementById('profile-phone').value = u.phone || '';
+            document.getElementById('profile-role').innerText = u.role.toUpperCase();
+        }
+    },
+    showAdmin: async () => {
+        View.switchTab('view-admin');
+        View.updateBreadcrumb('Admin Panel');
+        await App.fetchUsers();
+    },
+    renderAdminUsers: () => {
+        const tbody = document.getElementById('list-users');
+        if (!tbody) return;
+
+        tbody.innerHTML = App.state.adminUsers.map(u => `
+            <tr>
+                <td>${u.username}</td>
+                <td>${u.email || '-'}</td>
+                <td>${u.phone || '-'}</td>
+                <td>
+                    <span class="badge ${u.role === 'admin' ? 'badge-success' : 'badge-inactive'}">
+                        ${u.role}
+                    </span>
+                </td>
+                <td>${u.is_verified ? '✅' : '❌'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="primary" onclick="App.toggleUserRole(${u.id}, '${u.role}')" title="Toggle Role">
+                            ${u.role === 'admin' ? 'Demote' : 'Promote'}
+                        </button>
+                        <button class="danger" onclick="App.deleteUser(${u.id})" title="Delete User">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
     },
     switchTab: (id) => {
         console.log('Switching to tab:', id);
