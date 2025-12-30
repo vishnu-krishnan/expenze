@@ -1,251 +1,103 @@
-# Expenze - Personal Finance Tracker
+# Expenze - Smart Money Management
 
-A modern, responsive web application for managing personal finances with monthly budgeting, expense tracking, and visual analytics.
+Expenze is a modern, full-stack expense tracking application designed to help you manage your finances efficiently. It features a React-based frontend and a robust Node.js/Express backend with PostgreSQL database.
 
-## Features
+## 🚀 Features
 
-### 📊 Dashboard
-- **Month Navigation**: Navigate between months with Previous/Next buttons or month picker
-- **Summary Cards**: Current month overview, total expenses, upcoming payments, savings goal
-- **Line Chart**: Last 6 months trend (Planned vs Actual)
-- **Pie Chart**: Category-wise expense breakdown for current month
+*   **Dashboard**: Visual overview of your finances with charts.
+*   **Monthly Plan**: Track expenses against a monthly budget.
+*   **Recurring Templates**: Fast generation of monthly payments from templates.
+*   **Categories**: Customizable expense categories.
+*   **Authentication**: Secure Login/Register with Email OTP verification.
+*   **Admin Panel**: User management for administrators.
 
-### 📁 Categories
-- Create, edit, and delete expense categories
-- Sort order management
-- Duplicate prevention
-- Usage tracking (shows which templates use each category)
+## 🛠 Tech Stack
 
-### 📝 Payment Templates
-- Create recurring payment templates
-- Set start and end dates
-- View months remaining for each template
-- Active/Inactive status
+**Frontend**:
+*   React.js (Vite)
+*   React Router DOM
+*   Chart.js
+*   Lucide React (Icons)
+*   CSS Modules / Vanilla CSS
 
-### 📅 Monthly Plan
-- Generate month from templates automatically
-- Add manual payment items
-- Edit planned and actual amounts inline
-- Mark payments as paid
-- Add notes to each item
-- Real-time totals calculation
+**Backend**:
+*   Node.js & Express.js
+*   PostgreSQL (Database)
+*   JWT (Authentication)
+*   Nodemailer (Email OTP)
 
-## Installation
-
-### Prerequisites
-- Node.js (v14 or higher)
-- npm
-
-### Setup
-```bash
-# Clone or navigate to the project directory
-cd /home/seq_vishnu/WORK/RnD/expenze
-
-# Install dependencies
-npm install
-
-# Start the server
-node server.js
-```
-
-The application will be available at `http://localhost:3000`
-
-## Usage
-
-### Starting the Application
-```bash
-node server.js
-```
-
-### Importing Data from CSV
-```bash
-node scripts/importCsv.js path/to/your/data.csv
-```
-
-### Viewing Logs
-Application logs are written to `app.log` in the project root directory.
+## 📂 Project Structure
 
 ```bash
-# View logs in real-time
-tail -f app.log
-
-# View last 50 lines
-tail -50 app.log
-```
-
-## Project Structure
-
-```
 expenze/
-├── public/
-│   ├── index.html      # Main HTML file
-│   ├── app.js          # Frontend JavaScript
-│   └── style.css       # Styling
-├── scripts/
-│   └── importCsv.js    # CSV import utility
-├── server.js           # Express server
-├── database.js         # SQLite database setup
-├── logger.js           # Logging utility
-├── CHANGELOG.md        # Version history
-├── package.json        # Dependencies
-└── app.log             # Application logs (generated)
+├── backend/            # Express Server & API logic
+│   ├── server.js       # Entry point
+│   ├── database.js     # DB Connection (pg)
+│   ├── logger.js       # Logging utility
+│   └── ...
+├── frontend/           # React Frontend (Vite)
+│   ├── src/            # Components & Pages
+│   └── dist/           # Production build output
+├── .env                # Environment variables
+└── expenze.sh          # One-click start script
 ```
 
-## API Endpoints
+## ⚙️ Prerequisites
 
-### Categories
-- `GET /api/categories` - List all categories
-- `POST /api/categories` - Create category
-- `PUT /api/categories/:id` - Update category
-- `DELETE /api/categories/:id` - Delete category
+*   **Node.js** (v18+)
+*   **Docker** (for PostgreSQL)
+*   **Git**
 
-### Templates
-- `GET /api/templates` - List all templates
-- `POST /api/templates` - Create template
-- `PUT /api/templates/:id` - Update template
-- `DELETE /api/templates/:id` - Delete template
+## 🏁 Getting Started
 
-### Monthly Plans
-- `GET /api/month/:key` - Get month plan (YYYY-MM format)
-- `POST /api/month/generate` - Generate month from templates
-- `PUT /api/items/:id` - Update payment item
-- `POST /api/items` - Create manual item
-- `DELETE /api/items/:id` - Delete item
-
-### Analytics
-- `GET /api/summary/last6` - Get last 6 months summary
-- `GET /api/category-expenses/:monthKey` - Get category expenses for pie chart
-
-## Troubleshooting
-
-### Month Picker Not Working
-
-**Symptoms**: Month picker shows text like "October 2025" but can't be changed
-
-**Solutions**:
-1. **Hard refresh the browser**: Press `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (Mac)
-2. **Clear browser cache**: Go to browser settings and clear cache
-3. **Check console for errors**: Press `F12` and check the Console tab for JavaScript errors
-4. **Verify server is running**: Check that `node server.js` is running without errors
-
-### Data Not Showing (All Zeros)
-
-**Symptoms**: Dashboard and monthly plan show ₹0.00 for all values
-
-**Possible Causes**:
-1. **No data in database**: Generate a month plan first
-2. **Wrong month selected**: Check if the selected month has data
-3. **Database not initialized**: Check if `expenze.db` file exists
-
-**Solutions**:
-1. Go to "Monthly Plan" tab
-2. Select a month
-3. Click "Generate from Templates" button
-4. Add some payment items manually if needed
-5. Enter actual amounts and mark as paid
-
-### Charts Not Displaying
-
-**Symptoms**: Chart areas are blank or show "No data"
-
-**Solutions**:
-1. Ensure you have data for at least one month
-2. Check browser console (F12) for Chart.js errors
-3. Verify Chart.js CDN is loading (check Network tab in F12)
-4. Try refreshing the page
-
-### Server Won't Start
-
-**Symptoms**: Error when running `node server.js`
-
-**Solutions**:
-1. Check if port 3000 is already in use:
-   ```bash
-   # Linux/Mac
-   lsof -i :3000
-   
-   # Kill the process if needed
-   kill -9 <PID>
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Check for syntax errors in `server.js`
-
-### Debugging Tips
-
-1. **Check Application Logs**:
-   ```bash
-   tail -f app.log
-   ```
-
-2. **Check Browser Console**:
-   - Press `F12`
-   - Go to Console tab
-   - Look for errors (red text)
-
-3. **Check Network Requests**:
-   - Press `F12`
-   - Go to Network tab
-   - Reload page
-   - Check if API calls are returning 200 status
-
-4. **Verify Database**:
-   ```bash
-   # Check if database file exists
-   ls -la expenze.db
-   
-   # View database contents (if sqlite3 is installed)
-   sqlite3 expenze.db "SELECT * FROM categories;"
-   ```
-
-## Calculations Explained
-
-### Difference (Remaining Budget)
-```
-Difference = Planned - Actual
-```
-- **Positive (Green)**: Under budget, money saved
-- **Negative (Red)**: Over budget, overspent
-- **Example**: Planned ₹10,000, Actual ₹8,000 → Diff: ₹2,000 (saved 20%)
-
-### Savings Percentage
-```
-Savings % = (Difference / Planned) × 100
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd expenze
 ```
 
-## Technology Stack
+### 2. Configure Environment
+Copy the example environment file and fill in your details:
+```bash
+cp .env.example .env
+```
+Edit `.env`:
+*   **Database**: Defaults are set for Docker container.
+*   **Email**: Add your Gmail & App Password for OTPs (Optional, defaults to Dev Mode).
 
-- **Backend**: Node.js + Express.js
-- **Database**: SQLite3
-- **Frontend**: Vanilla JavaScript (ES6+)
-- **Charts**: Chart.js
-- **Styling**: Custom CSS with CSS Variables
-- **Font**: Inter (Google Fonts)
+### 3. Start the Application
+We provide a helper script to manage everything (dependencies, database, build, start).
 
-## Browser Support
+```bash
+# Start everything (Database + Backend + Frontend)
+./expenze.sh start
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+# Restart servers only
+./expenze.sh restart
+```
 
-## Contributing
+The script will:
+1.  Start PostgreSQL in a Docker container.
+2.  Install dependencies (if missing).
+3.  Build the Frontend.
+4.  Start the Backend server.
 
-1. Check `CHANGELOG.md` for recent changes
-2. Check `app.log` for any errors
-3. Test changes thoroughly before committing
-4. Update `CHANGELOG.md` with your changes
+### 4. Access the App
+*   **App URL**: [http://localhost:3000](http://localhost:3000)
+*   **Dev Frontend**: [http://localhost:5173](http://localhost:5173) (if running dev mode)
 
-## License
+## 🗄️ Database Management
+You can interact with the database directly using Docker:
 
-Private project - All rights reserved
+```bash
+# Enter DB Shell
+docker exec -it expenze-postgres psql -U postgres -d expenze
 
-## Support
+# Common Commands (inside shell)
+\dt                 # List tables
+SELECT * FROM users; # View users
+\q                  # Exit
+```
 
-For issues or questions:
-1. Check this README's Troubleshooting section
-2. Review `app.log` for error messages
-3. Check browser console for frontend errors
-4. Review `CHANGELOG.md` for known issues
+## 📝 License
+Proprietary / Internal Use.
