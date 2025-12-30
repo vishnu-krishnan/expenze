@@ -151,7 +151,7 @@ export default function Categories() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ name: cat.label, icon: cat.emoji })
+            body: JSON.stringify({ name: cat.label, icon: '' })
         });
         await fetchCategories();
         setLoading(false);
