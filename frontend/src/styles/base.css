@@ -39,15 +39,37 @@ h4 {
     margin-bottom: 0.75rem;
 }
 
-@keyframes fadeIn {
-    from {
+@keyframes fadeInUp {
+    0% {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(15px) scale(0.98);
     }
 
-    to {
+    100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes scaleIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
     }
 }
 

@@ -21,7 +21,7 @@
     border: 1px solid var(--border);
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
     width: 100%;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-4px) scale(1.01);
     box-shadow: var(--shadow-lg);
 }
 
@@ -132,7 +132,7 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.2s ease;
+    animation: fadeIn 0.3s var(--ease-out);
 }
 
 .modal-content {
@@ -143,7 +143,7 @@
     max-width: 400px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border);
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeInUp 0.4s var(--ease-out);
     text-align: center;
     position: relative;
 }
@@ -174,14 +174,3 @@
     min-width: 100px;
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(20px) scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-}
