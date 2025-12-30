@@ -1,0 +1,61 @@
+/* ========================================
+   TABLES
+   ======================================== */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table thead th {
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+}
+
+.data-table tbody tr {
+    transition: background 0.2s;
+}
+
+.data-table tbody tr:hover {
+    background: var(--bg-secondary);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.data-table input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+.total-row {
+    font-weight: 700;
+    background: var(--bg-secondary) !important;
+    border-top: 2px solid var(--primary) !important;
+}
+
+.category-header-row td {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem !important;
+}

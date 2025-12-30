@@ -35,7 +35,7 @@ print_info() {
 }
 
 get_server_pid() {
-    pgrep -f "node server.js" || echo ""
+    pgrep -f "node backend/server.js" || echo ""
 }
 
 is_server_running() {
@@ -87,7 +87,7 @@ start_server() {
 
     # Step 3: Build Frontend
     print_info "Building Frontend..."
-    npm run build:frontend
+    npm run build
 
     echo ""
     

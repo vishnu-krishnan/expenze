@@ -44,6 +44,8 @@ async function initSchema() {
                 phone TEXT,
                 otp_code TEXT NOT NULL,
                 expires_at TIMESTAMP NOT NULL,
+                delivery_status TEXT DEFAULT 'pending', -- pending, sent, failed
+                delivery_error TEXT,
                 createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -69,6 +71,12 @@ async function initSchema() {
             ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_code TEXT;
             ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expiry TIMESTAMP;
             ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified INTEGER DEFAULT 0;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS default_budget NUMERIC DEFAULT 0;
+
+            ALTER TABLE user_verifications ADD COLUMN IF NOT EXISTS delivery_status TEXT DEFAULT 'pending';
+            ALTER TABLE user_verifications ADD COLUMN IF NOT EXISTS delivery_error TEXT;
+
+            ALTER TABLE categories ADD COLUMN IF NOT EXISTS icon TEXT;
         `);
 
         // Categories
@@ -82,9 +90,9 @@ async function initSchema() {
             )
         `);
 
-        // Payment Templates
+        // Regular Payments
         await client.query(`
-            CREATE TABLE IF NOT EXISTS payment_templates (
+            CREATE TABLE IF NOT EXISTS regular_payments (
                 id SERIAL PRIMARY KEY,
                 userId INTEGER REFERENCES users(id),
                 name TEXT NOT NULL,
@@ -96,6 +104,18 @@ async function initSchema() {
                 frequency TEXT DEFAULT 'MONTHLY',
                 isActive INTEGER DEFAULT 1
             )
+        `);
+
+        // Migration: Rename older table names to regular_payments
+        await client.query(`
+            DO $$
+            BEGIN
+                IF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'payment_templates') AND NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'regular_payments') THEN
+                    ALTER TABLE payment_templates RENAME TO regular_payments;
+                ELSIF EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'recurring_records') AND NOT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'regular_payments') THEN
+                    ALTER TABLE recurring_records RENAME TO regular_payments;
+                END IF;
+            END $$;
         `);
 
         // Month Plans
@@ -134,6 +154,39 @@ async function initSchema() {
                 isPaid INTEGER DEFAULT 0, -- 0 or 1
                 notes TEXT
             )
+        `);
+
+        // System Settings
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS system_settings (
+                id SERIAL PRIMARY KEY,
+                setting_key TEXT UNIQUE NOT NULL,
+                setting_value TEXT,
+                setting_type TEXT DEFAULT 'text', -- text, number, boolean, json
+                description TEXT,
+                category TEXT DEFAULT 'general', -- general, email, appearance, etc
+                is_public INTEGER DEFAULT 0, -- 0 = admin only, 1 = public readable
+                updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Email Change Requests
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS email_change_requests (
+                id SERIAL PRIMARY KEY,
+                userId INTEGER REFERENCES users(id),
+                newEmail TEXT NOT NULL,
+                otp TEXT NOT NULL,
+                expiresAt TIMESTAMP NOT NULL,
+                createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Seed default OTP timeout (2 minutes)
+        await client.query(`
+            INSERT INTO system_settings (setting_key, setting_value, setting_type, description, category, is_public)
+            VALUES ('otp_timeout', '2', 'number', 'OTP validity period in minutes', 'security', 1)
+            ON CONFLICT (setting_key) DO NOTHING
         `);
 
         await client.query('COMMIT');

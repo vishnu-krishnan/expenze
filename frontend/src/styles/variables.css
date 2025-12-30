@@ -1,0 +1,42 @@
+/* ========================================
+   CSS VARIABLES & THEME
+   ======================================== */
+
+/* Import Professional Font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Primary - Professional Blue-Green */
+    --primary: #0d9488;
+    --primary-hover: #0f766e;
+    --primary-light: #5eead4;
+    --primary-dark: #115e59;
+
+    /* Backgrounds */
+    --bg: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --card-bg: #ffffff;
+
+    /* Text */
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
+
+    /* Borders */
+    --border: #e2e8f0;
+    --border-dark: #cbd5e1;
+
+    /* Status Colors */
+    --success: #10b981;
+    --success-bg: #d1fae5;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
