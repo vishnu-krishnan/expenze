@@ -172,7 +172,7 @@ export default function Categories() {
             </div>
 
             {msg && (
-                <div className={`status-msg ${msg.includes('Error') ? 'status-error' : 'status-success'}`} style={{ marginBottom: '1rem' }}>
+                <div className={`status-popup ${msg.includes('Error') ? 'status-error' : 'status-success'}`}>
                     {msg}
                 </div>
             )}

@@ -12,6 +12,40 @@
     font-weight: 500;
 }
 
+.status-popup {
+    position: fixed;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: fit-content;
+    justify-content: center;
+    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(10px);
+}
+
+@keyframes slideDown {
+    from {
+        top: -4rem;
+        opacity: 0;
+        transform: translate(-50%, -20px);
+    }
+
+    to {
+        top: 2rem;
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
 .status-success {
     background: var(--success-bg);
     color: #065f46;
