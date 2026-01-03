@@ -89,7 +89,7 @@ export default function Categories() {
     };
 
     const handleSave = async (id) => {
-        await fetch(`/api/categories/${id}`, {
+        await fetch(`/api/v1/categories/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function Categories() {
 
     const confirmDelete = async () => {
         if (!categoryToDelete) return;
-        await fetch(`/api/categories/${categoryToDelete.id}`, {
+        await fetch(`/api/v1/categories/${categoryToDelete.id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

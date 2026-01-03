@@ -46,7 +46,7 @@ export default function Admin() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/users/${u.id}`, {
+            const res = await fetch(`/api/v1/admin/users/${u.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export default function Admin() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/admin/users/${id}`, {
+            const res = await fetch(`/api/v1/admin/users/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

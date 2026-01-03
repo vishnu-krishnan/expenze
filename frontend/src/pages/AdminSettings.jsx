@@ -55,7 +55,7 @@ export default function AdminSettings() {
 
             // Save each setting
             for (const [key, value] of Object.entries(settings)) {
-                await fetch(`/api/admin/settings/${key}`, {
+                await fetch(`/api/v1/admin/settings/${key}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

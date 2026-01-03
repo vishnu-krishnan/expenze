@@ -33,8 +33,14 @@ public class MonthPlanServiceImpl implements MonthPlanService {
     @Override
     public MonthPlanDto getMonthPlan(Long userId, String monthKey) {
         MonthPlan plan = monthPlanRepository.findByUserIdAndMonthKey(userId, monthKey).orElse(null);
-        if (plan == null)
-            return null;
+        if (plan == null) {
+            log.debug("No MonthPlan found for user {} and month {}. Returning empty DTO.", userId, monthKey);
+            return MonthPlanDto.builder()
+                    .userId(userId)
+                    .monthKey(monthKey)
+                    .items(new ArrayList<>())
+                    .build();
+        }
 
         List<PaymentItem> items = paymentItemRepository.findAllByMonthPlanIdWithCategoryOrder(plan.getId(), userId);
 

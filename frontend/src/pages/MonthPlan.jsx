@@ -33,7 +33,7 @@ export default function MonthPlan() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/month/${monthKey}`, {
+            const res = await fetch(`/api/v1/month/${monthKey}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -44,7 +44,7 @@ export default function MonthPlan() {
             });
             if (catRes.ok) setCategories(await catRes.json());
 
-            const salRes = await fetch(`/api/salary/${monthKey}`, {
+            const salRes = await fetch(`/api/v1/salary/${monthKey}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const salData = await salRes.json();
@@ -80,7 +80,7 @@ export default function MonthPlan() {
         const updated = { ...item, [field]: value };
         setItems(items.map(i => i.id === id ? updated : i));
 
-        await fetch(`/api/items/${id}`, {
+        await fetch(`/api/v1/items/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ export default function MonthPlan() {
     const deleteItem = async (id) => {
         if (!confirm('Delete item?')) return;
         setItems(items.filter(i => i.id !== id));
-        await fetch(`/api/items/${id}`, {
+        await fetch(`/api/v1/items/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

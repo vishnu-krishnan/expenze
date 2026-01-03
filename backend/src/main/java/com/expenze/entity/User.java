@@ -37,7 +37,7 @@ public class User {
     private String role = "user";
 
     @CreationTimestamp
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "otp_code")
