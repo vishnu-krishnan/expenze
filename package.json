@@ -1,29 +1,20 @@
 {
   "name": "expenze",
   "version": "1.0.0",
-  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "start": "node backend/server.js",
     "build": "vite build --config frontend/vite.config.js frontend",
-    "dev:backend": "node backend/server.js",
-    "dev:frontend": "vite --config frontend/vite.config.js frontend",
+    "dev": "vite --config frontend/vite.config.js frontend",
+    "preview": "vite preview --config frontend/vite.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "body-parser": "^2.2.1",
     "chart.js": "^4.5.1",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.562.0",
-    "nodemailer": "^7.0.12",
-    "pg": "^8.16.3",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.11.0",
-    "sqlite3": "^5.1.7"
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
