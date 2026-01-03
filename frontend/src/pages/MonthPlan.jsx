@@ -253,6 +253,9 @@ export default function MonthPlan() {
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                     <AlertCircle size={40} opacity={0.3} />
                                     <p>No records found for {formatMonthName(monthKey)}.<br />Use 'Populate' or add items manually.</p>
+                                    <button className="primary" onClick={handleGenerate} style={{ marginTop: '1rem' }} disabled={loading}>
+                                        {loading ? 'Generating...' : <><Plus size={18} /> Populate from Templates</>}
+                                    </button>
                                 </div>
                             </td></tr>
                         ) : (

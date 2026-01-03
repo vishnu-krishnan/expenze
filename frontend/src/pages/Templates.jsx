@@ -144,7 +144,7 @@ export default function RegularPayments() {
                 <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
                     <Plus size={22} color="var(--primary)" /> Add New Payment
                 </h3>
-                <form className="grid-form" onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+                <form className="grid-form" onSubmit={handleAdd}>
 
                     {/* Name */}
                     <div className="input-group">
