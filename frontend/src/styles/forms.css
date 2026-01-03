@@ -68,9 +68,9 @@ input::placeholder {
 
 .grid-form {
     display: grid;
-    grid-template-columns: 1.5fr 1.5fr 1fr 1.2fr auto;
-    gap: 1rem;
-    align-items: flex-end;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: flex-start;
 }
 
 .grid-form .input-group {
@@ -80,7 +80,7 @@ input::placeholder {
 .grid-form button {
     margin-top: 0;
     height: 42px;
-    grid-column: span 5;
+    grid-column: span 3;
 }
 
 form button[type="submit"] {

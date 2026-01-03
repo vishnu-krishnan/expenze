@@ -103,59 +103,179 @@ export default function RegularPayments() {
                 </div>
             </div>
 
-            <div className="panel" style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Plus size={20} color="var(--primary)" /> Add New Payment
+            <div className="panel" style={{ marginBottom: '2.5rem', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', borderRadius: '1rem', padding: '2rem' }}>
+                <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+                    <Plus size={22} color="var(--primary)" /> Add New Regular Payment
                 </h3>
-                <form className="grid-form" onSubmit={handleAdd}>
+                <form className="grid-form" onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+
+                    {/* Name */}
                     <div className="input-group">
-                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Payment Name</label>
-                        <div style={{ position: 'relative' }}>
-                            <Tag size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                            <input type="text" placeholder="e.g. Netflix, Rent" value={newTmpl.name} onChange={e => setNewTmpl({ ...newTmpl, name: e.target.value })} required style={{ paddingLeft: '2.5rem' }} />
+                        <label>Payment Name</label>
+                        <div className="input-wrapper">
+                            <Tag className="input-icon" size={18} />
+                            <input
+                                type="text"
+                                placeholder="e.g. Netflix, Rent, Gym"
+                                value={newTmpl.name}
+                                onChange={e => setNewTmpl({ ...newTmpl, name: e.target.value })}
+                                required
+                                style={{ height: '48px', fontSize: '1rem' }}
+                            />
                         </div>
                     </div>
 
+                    {/* Category */}
                     <div className="input-group">
-                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Category</label>
-                        <div style={{ position: 'relative' }}>
-                            <Layers size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                            <select value={newTmpl.categoryId} onChange={e => setNewTmpl({ ...newTmpl, categoryId: e.target.value })} required style={{ paddingLeft: '2.5rem' }}>
+                        <label>Category</label>
+                        <div className="input-wrapper">
+                            <Layers className="input-icon" size={18} />
+                            <select
+                                value={newTmpl.categoryId}
+                                onChange={e => setNewTmpl({ ...newTmpl, categoryId: e.target.value })}
+                                required
+                                style={{ height: '48px', fontSize: '1rem' }}
+                            >
                                 <option value="">Select Category</option>
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
                         </div>
                     </div>
 
+                    {/* Amount */}
                     <div className="input-group">
-                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Amount (₹)</label>
-                        <div style={{ position: 'relative' }}>
-                            <IndianRupee size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                            <input type="number" placeholder="0.00" value={newTmpl.defaultPlannedAmount || ''} onChange={e => setNewTmpl({ ...newTmpl, defaultPlannedAmount: parseFloat(e.target.value) })} style={{ paddingLeft: '2.5rem' }} />
+                        <label>Default Amount (₹)</label>
+                        <div className="input-wrapper">
+                            <IndianRupee className="input-icon" size={18} />
+                            <input
+                                type="number"
+                                placeholder="0.00"
+                                value={newTmpl.defaultPlannedAmount || ''}
+                                onChange={e => setNewTmpl({ ...newTmpl, defaultPlannedAmount: parseFloat(e.target.value) })}
+                                style={{ height: '48px', fontSize: '1rem' }}
+                            />
                         </div>
                     </div>
 
+                    {/* Start Month - Custom Styled */}
                     <div className="input-group">
-                        <label style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Start Month</label>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                            <Calendar size={16} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
-                            <div style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '0.625rem 0.875rem 0.625rem 2.5rem', position: 'relative', cursor: 'pointer', background: 'white' }}>
-                                <span style={{ color: newTmpl.startMonth ? 'var(--text)' : 'var(--text-light)' }}>
-                                    {newTmpl.startMonth ? formatMonth(newTmpl.startMonth) : 'Pick start month...'}
-                                </span>
-                                <input
-                                    type="month"
-                                    value={newTmpl.startMonth}
-                                    onChange={e => setNewTmpl({ ...newTmpl, startMonth: e.target.value })}
-                                    required
-                                    style={{ position: 'absolute', opacity: 0, top: 0, left: 0, width: '100%', height: '100%', cursor: 'pointer' }}
-                                />
+                        <label>Start Month</label>
+                        <div style={{ position: 'relative', height: '48px' }}>
+                            {/* Visual Overlay */}
+                            <div style={{
+                                position: 'absolute',
+                                inset: 0,
+                                border: '1px solid var(--border)',
+                                borderRadius: '0.5rem',
+                                padding: '0 0.875rem 0 2.75rem', // Left padding for icon
+                                background: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: newTmpl.startMonth ? 'var(--text)' : 'var(--text-light)',
+                                pointerEvents: 'none', // Lets clicks pass through to input
+                                fontSize: '1rem'
+                            }}>
+                                <Calendar size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
+                                {newTmpl.startMonth ? formatMonth(newTmpl.startMonth) : 'Select Start Month...'}
                             </div>
+
+                            {/* Actual Input (Invisible but clickable) */}
+                            <input
+                                type="month"
+                                value={newTmpl.startMonth}
+                                onChange={e => setNewTmpl({ ...newTmpl, startMonth: e.target.value })}
+                                required
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    opacity: 0,
+                                    cursor: 'pointer'
+                                }}
+                            />
+                        </div>
+                        <small style={{ color: 'var(--text-secondary)', marginTop: '0.4rem', display: 'block', fontSize: '0.8rem' }}>When does this payment cycle begin?</small>
+                    </div>
+
+                    {/* End Month - Custom Styled */}
+                    <div className="input-group">
+                        <label>End Month <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.8rem' }}>(Optional)</span></label>
+                        <div style={{ position: 'relative', height: '48px' }}>
+                            {/* Visual Overlay */}
+                            <div style={{
+                                position: 'absolute',
+                                inset: 0,
+                                border: '1px solid var(--border)',
+                                borderRadius: '0.5rem',
+                                padding: '0 0.875rem 0 2.75rem',
+                                background: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: newTmpl.endMonth ? 'var(--text)' : 'var(--text-light)',
+                                pointerEvents: 'none',
+                                fontSize: '1rem'
+                            }}>
+                                <Calendar size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
+                                {newTmpl.endMonth ? formatMonth(newTmpl.endMonth) : 'Ongoing (Always)'}
+                            </div>
+
+                            {/* Actual Input */}
+                            <input
+                                type="month"
+                                value={newTmpl.endMonth || ''}
+                                onChange={e => setNewTmpl({ ...newTmpl, endMonth: e.target.value })}
+                                min={newTmpl.startMonth}
+                                style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    opacity: 0,
+                                    cursor: 'pointer'
+                                }}
+                            />
                         </div>
                     </div>
 
-                    <button type="submit" className="primary">
-                        <Plus size={18} /> Add Payment
+                    {/* Frequency (Fixed for now, can be editable later) */}
+                    <div className="input-group">
+                        <label>Frequency</label>
+                        <div style={{
+                            height: '48px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0 1rem',
+                            background: 'var(--bg-secondary)',
+                            borderRadius: '0.5rem',
+                            color: 'var(--text-secondary)',
+                            border: '1px solid var(--border)'
+                        }}>
+                            <Repeat size={16} style={{ marginRight: '0.5rem' }} /> Monthly
+                        </div>
+                    </div>
+
+                    {/* Notes Field (Full Width) */}
+                    <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+                        <label>Notes / Description</label>
+                        <textarea
+                            placeholder="Add any details, account numbers, or reminders here..."
+                            value={newTmpl.notes || ''}
+                            onChange={e => setNewTmpl({ ...newTmpl, notes: e.target.value })}
+                            style={{
+                                width: '100%',
+                                minHeight: '80px',
+                                padding: '0.75rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid var(--border)',
+                                fontFamily: 'inherit',
+                                resize: 'vertical'
+                            }}
+                        />
+                    </div>
+
+                    <button type="submit" className="primary" style={{ gridColumn: '1 / -1', height: '54px', fontSize: '1.1rem', marginTop: '1rem' }}>
+                        <Plus size={20} /> Create Regular Payment
                     </button>
                 </form>
             </div>

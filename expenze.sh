@@ -192,6 +192,78 @@ restart_server() {
     start_server
 }
 
+restart_backend() {
+    echo "=========================================="
+    echo "  Restarting Backend (Local Dev Mode)"
+    echo "=========================================="
+
+    # Stop Backend
+    local java_pid=$(get_server_pid)
+    if [ -n "$java_pid" ]; then
+        print_info "Stopping Backend (PID: $java_pid)..."
+        kill $java_pid 2>/dev/null || true
+    fi
+    
+    # Also check PID file
+    if [ -f "$PID_FILE" ]; then
+        local pid_from_file=$(cat "$PID_FILE")
+        if [ "$pid_from_file" != "$java_pid" ] && kill -0 $pid_from_file 2>/dev/null; then
+             print_info "Stopping Backend (PID from file: $pid_from_file)..."
+             kill $pid_from_file 2>/dev/null || true
+        fi
+        rm -f "$PID_FILE"
+    fi
+    
+    sleep 2
+
+    # Build Backend
+    print_info "Building Backend (Maven)..."
+    mvn -f backend/pom.xml clean install -DskipTests > build.log 2>&1 || {
+         print_error "Build failed! Check build.log"
+         return 1
+    }
+    print_success "Backend Built successfully."
+
+    # Start Backend
+    print_info "Starting Spring Boot Backend on port 8080..."
+    nohup java -jar backend/target/expenze-backend-0.0.1-SNAPSHOT.jar > "$BACKEND_LOG_FILE" 2>&1 &
+    BACKEND_PID=$!
+    echo $BACKEND_PID > "$PID_FILE"
+    
+    sleep 5
+    if ps -p $BACKEND_PID > /dev/null; then
+        print_success "Backend started (PID: $BACKEND_PID)"
+    else
+        print_error "Backend failed to start. Check backend.log"
+    fi
+}
+
+restart_frontend() {
+    echo "=========================================="
+    echo "  Restarting Frontend (Local Dev Mode)"
+    echo "=========================================="
+
+    # Stop Frontend
+    local vite_pid=$(lsof -t -i:5173 2>/dev/null || echo "")
+    if [ -n "$vite_pid" ]; then
+        print_info "Stopping Frontend (PID: $vite_pid)..."
+        kill $vite_pid 2>/dev/null || true
+    fi
+    sleep 1
+
+    # Start Frontend
+    print_info "Starting Frontend (Vite) on port 5173..."
+    nohup npm run dev:frontend > "$FRONTEND_LOG_FILE" 2>&1 &
+    FRONTEND_PID=$!
+    
+    sleep 2
+    if ps -p $FRONTEND_PID > /dev/null; then
+        print_success "Frontend started (PID: $FRONTEND_PID)"
+    else
+        print_error "Frontend failed to start. Check frontend.log"
+    fi
+}
+
 docker_start() {
     echo "=========================================="
     echo "  Starting Expenze via Docker Compose"
@@ -244,6 +316,24 @@ docker_restart() {
     docker_start
 }
 
+docker_restart_backend() {
+    echo "=========================================="
+    echo "  Restarting Backend (Docker)"
+    echo "=========================================="
+    echo "Rebuilding and restarting backend service..."
+    docker-compose up -d --build backend
+    print_success "Backend restarted (Docker)"
+}
+
+docker_restart_frontend() {
+    echo "=========================================="
+    echo "  Restarting Frontend (Docker)"
+    echo "=========================================="
+    echo "Rebuilding and restarting frontend service..."
+    docker-compose up -d --build frontend
+    print_success "Frontend restarted (Docker)"
+}
+
 show_status() {
     echo "=========================================="
     echo "  Expenze Application Status"
@@ -290,11 +380,16 @@ Commands:
   start          Start server in Local Dev Mode (Java + Vite)
   stop           Stop Local Dev Mode server
   restart        Restart Local Dev Mode server
+  restart-backend Restart Local Backend (stop, build, start)
+  restart-frontend Restart Local Frontend
   status         Show status (Local & Docker)
   logs           Show Local logs
   
   docker-start   Build & Start all services via Docker Compose
+  docker-start   Build & Start all services via Docker Compose
   docker-stop    Stop all Docker services
+  docker-restart-backend  Rebuild & Restart Backend container
+  docker-restart-frontend Rebuild & Restart Frontend container
   
   help           Show this help message
 
@@ -315,6 +410,12 @@ case "${1:-}" in
     restart)
         restart_server
         ;;
+    restart-backend)
+        restart_backend
+        ;;
+    restart-frontend)
+        restart_frontend
+        ;;
     status)
         show_status
         ;;
@@ -329,6 +430,12 @@ case "${1:-}" in
         ;;
     docker-restart)
         docker_restart
+        ;;
+    docker-restart-backend)
+        docker_restart_backend
+        ;;
+    docker-restart-frontend)
+        docker_restart_frontend
         ;;
     help|--help|-h)
         show_help

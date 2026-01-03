@@ -23,7 +23,10 @@ import {
     Landmark,
     Briefcase,
     Smartphone,
-    Gift
+    Gift,
+    Wifi,
+    GraduationCap,
+    Plane
 } from 'lucide-react';
 
 export default function Categories() {
@@ -121,17 +124,21 @@ export default function Categories() {
     };
 
     const commonCategories = [
-        { label: 'Rent/EMI', icon: Home, color: '#3b82f6', emoji: '🏠' },
+        { label: 'Rent', icon: Home, color: '#3b82f6', emoji: '🏠' },
+        { label: 'EMI', icon: Landmark, color: '#8b5cf6', emoji: '🏦' },
         { label: 'Groceries', icon: ShoppingCart, color: '#10b981', emoji: '🍎' },
-        { label: 'Transport', icon: Car, color: '#6366f1', emoji: '🚗' },
+        { label: 'Automotive', icon: Car, color: '#6366f1', emoji: '🚗' },
         { label: 'Utilities', icon: Zap, color: '#f59e0b', emoji: '💡' },
         { label: 'Dining Out', icon: Utensils, color: '#ef4444', emoji: '🍽️' },
         { label: 'Health', icon: HeartPulse, color: '#ec4899', emoji: '🏥' },
         { label: 'Entertainment', icon: Film, color: '#8b5cf6', emoji: '🎬' },
         { label: 'Shopping', icon: ShoppingBag, color: '#f97316', emoji: '🛍️' },
         { label: 'Investments', icon: Landmark, color: '#059669', emoji: '📈' },
+        { label: 'Phone', icon: Smartphone, color: '#0ea5e9', emoji: '📱' },
+        { label: 'Internet', icon: Wifi, color: '#2dd4bf', emoji: '🌐' },
+        { label: 'Education', icon: GraduationCap, color: '#f59e0b', emoji: '🎓' },
+        { label: 'Travel', icon: Plane, color: '#06b6d4', emoji: '✈️' },
         { label: 'Workspace', icon: Briefcase, color: '#475569', emoji: '💼' },
-        { label: 'Mobile/Net', icon: Smartphone, color: '#0ea5e9', emoji: '📱' },
         { label: 'Others', icon: Gift, color: '#d946ef', emoji: '🎁' }
     ];
 
@@ -206,11 +213,6 @@ export default function Categories() {
                                                 <>
                                                     <td>
                                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                            <input
-                                                                value={editData.icon || ''}
-                                                                onChange={e => setEditData({ ...editData, icon: e.target.value })}
-                                                                style={{ width: '50px', border: '1px solid var(--border)', borderRadius: '4px', textAlign: 'center' }}
-                                                            />
                                                             <input
                                                                 value={editData.name}
                                                                 onChange={e => setEditData({ ...editData, name: e.target.value })}
