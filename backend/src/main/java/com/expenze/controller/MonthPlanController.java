@@ -1,9 +1,11 @@
 package com.expenze.controller;
 
+import com.expenze.dto.MonthPlanDto;
 import com.expenze.dto.PaymentItemDto;
 import com.expenze.security.CustomUserDetails;
 import com.expenze.service.MonthPlanService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -20,7 +23,15 @@ public class MonthPlanController {
 
     @GetMapping("/month/{key}")
     public ResponseEntity<?> getMonthPlan(@AuthenticationPrincipal CustomUserDetails user, @PathVariable String key) {
-        return ResponseEntity.ok(monthPlanService.getMonthPlan(user.getId(), key));
+        log.debug("GET /month/{} - User ID: {}", key, user.getId());
+        try {
+            MonthPlanDto plan = monthPlanService.getMonthPlan(user.getId(), key);
+            log.debug("Found plan for month {}: {}", key, plan != null);
+            return ResponseEntity.ok(plan);
+        } catch (Exception e) {
+            log.error("Error getting month plan for {}: {}", key, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PostMapping("/month/generate")

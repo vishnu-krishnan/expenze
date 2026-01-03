@@ -4,12 +4,14 @@ import com.expenze.dto.UserDto;
 import com.expenze.security.CustomUserDetails;
 import com.expenze.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -19,7 +21,15 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal CustomUserDetails user) {
-        return ResponseEntity.ok(userService.getProfile(user.getId()));
+        log.debug("GET /profile - User ID: {}", user.getId());
+        try {
+            UserDto profile = userService.getProfile(user.getId());
+            log.debug("Profile retrieved successfully for user: {}", user.getId());
+            return ResponseEntity.ok(profile);
+        } catch (Exception e) {
+            log.error("Error getting profile for user {}: {}", user.getId(), e.getMessage(), e);
+            throw e;
+        }
     }
 
     @PutMapping("/profile")

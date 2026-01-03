@@ -18,17 +18,17 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "sortOrder")
+    @Column(name = "sort_order")
     @Builder.Default
     private Integer sortOrder = 0;
 
-    @Column(name = "isActive")
+    @Column(name = "is_active")
     @Builder.Default
     private Integer isActive = 1;
 

@@ -21,16 +21,16 @@ public class RegularPayment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "categoryId")
+    @Column(name = "category_id")
     private Long categoryId;
 
-    @Column(name = "defaultPlannedAmount")
+    @Column(name = "default_planned_amount")
     @Builder.Default
     private BigDecimal defaultPlannedAmount = BigDecimal.ZERO;
 
@@ -45,7 +45,7 @@ public class RegularPayment {
     @Builder.Default
     private String frequency = "MONTHLY"; // MONTHLY, WEEKLY, YEARLY
 
-    @Column(name = "isActive")
+    @Column(name = "is_active")
     @Builder.Default
     private Integer isActive = 1;
 }
