@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "regular_payments")
@@ -35,14 +36,14 @@ public class RegularPayment {
 
     private String notes;
 
-    @Column(name = "startMonth")
-    private String startMonth; // YYYY-MM
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
-    @Column(name = "endMonth")
-    private String endMonth; // YYYY-MM or NULL
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     @Builder.Default
-    private String frequency = "MONTHLY";
+    private String frequency = "MONTHLY"; // MONTHLY, WEEKLY, YEARLY
 
     @Column(name = "isActive")
     @Builder.Default

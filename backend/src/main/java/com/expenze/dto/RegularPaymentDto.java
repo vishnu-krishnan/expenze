@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -19,8 +20,8 @@ public class RegularPaymentDto {
     private String categoryName; // Enriched
     private BigDecimal defaultPlannedAmount;
     private String notes;
-    private String startMonth;
-    private String endMonth;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String frequency;
     private Integer isActive;
 }

@@ -11,14 +11,28 @@ import {
     Layers,
     ArrowUpDown,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    CreditCard,
+    LayoutGrid,
+    CalendarRange,
+    FileText,
+    CheckCircle2
 } from 'lucide-react';
 
 export default function RegularPayments() {
     const { token } = useAuth();
     const [templates, setTemplates] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [newTmpl, setNewTmpl] = useState({ name: '', categoryId: '', defaultPlannedAmount: 0, notes: '', startMonth: '', endMonth: '', isActive: 1 });
+    const [newTmpl, setNewTmpl] = useState({
+        name: '',
+        categoryId: '',
+        defaultPlannedAmount: 0,
+        notes: '',
+        startDate: '',
+        endDate: '',
+        frequency: 'MONTHLY',
+        isActive: 1
+    });
     const [sort, setSort] = useState({ key: 'name', order: 'asc' });
 
     useEffect(() => {
@@ -52,7 +66,7 @@ export default function RegularPayments() {
             },
             body: JSON.stringify(newTmpl)
         });
-        setNewTmpl({ name: '', categoryId: '', defaultPlannedAmount: 0, notes: '', startMonth: '', endMonth: '', isActive: 1 });
+        setNewTmpl({ name: '', categoryId: '', defaultPlannedAmount: 0, notes: '', startDate: '', endDate: '', frequency: 'MONTHLY', isActive: 1 });
         fetchTemplates();
     };
 
@@ -65,10 +79,11 @@ export default function RegularPayments() {
         fetchTemplates();
     };
 
-    const formatMonth = (val) => {
+    const formatDate = (val) => {
         if (!val) return 'Forever';
-        const [y, m] = val.split('-').map(Number);
-        return new Date(y, m - 1).toLocaleDateString('default', { month: 'short', year: 'numeric' });
+        const [y, m, d] = val.split('-');
+        const date = new Date(y, m - 1, d);
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     };
 
     const sortedTemplates = useMemo(() => {
@@ -99,28 +114,28 @@ export default function RegularPayments() {
             <div className="view-header">
                 <div>
                     <h2><Repeat size={24} style={{ marginRight: '0.75rem', verticalAlign: 'bottom', color: 'var(--primary)' }} /> Regular Payments</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>Manage expenses that repeat every month automatically.</p>
+                    <p style={{ color: 'var(--text-secondary)' }}>Manage recurring expenses (Monthly, Weekly, Yearly).</p>
                 </div>
             </div>
 
             <div className="panel" style={{ marginBottom: '2.5rem', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', borderRadius: '1rem', padding: '2rem' }}>
                 <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-                    <Plus size={22} color="var(--primary)" /> Add New Regular Payment
+                    <Plus size={22} color="var(--primary)" /> Add New Payment
                 </h3>
-                <form className="grid-form" onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                <form className="grid-form" onSubmit={handleAdd} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
 
                     {/* Name */}
                     <div className="input-group">
                         <label>Payment Name</label>
                         <div className="input-wrapper">
-                            <Tag className="input-icon" size={18} />
+                            <CreditCard className="input-icon" size={18} />
                             <input
                                 type="text"
-                                placeholder="e.g. Netflix, Rent, Gym"
+                                placeholder="e.g. Netflix, Rent"
                                 value={newTmpl.name}
                                 onChange={e => setNewTmpl({ ...newTmpl, name: e.target.value })}
                                 required
-                                style={{ height: '48px', fontSize: '1rem' }}
+                                style={{ height: '50px', fontSize: '0.95rem' }}
                             />
                         </div>
                     </div>
@@ -129,12 +144,12 @@ export default function RegularPayments() {
                     <div className="input-group">
                         <label>Category</label>
                         <div className="input-wrapper">
-                            <Layers className="input-icon" size={18} />
+                            <LayoutGrid className="input-icon" size={18} />
                             <select
                                 value={newTmpl.categoryId}
                                 onChange={e => setNewTmpl({ ...newTmpl, categoryId: e.target.value })}
                                 required
-                                style={{ height: '48px', fontSize: '1rem' }}
+                                style={{ height: '50px', fontSize: '0.95rem' }}
                             >
                                 <option value="">Select Category</option>
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -152,130 +167,112 @@ export default function RegularPayments() {
                                 placeholder="0.00"
                                 value={newTmpl.defaultPlannedAmount || ''}
                                 onChange={e => setNewTmpl({ ...newTmpl, defaultPlannedAmount: parseFloat(e.target.value) })}
-                                style={{ height: '48px', fontSize: '1rem' }}
+                                style={{ height: '50px', fontSize: '0.95rem' }}
                             />
                         </div>
                     </div>
 
-                    {/* Start Month - Custom Styled */}
-                    <div className="input-group">
-                        <label>Start Month</label>
-                        <div style={{ position: 'relative', height: '48px' }}>
-                            {/* Visual Overlay */}
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                border: '1px solid var(--border)',
-                                borderRadius: '0.5rem',
-                                padding: '0 0.875rem 0 2.75rem', // Left padding for icon
-                                background: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                color: newTmpl.startMonth ? 'var(--text)' : 'var(--text-light)',
-                                pointerEvents: 'none', // Lets clicks pass through to input
-                                fontSize: '1rem'
-                            }}>
-                                <Calendar size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
-                                {newTmpl.startMonth ? formatMonth(newTmpl.startMonth) : 'Select Start Month...'}
-                            </div>
-
-                            {/* Actual Input (Invisible but clickable) */}
-                            <input
-                                type="month"
-                                value={newTmpl.startMonth}
-                                onChange={e => setNewTmpl({ ...newTmpl, startMonth: e.target.value })}
-                                required
-                                style={{
-                                    position: 'absolute',
-                                    inset: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    opacity: 0,
-                                    cursor: 'pointer'
-                                }}
-                            />
-                        </div>
-                        <small style={{ color: 'var(--text-secondary)', marginTop: '0.4rem', display: 'block', fontSize: '0.8rem' }}>When does this payment cycle begin?</small>
-                    </div>
-
-                    {/* End Month - Custom Styled */}
-                    <div className="input-group">
-                        <label>End Month <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.8rem' }}>(Optional)</span></label>
-                        <div style={{ position: 'relative', height: '48px' }}>
-                            {/* Visual Overlay */}
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                border: '1px solid var(--border)',
-                                borderRadius: '0.5rem',
-                                padding: '0 0.875rem 0 2.75rem',
-                                background: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                color: newTmpl.endMonth ? 'var(--text)' : 'var(--text-light)',
-                                pointerEvents: 'none',
-                                fontSize: '1rem'
-                            }}>
-                                <Calendar size={18} style={{ position: 'absolute', left: '12px', color: 'var(--text-light)' }} />
-                                {newTmpl.endMonth ? formatMonth(newTmpl.endMonth) : 'Ongoing (Always)'}
-                            </div>
-
-                            {/* Actual Input */}
-                            <input
-                                type="month"
-                                value={newTmpl.endMonth || ''}
-                                onChange={e => setNewTmpl({ ...newTmpl, endMonth: e.target.value })}
-                                min={newTmpl.startMonth}
-                                style={{
-                                    position: 'absolute',
-                                    inset: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    opacity: 0,
-                                    cursor: 'pointer'
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Frequency (Fixed for now, can be editable later) */}
+                    {/* Frequency */}
                     <div className="input-group">
                         <label>Frequency</label>
-                        <div style={{
-                            height: '48px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: '0 1rem',
-                            background: 'var(--bg-secondary)',
-                            borderRadius: '0.5rem',
-                            color: 'var(--text-secondary)',
-                            border: '1px solid var(--border)'
-                        }}>
-                            <Repeat size={16} style={{ marginRight: '0.5rem' }} /> Monthly
+                        <div className="input-wrapper">
+                            <Repeat className="input-icon" size={18} />
+                            <select
+                                value={newTmpl.frequency}
+                                onChange={e => setNewTmpl({ ...newTmpl, frequency: e.target.value })}
+                                style={{
+                                    height: '50px',
+                                    fontSize: '0.95rem',
+                                    paddingLeft: '2.75rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="MONTHLY">Monthly</option>
+                                <option value="WEEKLY">Weekly</option>
+                                <option value="YEARLY">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Date Row */}
+                    <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                        <div className="input-group" style={{ margin: 0 }}>
+                            <label>Start Date</label>
+                            <div className="input-wrapper">
+                                <CalendarRange className="input-icon" size={18} />
+                                <input
+                                    type={newTmpl.startDate ? "date" : "text"}
+                                    placeholder="Select Start Date..."
+                                    value={newTmpl.startDate}
+                                    onChange={e => setNewTmpl({ ...newTmpl, startDate: e.target.value })}
+                                    onFocus={(e) => (e.target.type = "date")}
+                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
+                                    required
+                                    style={{
+                                        height: '50px',
+                                        fontSize: '0.95rem',
+                                        width: '100%',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            </div>
+                            <small style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block', fontSize: '0.75rem' }}>First payment date</small>
+                        </div>
+
+                        <div className="input-group" style={{ margin: 0 }}>
+                            <label>End Date <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.75rem' }}>(Optional)</span></label>
+                            <div className="input-wrapper">
+                                <CalendarRange className="input-icon" size={18} />
+                                <input
+                                    type={newTmpl.endDate ? "date" : "text"}
+                                    placeholder="Ongoing (Always)"
+                                    value={newTmpl.endDate || ''}
+                                    onChange={e => setNewTmpl({ ...newTmpl, endDate: e.target.value })}
+                                    onFocus={(e) => (e.target.type = "date")}
+                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
+                                    min={newTmpl.startDate}
+                                    style={{
+                                        height: '50px',
+                                        fontSize: '0.95rem',
+                                        width: '100%',
+                                        cursor: 'pointer'
+                                    }}
+                                />
+                            </div>
+                            <small style={{ color: 'var(--text-light)', marginTop: '0.25rem', display: 'block', fontSize: '0.75rem' }}>Leave empty if ongoing</small>
                         </div>
                     </div>
 
                     {/* Notes Field (Full Width) */}
                     <div className="input-group" style={{ gridColumn: '1 / -1' }}>
                         <label>Notes / Description</label>
-                        <textarea
-                            placeholder="Add any details, account numbers, or reminders here..."
-                            value={newTmpl.notes || ''}
-                            onChange={e => setNewTmpl({ ...newTmpl, notes: e.target.value })}
-                            style={{
-                                width: '100%',
-                                minHeight: '80px',
-                                padding: '0.75rem',
-                                borderRadius: '0.5rem',
-                                border: '1px solid var(--border)',
-                                fontFamily: 'inherit',
-                                resize: 'vertical'
-                            }}
-                        />
+                        <div className="input-wrapper">
+                            <FileText className="input-icon" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Add any details (e.g. Transaction ID, Account #)"
+                                value={newTmpl.notes || ''}
+                                onChange={e => setNewTmpl({ ...newTmpl, notes: e.target.value })}
+                                style={{
+                                    height: '50px',
+                                    fontSize: '0.95rem'
+                                }}
+                            />
+                        </div>
                     </div>
 
-                    <button type="submit" className="primary" style={{ gridColumn: '1 / -1', height: '54px', fontSize: '1.1rem', marginTop: '1rem' }}>
-                        <Plus size={20} /> Create Regular Payment
+                    <button type="submit" className="primary" style={{
+                        gridColumn: '1 / -1',
+                        height: '56px',
+                        fontSize: '1.1rem',
+                        marginTop: '1.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.75rem',
+                        boxShadow: '0 4px 6px -1px rgba(13, 148, 136, 0.2)'
+                    }}>
+                        <Plus size={22} /> Create Regular Payment
                     </button>
                 </form>
             </div>
@@ -294,14 +291,19 @@ export default function RegularPayments() {
                                     Category {sort.key === 'categoryName' ? (sort.order === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                                 </div>
                             </th>
+                            <th onClick={() => toggleSort('frequency')} style={{ cursor: 'pointer' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    Frequency {sort.key === 'frequency' ? (sort.order === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                                </div>
+                            </th>
                             <th onClick={() => toggleSort('defaultPlannedAmount')} style={{ cursor: 'pointer' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                     Default Amount {sort.key === 'defaultPlannedAmount' ? (sort.order === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                                 </div>
                             </th>
-                            <th onClick={() => toggleSort('startMonth')} style={{ cursor: 'pointer' }}>
+                            <th onClick={() => toggleSort('startDate')} style={{ cursor: 'pointer' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    Timeline {sort.key === 'startMonth' ? (sort.order === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
+                                    Timeline {sort.key === 'startDate' ? (sort.order === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} opacity={0.3} />}
                                 </div>
                             </th>
                             <th style={{ textAlign: 'center' }}>Actions</th>
@@ -309,7 +311,7 @@ export default function RegularPayments() {
                     </thead>
                     <tbody>
                         {sortedTemplates.length === 0 ? (
-                            <tr><td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                     <Repeat size={40} opacity={0.2} />
                                     No regular payments set up yet.
@@ -318,12 +320,24 @@ export default function RegularPayments() {
                         ) : (
                             sortedTemplates.map(t => (
                                 <tr key={t.id}>
-                                    <td style={{ fontWeight: '600' }}>{t.name}</td>
+                                    <td style={{ fontWeight: '600', color: 'var(--text)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <div style={{
+                                                width: '32px', height: '32px', borderRadius: '50%',
+                                                background: 'var(--bg-secondary)', display: 'flex',
+                                                alignItems: 'center', justifyContent: 'center'
+                                            }}>
+                                                <Tag size={16} color="var(--primary)" />
+                                            </div>
+                                            {t.name}
+                                        </div>
+                                    </td>
                                     <td><span className="badge badge-info">{t.categoryName}</span></td>
+                                    <td><span style={{ fontSize: '0.85rem', textTransform: 'capitalize' }}>{t.frequency?.toLowerCase() || 'monthly'}</span></td>
                                     <td><strong>₹{parseFloat(t.defaultPlannedAmount).toFixed(0)}</strong></td>
                                     <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <Calendar size={14} /> {formatMonth(t.startMonth)} → {t.endMonth ? formatMonth(t.endMonth) : 'Ongoing'}
+                                            <Calendar size={14} /> {formatDate(t.startDate)} → {t.endDate ? formatDate(t.endDate) : 'Ongoing'}
                                         </div>
                                     </td>
                                     <td style={{ textAlign: 'center' }}>

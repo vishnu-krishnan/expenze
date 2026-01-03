@@ -20,7 +20,7 @@ services:
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
     networks:
-      - app-net
+      - network
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -36,8 +36,8 @@ services:
     depends_on:
       - backend
     networks:
-      - app-net
+      - network
 
 networks:
-  app-net:
+  network:
     driver: bridge

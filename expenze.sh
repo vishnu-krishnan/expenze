@@ -320,6 +320,12 @@ docker_restart_backend() {
     echo "=========================================="
     echo "  Restarting Backend (Docker)"
     echo "=========================================="
+    echo "Forcefully cleaning up backend containers..."
+    
+    # Aggressively find and remove any container related to 'backend' to avoid docker-compose state crash
+    # matches "backend", "expenze-backend", "expenze_backend_1", etc.
+    docker ps -a --format '{{.ID}} {{.Names}}' | grep "backend" | awk '{print $1}' | xargs -r docker rm -f
+    
     echo "Rebuilding and restarting backend service..."
     docker-compose up -d --build backend
     print_success "Backend restarted (Docker)"
@@ -329,8 +335,13 @@ docker_restart_frontend() {
     echo "=========================================="
     echo "  Restarting Frontend (Docker)"
     echo "=========================================="
+    echo "Forcefully cleaning up frontend containers..."
+    
+    # Aggressively find and remove any container related to 'frontend'
+    docker ps -a --format '{{.ID}} {{.Names}}' | grep "frontend" | awk '{print $1}' | xargs -r docker rm -f
+    
     echo "Rebuilding and restarting frontend service..."
-    docker-compose up -d --build frontend
+    docker-compose up -d --build --no-deps frontend
     print_success "Frontend restarted (Docker)"
 }
 

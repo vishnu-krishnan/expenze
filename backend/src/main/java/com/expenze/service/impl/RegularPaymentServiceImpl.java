@@ -67,8 +67,9 @@ public class RegularPaymentServiceImpl implements RegularPaymentService {
         rp.setCategoryId(dto.getCategoryId());
         rp.setDefaultPlannedAmount(dto.getDefaultPlannedAmount());
         rp.setNotes(dto.getNotes());
-        rp.setStartMonth(dto.getStartMonth());
-        rp.setEndMonth(dto.getEndMonth());
+        rp.setStartDate(dto.getStartDate());
+        rp.setEndDate(dto.getEndDate());
+        rp.setFrequency(dto.getFrequency());
         rp.setIsActive(dto.getIsActive());
 
         regularPaymentRepository.save(rp);

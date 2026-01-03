@@ -17,8 +17,8 @@ public class RegularPaymentMapper {
                 .categoryId(entity.getCategoryId())
                 .defaultPlannedAmount(entity.getDefaultPlannedAmount())
                 .notes(entity.getNotes())
-                .startMonth(entity.getStartMonth())
-                .endMonth(entity.getEndMonth())
+                .startDate(entity.getStartDate())
+                .endDate(entity.getEndDate())
                 .frequency(entity.getFrequency())
                 .isActive(entity.getIsActive())
                 .build();
@@ -34,8 +34,8 @@ public class RegularPaymentMapper {
                 .categoryId(dto.getCategoryId())
                 .defaultPlannedAmount(dto.getDefaultPlannedAmount())
                 .notes(dto.getNotes())
-                .startMonth(dto.getStartMonth())
-                .endMonth(dto.getEndMonth())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
                 .frequency(dto.getFrequency())
                 .isActive(dto.getIsActive())
                 .build();
