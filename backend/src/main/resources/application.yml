@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: expenze-backend
+  datasource:
+    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:expenze}
+    username: ${PGUSER:postgres}
+    password: ${PGPASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    baseline-on-migrate: true
+
+
+server:
+  port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKeyWhichShouldBeLongEnoughForHS256Algorithm}
