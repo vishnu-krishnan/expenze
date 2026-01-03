@@ -33,7 +33,7 @@ export default function Dashboard() {
     const loadDashboardData = async (key) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/month/${key}`, {
+            const res = await fetch(`/api/v1/month/${key}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -47,7 +47,7 @@ export default function Dashboard() {
                 });
             }
 
-            const salRes = await fetch(`/api/salary/${key}`, {
+            const salRes = await fetch(`/api/v1/salary/${key}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const salData = await salRes.json();
@@ -77,7 +77,7 @@ export default function Dashboard() {
                 });
             }
 
-            const catRes = await fetch(`/api/category-expenses/${key}`, {
+            const catRes = await fetch(`/api/v1/category-expenses/${key}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (catRes.ok) {

@@ -59,6 +59,13 @@
     margin-bottom: 3rem;
 }
 
+@media (max-width: 1024px) {
+    .cards-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
 .toolbar {
     display: flex;
     gap: 1rem;
@@ -173,4 +180,3 @@
 .modal-actions button {
     min-width: 100px;
 }
-

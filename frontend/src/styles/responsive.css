@@ -96,7 +96,11 @@
 
 @media (max-width: 768px) {
     h2 {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1rem;
     }
 
     .logo {
@@ -109,10 +113,44 @@
 
     .cards-container {
         grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .card h3 {
+        font-size: 0.9rem;
+    }
+
+    .card p {
+        font-size: 1.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .card small {
+        font-size: 0.75rem;
+    }
+
+    .card-header-icon {
+        margin-bottom: 0.5rem;
+    }
+
+    .icon-wrapper {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+    }
+
+    .icon-wrapper svg {
+        width: 16px;
+        height: 16px;
     }
 
     .panel {
-        padding: 1.25rem;
+        padding: 1rem;
     }
 
     .auth-card {
@@ -167,11 +205,46 @@
     }
 
     .stat-row {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        margin-top: 0.5rem !important;
     }
 
-    .card p {
-        font-size: 1.75rem;
+    .stat-row:first-of-type {
+        margin-top: 0.75rem !important;
+    }
+
+    .chart-container {
+        padding: 1rem;
+    }
+
+    .chart-container h3 {
+        font-size: 0.95rem;
+    }
+
+    .chart-wrapper {
+        height: 250px;
+        min-height: 200px;
+    }
+
+    .chart-container:last-child .chart-wrapper {
+        height: 250px;
+    }
+
+    .charts-grid {
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .view-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .view-header p {
+        font-size: 0.85rem;
+    }
+
+    main {
+        padding: 0 1rem;
     }
 
     .mobile-only {
@@ -180,5 +253,50 @@
 
     .desktop-only {
         display: none !important;
+    }
+}
+
+/* Additional mobile optimization for very small screens */
+@media (max-width: 480px) {
+    .card {
+        padding: 0.875rem;
+    }
+
+    .card h3 {
+        font-size: 0.85rem;
+    }
+
+    .card p {
+        font-size: 1.35rem;
+    }
+
+    .card small {
+        font-size: 0.7rem;
+    }
+
+    .dashboard-nav {
+        padding: 0.25rem !important;
+    }
+
+    .dashboard-nav button {
+        padding: 0.35rem !important;
+    }
+
+    .dashboard-nav span {
+        font-size: 0.8rem;
+        min-width: 80px !important;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+    }
+
+    .view-header {
+        margin-bottom: 1rem !important;
+    }
+
+    .cards-container {
+        gap: 0.875rem;
+        margin-bottom: 1rem;
     }
 }
