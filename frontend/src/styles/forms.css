@@ -24,6 +24,8 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-light);
+    z-index: 10;
+    pointer-events: none;
 }
 
 .input-wrapper input,

@@ -33,6 +33,7 @@ export default function RegularPayments() {
         frequency: 'MONTHLY',
         isActive: 1
     });
+    const [focusState, setFocusState] = useState({ start: false, end: false });
     const [sort, setSort] = useState({ key: 'name', order: 'asc' });
 
     useEffect(() => {
@@ -56,8 +57,29 @@ export default function RegularPayments() {
         if (res.ok) setCategories(await res.json());
     };
 
+    const MIN_START_DATE = '1950-01-01';
+
+    const getNextDay = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        date.setDate(date.getDate() + 1);
+        return date.toISOString().split('T')[0];
+    };
+
     const handleAdd = async (e) => {
         e.preventDefault();
+
+        // Date Validations
+        if (newTmpl.startDate < MIN_START_DATE) {
+            alert('Start Date cannot be before 01 Jan 1950');
+            return;
+        }
+
+        if (newTmpl.endDate && newTmpl.endDate <= newTmpl.startDate) {
+            alert('End Date must be strictly after Start Date');
+            return;
+        }
+
         await fetch('/api/regular', {
             method: 'POST',
             headers: {
@@ -81,9 +103,9 @@ export default function RegularPayments() {
 
     const formatDate = (val) => {
         if (!val) return 'Forever';
+        // Convert YYYY-MM-DD to DD-MM-YYYY
         const [y, m, d] = val.split('-');
-        const date = new Date(y, m - 1, d);
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        return `${d}-${m}-${y}`;
     };
 
     const sortedTemplates = useMemo(() => {
@@ -198,20 +220,45 @@ export default function RegularPayments() {
                     <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>Start Date</label>
-                            <div className="input-wrapper">
-                                <CalendarRange className="input-icon" size={18} />
+                            <div className="input-wrapper" style={{ position: 'relative', height: '50px' }}>
+                                {/* VISUAL LAYER: Shows the formatted text or placeholder */}
+                                <div style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '0.5rem',
+                                    background: 'var(--card-bg)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    paddingLeft: '2.75rem',
+                                    fontSize: '0.95rem',
+                                    color: newTmpl.startDate ? 'var(--text)' : 'var(--text-light)',
+                                    zIndex: 1, // Visual layer
+                                    pointerEvents: 'none', // Clicks pass through to the input
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden'
+                                }}>
+                                    {newTmpl.startDate ? formatDate(newTmpl.startDate) : 'Select Start Date...'}
+                                </div>
+
+                                {/* ICON */}
+                                <CalendarRange className="input-icon" size={18} style={{ zIndex: 2 }} />
+
+                                {/* FUNCTIONAL LAYER: Invisible native picker on top */}
                                 <input
-                                    type={newTmpl.startDate ? "date" : "text"}
-                                    placeholder="Select Start Date..."
+                                    type="date"
+                                    required
                                     value={newTmpl.startDate}
                                     onChange={e => setNewTmpl({ ...newTmpl, startDate: e.target.value })}
-                                    onFocus={(e) => (e.target.type = "date")}
-                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
-                                    required
+                                    max="9999-12-31"
+                                    min={MIN_START_DATE}
                                     style={{
-                                        height: '50px',
-                                        fontSize: '0.95rem',
+                                        position: 'absolute',
+                                        inset: 0,
                                         width: '100%',
+                                        height: '100%',
+                                        opacity: 0, // Make it invisible
+                                        zIndex: 10, // Ensure it captures clicks
                                         cursor: 'pointer'
                                     }}
                                 />
@@ -221,20 +268,43 @@ export default function RegularPayments() {
 
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>End Date <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.75rem' }}>(Optional)</span></label>
-                            <div className="input-wrapper">
-                                <CalendarRange className="input-icon" size={18} />
+                            <div className="input-wrapper" style={{ position: 'relative', height: '50px' }}>
+                                {/* VISUAL LAYER */}
+                                <div style={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '0.5rem',
+                                    background: 'var(--card-bg)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    paddingLeft: '2.75rem',
+                                    fontSize: '0.95rem',
+                                    color: newTmpl.endDate ? 'var(--text)' : 'var(--text-light)',
+                                    zIndex: 1,
+                                    pointerEvents: 'none',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden'
+                                }}>
+                                    {newTmpl.endDate ? formatDate(newTmpl.endDate) : 'Ongoing (Always)'}
+                                </div>
+
+                                {/* ICON */}
+                                <CalendarRange className="input-icon" size={18} style={{ zIndex: 2 }} />
+
+                                {/* FUNCTIONAL LAYER */}
                                 <input
-                                    type={newTmpl.endDate ? "date" : "text"}
-                                    placeholder="Ongoing (Always)"
+                                    type="date"
                                     value={newTmpl.endDate || ''}
                                     onChange={e => setNewTmpl({ ...newTmpl, endDate: e.target.value })}
-                                    onFocus={(e) => (e.target.type = "date")}
-                                    onBlur={(e) => { if (!e.target.value) e.target.type = "text"; }}
-                                    min={newTmpl.startDate}
+                                    min={getNextDay(newTmpl.startDate)}
                                     style={{
-                                        height: '50px',
-                                        fontSize: '0.95rem',
+                                        position: 'absolute',
+                                        inset: 0,
                                         width: '100%',
+                                        height: '100%',
+                                        opacity: 0,
+                                        zIndex: 10,
                                         cursor: 'pointer'
                                     }}
                                 />
