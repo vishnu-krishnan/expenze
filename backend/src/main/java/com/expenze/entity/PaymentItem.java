@@ -20,27 +20,27 @@ public class PaymentItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "monthPlanId")
+    @Column(name = "month_plan_id")
     private Long monthPlanId;
 
-    @Column(name = "categoryId")
+    @Column(name = "category_id")
     private Long categoryId;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "plannedAmount")
+    @Column(name = "planned_amount")
     @Builder.Default
     private BigDecimal plannedAmount = BigDecimal.ZERO;
 
-    @Column(name = "actualAmount")
+    @Column(name = "actual_amount")
     @Builder.Default
     private BigDecimal actualAmount = BigDecimal.ZERO;
 
-    @Column(name = "isPaid")
+    @Column(name = "is_paid")
     @Builder.Default
     private Integer isPaid = 0;
 

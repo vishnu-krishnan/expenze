@@ -94,7 +94,7 @@ export default function RegularPayments() {
 
     const handleDelete = async (id) => {
         if (!confirm('Delete this regular payment?')) return;
-        await fetch(`/api/regular/${id}`, {
+        await fetch(`/api/v1/regular/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

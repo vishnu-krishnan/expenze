@@ -62,7 +62,7 @@ export default function Register() {
         const poll = setInterval(async () => {
             attempts++;
             try {
-                const res = await fetch(`/api/registration-status/${pendingEmail}`);
+                const res = await fetch(`/api/v1/registration-status/${pendingEmail}`);
                 const data = await res.json();
 
                 if (data.delivery_status !== 'pending') {
