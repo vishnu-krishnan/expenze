@@ -12,6 +12,7 @@ public interface RegularPaymentRepository extends JpaRepository<RegularPayment, 
     List<RegularPayment> findByUserId(Long userId);
 
     @Query("SELECT r FROM RegularPayment r WHERE r.userId = :userId AND r.isActive = 1 " +
-            "AND r.startMonth <= :monthKey AND (r.endMonth IS NULL OR r.endMonth >= :monthKey)")
-    List<RegularPayment> findActiveForMonth(Long userId, String monthKey);
+            "AND r.startDate <= :periodEnd AND (r.endDate IS NULL OR r.endDate >= :periodStart)")
+    List<RegularPayment> findActiveForMonth(Long userId, java.time.LocalDate periodStart,
+            java.time.LocalDate periodEnd);
 }

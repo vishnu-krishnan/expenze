@@ -44,14 +44,14 @@ export default function RegularPayments() {
     }, [token]);
 
     const fetchTemplates = async () => {
-        const res = await fetch('/api/regular', {
+        const res = await fetch('/api/v1/regular', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setTemplates(await res.json());
     };
 
     const fetchCategories = async () => {
-        const res = await fetch('/api/categories', {
+        const res = await fetch('/api/v1/categories', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setCategories(await res.json());
@@ -80,7 +80,7 @@ export default function RegularPayments() {
             return;
         }
 
-        await fetch('/api/regular', {
+        await fetch('/api/v1/regular', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

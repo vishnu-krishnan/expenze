@@ -47,7 +47,7 @@ export default function Categories() {
     }, [token]);
 
     const fetchCategories = async () => {
-        const res = await fetch('/api/categories', {
+        const res = await fetch('/api/v1/categories', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setCategories(await res.json());
@@ -66,7 +66,7 @@ export default function Categories() {
 
         setLoading(true);
         try {
-            const res = await fetch('/api/categories', {
+            const res = await fetch('/api/v1/categories', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ export default function Categories() {
         }
 
         setLoading(true);
-        await fetch('/api/categories', {
+        await fetch('/api/v1/categories', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

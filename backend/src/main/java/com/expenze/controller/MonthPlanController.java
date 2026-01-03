@@ -3,7 +3,7 @@ package com.expenze.controller;
 import com.expenze.dto.PaymentItemDto;
 import com.expenze.security.CustomUserDetails;
 import com.expenze.service.MonthPlanService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class MonthPlanController {
 
-    @Autowired
-    private MonthPlanService monthPlanService;
+    private final MonthPlanService monthPlanService;
 
     @GetMapping("/month/{key}")
     public ResponseEntity<?> getMonthPlan(@AuthenticationPrincipal CustomUserDetails user, @PathVariable String key) {

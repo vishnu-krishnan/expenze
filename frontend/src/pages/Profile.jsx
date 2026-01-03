@@ -13,9 +13,11 @@ import {
 } from 'lucide-react';
 
 export default function Profile() {
-    const { token } = useAuth();
-    const [profile, setProfile] = useState({ username: '', email: '', phone: '', role: '', default_budget: 0 });
+    const { token, logout } = useAuth();
+    const [profile, setProfile] = useState({ username: '', email: '', phone: '', role: '', defaultBudget: 0 });
     const [originalEmail, setOriginalEmail] = useState('');
+    const [originalPhone, setOriginalPhone] = useState('');
+    const [originalBudget, setOriginalBudget] = useState(0);
     const [msg, setMsg] = useState('');
     const [loading, setLoading] = useState(true);
     const [otpModalOpen, setOtpModalOpen] = useState(false);
@@ -26,15 +28,22 @@ export default function Profile() {
 
     const fetchProfile = async () => {
         try {
-            const res = await fetch('/api/profile', {
+            const res = await fetch('/api/v1/profile', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (!res.ok) throw new Error('Failed to load profile');
+            if (res.status === 401 || res.status === 403) {
+                logout();
+                return;
+            }
+
+            if (!res.ok) throw new Error(`Failed to load profile (Status: ${res.status})`);
 
             const data = await res.json();
             setProfile(data);
             setOriginalEmail(data.email);
+            setOriginalPhone(data.phone || '');
+            setOriginalBudget(data.defaultBudget || 0);
         } catch (err) {
             setMsg('Error: ' + err.message);
         } finally {
@@ -46,28 +55,59 @@ export default function Profile() {
         e.preventDefault();
         setMsg('');
 
-        try {
-            // 1. Update Basic Profile Info (Phone, Budget)
-            // Note: Backend now ignores 'email' in PUT /api/profile
-            const res = await fetch('/api/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    phone: profile.phone,
-                    default_budget: profile.default_budget
-                })
-            });
+        // Check if anything has actually changed
+        const phoneChanged = profile.phone !== originalPhone;
+        const emailChanged = profile.email !== originalEmail;
+        const budgetChanged = Number(profile.defaultBudget) !== Number(originalBudget);
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to update profile');
+        if (!phoneChanged && !emailChanged && !budgetChanged) {
+            setMsg('No changes detected');
+            setTimeout(() => setMsg(''), 3000);
+            return;
+        }
+
+        try {
+            // 1. Update Basic Profile Info (Phone, Budget) - only if changed
+            if (phoneChanged || budgetChanged) {
+                const res = await fetch('/api/v1/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        phone: profile.phone,
+                        defaultBudget: profile.defaultBudget
+                    })
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    logout();
+                    return;
+                }
+
+                // Safe JSON parsing
+                let data;
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    data = await res.json();
+                } else {
+                    // If not JSON (likely HTML error page), throw status error
+                    if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+                    data = {}; // default
+                }
+
+                if (!res.ok) throw new Error(data.error || 'Failed to update profile');
+
+                // Update original values after successful update
+                setOriginalPhone(profile.phone);
+                setOriginalBudget(profile.defaultBudget);
+            }
 
             // 2. Handle Email Change Logic
-            if (profile.email !== originalEmail) {
+            if (emailChanged) {
                 // Request Email Change OTP
-                const otpRes = await fetch('/api/profile/request-email-change', {
+                const otpRes = await fetch('/api/v1/profile/request-email-change', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -76,7 +116,20 @@ export default function Profile() {
                     body: JSON.stringify({ newEmail: profile.email })
                 });
 
-                const otpData = await otpRes.json();
+                if (otpRes.status === 401 || otpRes.status === 403) {
+                    logout();
+                    return;
+                }
+
+                let otpData;
+                const otpContentType = otpRes.headers.get("content-type");
+                if (otpContentType && otpContentType.includes("application/json")) {
+                    otpData = await otpRes.json();
+                } else {
+                    if (!otpRes.ok) throw new Error(`Request failed with status ${otpRes.status}`);
+                    otpData = {};
+                }
+
                 if (!otpRes.ok) throw new Error(otpData.error || 'Failed to initiate email change');
 
                 setOtpModalOpen(true);
@@ -93,7 +146,7 @@ export default function Profile() {
 
     const handleVerifyOtp = async (otp) => {
         // Call verification endpoint
-        const res = await fetch('/api/profile/verify-email-change', {
+        const res = await fetch('/api/v1/profile/verify-email-change', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +155,12 @@ export default function Profile() {
             body: JSON.stringify({ otp })
         });
 
-        const data = await res.json();
+        if (res.status === 401 || res.status === 403) {
+            logout();
+            return;
+        }
+
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Verification failed');
 
         // Success
@@ -131,14 +189,16 @@ export default function Profile() {
                 </div>
             </div>
 
-            <div className="panel">
-                {msg && (
-                    <div className={`status-msg ${msg.includes('Error') ? 'status-error' : 'status-success'}`}>
-                        {msg.includes('Error') ? <AlertCircle size={18} /> : <CheckCircle2 size={18} />}
-                        {msg}
-                    </div>
-                )}
+            {msg && (
+                <div className={`status-popup ${msg.includes('Error') ? 'status-error' :
+                        msg.includes('No changes') ? 'status-warning' :
+                            'status-success'
+                    }`}>
+                    {msg}
+                </div>
+            )}
 
+            <div className="panel">
                 <form onSubmit={handleUpdate}>
                     <div className="input-group">
                         <label><Shield size={16} color="var(--primary)" style={{ verticalAlign: 'text-bottom', marginRight: '0.5rem' }} /> Username</label>
@@ -188,8 +248,8 @@ export default function Profile() {
                         <label><Wallet size={16} color="var(--primary)" style={{ verticalAlign: 'text-bottom', marginRight: '0.5rem' }} /> Default Monthly Budget (₹)</label>
                         <input
                             type="number"
-                            value={profile.default_budget || ''}
-                            onChange={e => setProfile({ ...profile, default_budget: e.target.value })}
+                            value={profile.defaultBudget || ''}
+                            onChange={e => setProfile({ ...profile, defaultBudget: e.target.value })}
                             placeholder="e.g. 50000"
                         />
                         <small style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>

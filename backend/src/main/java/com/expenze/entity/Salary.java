@@ -27,7 +27,7 @@ public class Salary {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "monthkey", nullable = false)
+    @Column(name = "month_key", nullable = false)
     private String monthKey; // YYYY-MM
 
     @Column(nullable = false)

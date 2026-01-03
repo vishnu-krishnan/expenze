@@ -3,7 +3,7 @@ package com.expenze.controller;
 import com.expenze.dto.RegularPaymentDto;
 import com.expenze.security.CustomUserDetails;
 import com.expenze.service.RegularPaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/regular")
+@RequestMapping("/api/v1/regular")
+@RequiredArgsConstructor
 public class RegularPaymentController {
 
-    @Autowired
-    private RegularPaymentService regularPaymentService;
+    private final RegularPaymentService regularPaymentService;
 
     @GetMapping
     public ResponseEntity<?> getAll(@AuthenticationPrincipal CustomUserDetails user) {

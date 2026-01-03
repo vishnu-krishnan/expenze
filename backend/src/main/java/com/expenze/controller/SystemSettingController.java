@@ -2,18 +2,18 @@ package com.expenze.controller;
 
 import com.expenze.dto.SystemSettingDto;
 import com.expenze.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class SystemSettingController {
 
-    @Autowired
-    private UserService userService; // Using UserService as access point for settings for now
+    private final UserService userService; // Using UserService as access point for settings for now
 
     @GetMapping("/settings/{key}")
     public ResponseEntity<?> getSetting(@PathVariable String key) {

@@ -7,7 +7,8 @@ import com.expenze.mapper.RegularPaymentMapper;
 import com.expenze.repository.CategoryRepository;
 import com.expenze.repository.RegularPaymentRepository;
 import com.expenze.service.RegularPaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +17,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RegularPaymentServiceImpl implements RegularPaymentService {
 
-    @Autowired
-    private RegularPaymentRepository regularPaymentRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private RegularPaymentMapper regularPaymentMapper;
+    private final RegularPaymentRepository regularPaymentRepository;
+    private final CategoryRepository categoryRepository;
+    private final RegularPaymentMapper regularPaymentMapper;
 
     @Override
     public List<RegularPaymentDto> getAll(Long userId) {
@@ -77,7 +74,7 @@ public class RegularPaymentServiceImpl implements RegularPaymentService {
 
     @Override
     @Transactional
-    public void delete(Long userId, Long id) {
+    public void delete(Long userId, @NonNull Long id) {
         RegularPayment rp = regularPaymentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Not found"));
         if (!rp.getUserId().equals(userId))

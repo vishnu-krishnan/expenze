@@ -22,7 +22,7 @@ export default function Register() {
     useEffect(() => {
         const fetchTimeout = async () => {
             try {
-                const res = await fetch('/api/settings/otp_timeout');
+                const res = await fetch('/api/v1/settings/otp_timeout');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.setting_value) setOtpTimeout(parseInt(data.setting_value));
@@ -100,7 +100,7 @@ export default function Register() {
         setDeliveryStatus('pending');
         setDeliveryError(null);
         try {
-            const res = await fetch('/api/register', {
+            const res = await fetch('/api/v1/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -132,7 +132,7 @@ export default function Register() {
         setInfo(''); // Clear old success status
         setLoading(true);
         try {
-            const res = await fetch('/api/verify-otp', {
+            const res = await fetch('/api/v1/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: pendingEmail, otp })
@@ -162,7 +162,7 @@ export default function Register() {
         setDeliveryStatus('pending');
         setDeliveryError(null);
         try {
-            const res = await fetch('/api/resend-otp', {
+            const res = await fetch('/api/v1/resend-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: pendingEmail })

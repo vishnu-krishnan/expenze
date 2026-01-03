@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import {
     Calendar,
     ChevronLeft,
@@ -23,6 +24,7 @@ export default function MonthPlan() {
     const [salary, setSalary] = useState(0);
     const [loading, setLoading] = useState(false);
     const [sort, setSort] = useState({ key: 'categoryName', order: 'asc' });
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
         if (token) loadData();
@@ -37,7 +39,7 @@ export default function MonthPlan() {
             const data = await res.json();
             setItems(data?.items || []);
 
-            const catRes = await fetch('/api/categories', {
+            const catRes = await fetch('/api/v1/categories', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (catRes.ok) setCategories(await catRes.json());
@@ -47,6 +49,13 @@ export default function MonthPlan() {
             });
             const salData = await salRes.json();
             setSalary(salData.amount || 0);
+
+            // Fetch Profile for default budget
+            const profRes = await fetch('/api/v1/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (profRes.ok) setProfile(await profRes.json());
+
         } catch (err) {
             console.error('Error loading month plan:', err);
         }
@@ -55,7 +64,7 @@ export default function MonthPlan() {
 
     const handleGenerate = async () => {
         setLoading(true);
-        await fetch('/api/month/generate', {
+        await fetch('/api/v1/month/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -83,7 +92,7 @@ export default function MonthPlan() {
 
     const updateSalary = async (val) => {
         setSalary(val);
-        await fetch('/api/salary', {
+        await fetch('/api/v1/salary', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -163,25 +172,49 @@ export default function MonthPlan() {
                 </div>
             </div>
 
-            <div className="toolbar" style={{ justifyContent: 'space-between' }}>
+            <div className="toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div className="icon-wrapper primary" style={{ padding: '8px', color: 'var(--primary)' }}><CircleDollarSign size={20} /></div>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Monthly Budget</label>
-                        <input
-                            type="number"
-                            value={salary || ''}
-                            onChange={e => updateSalary(parseFloat(e.target.value))}
-                            placeholder="Set budget..."
-                            style={{ border: 'none', background: 'transparent', padding: 0, fontSize: '1.25rem', fontWeight: '700', width: '150px', outline: 'none' }}
-                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {/* Smart Budget Suggestions - only show if salary is not set at all */}
+                            {(salary === null || salary === undefined || salary === '' || salary === 0) && profile?.defaultBudget > 0 && (
+                                <button
+                                    onClick={() => updateSalary(profile.defaultBudget)}
+                                    className="small text-only"
+                                    style={{ color: 'var(--primary)', fontSize: '0.75rem', padding: 0, textDecoration: 'underline' }}
+                                >
+                                    Apply Default (₹{profile.defaultBudget})
+                                </button>
+                            )}
+                            {(!profile?.defaultBudget || profile?.defaultBudget <= 0) && (
+                                <Link to="/profile" style={{ color: 'var(--danger)', fontSize: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                    <AlertCircle size={12} /> Set default in Profile
+                                </Link>
+                            )}
+                        </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-                    <button className="primary" onClick={handleGenerate} disabled={loading} style={{ padding: '0.75rem 1.5rem' }}>
-                        <Plus size={18} /> Populate from Regular
-                    </button>
-                    <small style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>Auto-fills recurring items for this month</small>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>₹</span>
+                    <input
+                        type="number"
+                        value={salary || ''}
+                        onChange={e => updateSalary(parseFloat(e.target.value) || 0)}
+                        placeholder="0"
+                        style={{
+                            border: 'none',
+                            background: 'transparent',
+                            padding: '0.5rem',
+                            fontSize: '2rem',
+                            fontWeight: '700',
+                            width: '180px',
+                            outline: 'none',
+                            textAlign: 'right',
+                            color: 'var(--primary)'
+                        }}
+                    />
                 </div>
             </div>
 

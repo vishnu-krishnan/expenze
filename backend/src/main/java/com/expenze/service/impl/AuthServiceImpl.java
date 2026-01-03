@@ -12,8 +12,8 @@ import com.expenze.security.CustomUserDetails;
 import com.expenze.security.JwtUtils;
 import com.expenze.service.AuthService;
 import com.expenze.service.EmailService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,28 +28,16 @@ import java.util.Random;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserVerificationRepository userVerificationRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private EmailService emailService;
+    private final UserRepository userRepository;
+    private final UserVerificationRepository userVerificationRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final UserMapper userMapper;
+    private final EmailService emailService;
 
     @Override
     public AuthResponse login(LoginRequest request) {

@@ -7,13 +7,13 @@ import com.expenze.entity.SystemSetting;
 import com.expenze.entity.User;
 import com.expenze.mapper.SystemSettingMapper;
 import com.expenze.mapper.UserMapper;
-import com.expenze.repository.EmailChangeRequestRepository; // Need to create this
+import com.expenze.repository.EmailChangeRequestRepository;
 import com.expenze.repository.SystemSettingRepository;
 import com.expenze.repository.UserRepository;
 import com.expenze.service.EmailService;
 import com.expenze.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,25 +24,15 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private SystemSettingRepository systemSettingRepository;
-
-    @Autowired
-    private EmailChangeRequestRepository emailChangeRequestRepository;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private SystemSettingMapper systemSettingMapper;
-
-    @Autowired
-    private EmailService emailService;
+    private final UserRepository userRepository;
+    private final SystemSettingRepository systemSettingRepository;
+    private final EmailChangeRequestRepository emailChangeRequestRepository;
+    private final UserMapper userMapper;
+    private final SystemSettingMapper systemSettingMapper;
+    private final EmailService emailService;
 
     @Override
     public UserDto getProfile(Long userId) {

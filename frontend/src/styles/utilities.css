@@ -26,10 +26,13 @@
     gap: 1rem;
     font-weight: 600;
     font-size: 1rem;
-    min-width: fit-content;
+    width: auto;
+    min-width: 200px;
+    max-width: 90vw;
     justify-content: center;
     animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     backdrop-filter: blur(10px);
+    white-space: nowrap;
 }
 
 @keyframes slideDown {
@@ -56,6 +59,12 @@
     background: var(--danger-bg);
     color: #991b1b;
     border: 1px solid var(--danger);
+}
+
+.status-warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
 }
 
 .badge {

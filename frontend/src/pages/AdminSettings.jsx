@@ -26,7 +26,7 @@ export default function AdminSettings() {
     const fetchSettings = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/admin/settings', {
+            const res = await fetch('/api/v1/admin/settings', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

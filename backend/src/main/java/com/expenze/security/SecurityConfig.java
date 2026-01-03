@@ -38,13 +38,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
-                        .requestMatchers("/api/login", "/api/register", "/api/verify-otp", "/api/resend-otp",
-                                "/api/registration-status/**")
+                        .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/verify-otp",
+                                "/api/v1/resend-otp",
+                                "/api/v1/registration-status/**", "/api/v1/settings/**")
                         .permitAll()
                         // Admin Endpoints
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         // Other API endpoints require authentication
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/v1/**").authenticated()
                         // Static frontend files (if serving from here)
                         .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

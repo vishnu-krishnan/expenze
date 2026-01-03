@@ -6,8 +6,8 @@ import com.expenze.entity.*;
 import com.expenze.mapper.PaymentItemMapper;
 import com.expenze.repository.*;
 import com.expenze.service.MonthPlanService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,25 +20,15 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MonthPlanServiceImpl implements MonthPlanService {
 
-    @Autowired
-    private MonthPlanRepository monthPlanRepository;
-
-    @Autowired
-    private PaymentItemRepository paymentItemRepository;
-
-    @Autowired
-    private RegularPaymentRepository regularPaymentRepository;
-
-    @Autowired
-    private SalaryRepository salaryRepository;
-
-    @Autowired
-    private PaymentItemMapper paymentItemMapper;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final MonthPlanRepository monthPlanRepository;
+    private final PaymentItemRepository paymentItemRepository;
+    private final RegularPaymentRepository regularPaymentRepository;
+    private final SalaryRepository salaryRepository;
+    private final PaymentItemMapper paymentItemMapper;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public MonthPlanDto getMonthPlan(Long userId, String monthKey) {
@@ -77,8 +67,13 @@ public class MonthPlanServiceImpl implements MonthPlanService {
                         () -> monthPlanRepository.save(MonthPlan.builder().userId(userId).monthKey(monthKey).build()));
 
         // 2. Fetch Active Regular Payments
-        // Logic: startMonth <= current AND (endMonth >= current OR null)
-        List<RegularPayment> regularPayments = regularPaymentRepository.findActiveForMonth(userId, monthKey);
+        // Logic: active in [periodStart, periodEnd]
+        YearMonth ym = YearMonth.parse(monthKey);
+        LocalDate periodStart = ym.atDay(1);
+        LocalDate periodEnd = ym.atEndOfMonth();
+
+        List<RegularPayment> regularPayments = regularPaymentRepository.findActiveForMonth(userId, periodStart,
+                periodEnd);
         log.debug("Found {} active regular payments for user {}", regularPayments.size(), userId);
 
         for (RegularPayment rp : regularPayments) {

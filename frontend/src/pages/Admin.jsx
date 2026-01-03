@@ -22,7 +22,7 @@ export default function Admin() {
             setLoading(true);
             setError('');
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/admin/users', {
+            const res = await fetch('/api/v1/admin/users', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

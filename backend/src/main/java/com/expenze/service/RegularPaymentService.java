@@ -1,6 +1,8 @@
 package com.expenze.service;
 
 import com.expenze.dto.RegularPaymentDto;
+import org.springframework.lang.NonNull;
+
 import java.util.List;
 
 public interface RegularPaymentService {
@@ -10,5 +12,5 @@ public interface RegularPaymentService {
 
     void update(Long userId, Long id, RegularPaymentDto dto);
 
-    void delete(Long userId, Long id);
+    void delete(Long userId, @NonNull Long id);
 }

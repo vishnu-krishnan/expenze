@@ -38,10 +38,14 @@
         <appender-ref ref="Console" />
     </root>
 
-    <!-- LOG "com.expenze" at TRACE level -->
-    <logger name="com.expenze" level="trace" additivity="false">
+    <!-- LOG "com.expenze" at WARN level (only warnings and errors) -->
+    <logger name="com.expenze" level="warn" additivity="false">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </logger>
+
+    <!-- Suppress Hibernate SQL logging -->
+    <logger name="org.hibernate.SQL" level="warn" />
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="warn" />
 
 </configuration>

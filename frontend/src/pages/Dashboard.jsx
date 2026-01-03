@@ -60,7 +60,7 @@ export default function Dashboard() {
                 count
             });
 
-            const summaryRes = await fetch('/api/summary/last6', {
+            const summaryRes = await fetch('/api/v1/summary/last6', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (summaryRes.ok) {
