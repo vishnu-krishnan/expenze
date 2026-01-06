@@ -348,7 +348,7 @@ export default function RegularPayments() {
             </div>
 
             <div className="table-wrapper">
-                <table className="data-table">
+                <table className="data-table regular-payments-table">
                     <thead>
                         <tr>
                             <th onClick={() => toggleSort('name')} style={{ cursor: 'pointer' }}>
@@ -381,7 +381,7 @@ export default function RegularPayments() {
                     </thead>
                     <tbody>
                         {sortedTemplates.length === 0 ? (
-                            <tr><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+                            <tr className="no-data-row"><td colSpan="6" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                     <Repeat size={40} opacity={0.2} />
                                     No regular payments set up yet.

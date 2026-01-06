@@ -10,31 +10,34 @@
     .desktop-nav {
         position: fixed;
         top: 0;
-        right: -100%;
-        width: 300px;
+        right: 0;
+        transform: translateX(100%);
+        width: 80vw;
+        max-width: 260px;
         height: 100vh;
+        overflow-y: auto;
         background: linear-gradient(135deg, var(--primary-dark) 0%, #0f766e 100%);
         flex-direction: column;
-        padding: 6rem 1.25rem 2rem;
-        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 5rem 1rem 2rem;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: -15px 0 35px rgba(0, 0, 0, 0.4);
-        z-index: 100;
-        gap: 0.75rem;
+        z-index: 1000;
+        gap: 0.5rem;
         display: flex !important;
     }
 
     .desktop-nav.mobile-active {
-        right: 0;
+        transform: translateX(0);
     }
 
     .desktop-nav button {
         width: 100%;
         justify-content: flex-start;
-        padding: 1rem 1.5rem;
-        font-size: 1.125rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 1rem;
+        border-radius: 12px;
         color: white;
     }
 
@@ -94,7 +97,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     h2 {
         font-size: 1.25rem;
     }
@@ -189,7 +192,99 @@
         gap: 0.75rem !important;
     }
 
-    /* Month Plan - Mobile Card View */
+    /* Regular Payments - Premium Card View */
+    .regular-payments-table thead {
+        display: none;
+    }
+
+    .regular-payments-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid var(--primary);
+        position: relative;
+        gap: 0.75rem;
+    }
+
+    .regular-payments-table td {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
+        gap: 0.25rem;
+    }
+
+    /* Item Name Header */
+    .regular-payments-table td:nth-child(1) {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+        padding-bottom: 0.5rem !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    .regular-payments-table td:nth-child(1)::before {
+        display: none;
+    }
+
+    /* Meta Labels */
+    .regular-payments-table td::before {
+        display: block;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-size: 0.65rem !important;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        font-weight: 700;
+    }
+
+    .regular-payments-table td:nth-child(2)::before {
+        content: "Category";
+    }
+
+    .regular-payments-table td:nth-child(3)::before {
+        content: "Frequency";
+    }
+
+    .regular-payments-table td:nth-child(4)::before {
+        content: "Amount";
+    }
+
+    .regular-payments-table td:nth-child(5)::before {
+        content: "Timeline";
+    }
+
+    .regular-payments-table td:nth-child(6)::before {
+        content: "Actions";
+    }
+
+    /* Amount Highlight */
+    .regular-payments-table td:nth-child(4) {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    /* Actions Footer */
+    .regular-payments-table td:last-child {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        border-top: 1px solid var(--border) !important;
+        padding-top: 1rem !important;
+        margin-top: 0.25rem;
+        gap: 0.75rem;
+    }
+
+    /* Month Plan - Premium Card View */
     .monthly-plan-table thead {
         display: none;
     }
@@ -197,68 +292,103 @@
     .monthly-plan-table tbody tr {
         display: flex;
         flex-direction: column;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
         background: white;
         border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        gap: 0.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid var(--primary);
+        position: relative;
+        gap: 0.75rem;
     }
 
     .monthly-plan-table td {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.25rem 0 !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 0 !important;
         border: none !important;
         width: 100% !important;
+        gap: 0.25rem;
     }
 
-    /* Labels */
-    .monthly-plan-table td:nth-child(1)::before {
-        content: "Category";
-        font-weight: 600;
-        color: #64748b;
-        font-size: 0.75rem;
+    /* Item Name Header (Order -2) */
+    .monthly-plan-table td:nth-child(2) {
+        order: -2;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.25rem;
+        padding-bottom: 0.5rem !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        width: 100%;
     }
 
     .monthly-plan-table td:nth-child(2)::before {
-        content: "Item";
-        font-weight: 600;
+        display: none;
+    }
+
+    /* Category Subtitle (Order -1) */
+    .monthly-plan-table td:nth-child(1) {
+        order: -1;
+        font-size: 0.85rem;
         color: #64748b;
-        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Keeping label for category context */
+
+    /* Meta Labels */
+    .monthly-plan-table td::before {
+        display: block;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-size: 0.65rem !important;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+        font-weight: 700;
+    }
+
+    .monthly-plan-table td:nth-child(1)::before {
+        content: "Category";
     }
 
     .monthly-plan-table td:nth-child(3)::before {
         content: "Planned";
-        font-weight: 600;
-        color: #64748b;
-        font-size: 0.75rem;
     }
 
     .monthly-plan-table td:nth-child(4)::before {
         content: "Actual";
-        font-weight: 600;
-        color: #64748b;
-        font-size: 0.75rem;
     }
 
     .monthly-plan-table td:nth-child(5)::before {
         content: "Paid";
-        font-weight: 600;
-        color: #64748b;
-        font-size: 0.75rem;
     }
 
     .monthly-plan-table td:nth-child(6)::before {
         content: "Notes";
-        font-weight: 600;
-        color: #64748b;
-        font-size: 0.75rem;
     }
 
-    /* Show all columns */
+    /* Paid Highlight */
+    .monthly-plan-table td:nth-child(5) {
+        font-weight: 600;
+        color: var(--success);
+    }
+
+    /* Actions Footer */
+    .monthly-plan-table td:last-child {
+        order: 100;
+        flex-direction: row !important;
+        justify-content: flex-end;
+        align-items: center;
+        border-top: 1px solid var(--border) !important;
+        padding-top: 1rem !important;
+        margin-top: 0.25rem;
+        gap: 0.75rem;
+    }
+
+    /* Ensure visibility of all columns */
     .monthly-plan-table th:nth-child(5),
     .monthly-plan-table td:nth-child(5),
     .monthly-plan-table th:nth-child(6),
@@ -266,11 +396,56 @@
         display: flex !important;
     }
 
-    .monthly-plan-table td:last-child {
+    /* Categories - Premium Card View */
+    .categories-table thead {
+        display: none;
+    }
+
+    .categories-table tbody tr {
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid var(--primary);
+        position: relative;
+        gap: 0.75rem;
+    }
+
+    .categories-table td {
+        display: flex;
+        flex-direction: column;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
+        gap: 0.25rem;
+        word-break: break-word;
+    }
+
+    /* Name (Title) */
+    .categories-table td:nth-child(1) {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        border-bottom: 1px solid #f1f5f9 !important;
+        padding-bottom: 0.5rem !important;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Actions (Footer) */
+    .categories-table td:nth-child(2) {
+        flex-direction: row;
         justify-content: flex-end;
-        border-top: 1px solid var(--border) !important;
-        padding-top: 0.75rem !important;
-        margin-top: 0.5rem;
+        padding-top: 0.5rem !important;
+        gap: 0.75rem;
+    }
+
+    .categories-table td:nth-child(2) div {
+        justify-content: flex-end !important;
+        width: 100%;
     }
 
     /* Toolbar Stack */
@@ -307,19 +482,38 @@
         padding: 0.25rem !important;
         background: #f8fafc !important;
         gap: 0.5rem;
+        display: flex !important;
+        flex-direction: row !important;
+        /* Force row */
+        flex-wrap: nowrap !important;
+        /* Prevent stacking */
+        align-items: center !important;
     }
 
     .dashboard-nav span {
         font-size: 0.85rem;
         min-width: auto !important;
         font-weight: 700 !important;
+        white-space: nowrap;
+        /* Prevent text wrap */
     }
 
     .dashboard-nav button {
-        padding: 0.35rem !important;
+        width: 32px;
+        height: 32px;
+        padding: 0 !important;
         background: white !important;
         border: 1px solid var(--border) !important;
         border-radius: 8px !important;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dashboard-nav button svg {
+        width: 16px;
+        height: 16px;
     }
 
     .stat-row {
@@ -371,6 +565,52 @@
 
     .desktop-only {
         display: none !important;
+    }
+
+    /* Empty State Fixes for Mobile Card View */
+    .regular-payments-table .no-data-row td,
+    .monthly-plan-table .no-data-row td,
+    .categories-table .no-data-row td {
+        display: block !important;
+        text-align: center !important;
+        width: 100% !important;
+        border: none !important;
+        padding: 2rem !important;
+    }
+
+    .regular-payments-table .no-data-row td::before,
+    .monthly-plan-table .no-data-row td::before,
+    .categories-table .no-data-row td::before {
+        content: none !important;
+    }
+
+    /* Global Compact Reductions for Mobile */
+    .regular-payments-table tbody tr,
+    .monthly-plan-table tbody tr,
+    .categories-table tbody tr {
+        padding: 0.85rem !important;
+        margin-bottom: 0.85rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .regular-payments-table td,
+    .monthly-plan-table td,
+    .categories-table td {
+        font-size: 0.9rem !important;
+    }
+
+    .regular-payments-table td:nth-child(1),
+    .monthly-plan-table td:nth-child(2),
+    .categories-table td:nth-child(1) {
+        font-size: 1rem !important;
+        margin-bottom: 0.35rem !important;
+        padding-bottom: 0.35rem !important;
+    }
+
+    .regular-payments-table td::before,
+    .monthly-plan-table td::before,
+    .categories-table td::before {
+        font-size: 0.6rem !important;
     }
 }
 
