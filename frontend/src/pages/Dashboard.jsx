@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../utils/apiConfig';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
 import { Pie, Line } from 'react-chartjs-2';
 import {
@@ -33,7 +34,7 @@ export default function Dashboard() {
     const loadDashboardData = async (key) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/v1/month/${key}`, {
+            const res = await fetch(getApiUrl(`/api/v1/month/${key}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -47,7 +48,7 @@ export default function Dashboard() {
                 });
             }
 
-            const salRes = await fetch(`/api/v1/salary/${key}`, {
+            const salRes = await fetch(getApiUrl(`/api/v1/salary/${key}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const salData = await salRes.json();
@@ -60,7 +61,7 @@ export default function Dashboard() {
                 count
             });
 
-            const summaryRes = await fetch('/api/v1/summary/last6', {
+            const summaryRes = await fetch(getApiUrl('/api/v1/summary/last6'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (summaryRes.ok) {
@@ -77,7 +78,7 @@ export default function Dashboard() {
                 });
             }
 
-            const catRes = await fetch(`/api/v1/category-expenses/${key}`, {
+            const catRes = await fetch(getApiUrl(`/api/v1/category-expenses/${key}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (catRes.ok) {

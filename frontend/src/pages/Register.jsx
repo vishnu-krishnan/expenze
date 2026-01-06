@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle2, Lock, Mail, Phone, Loader2, KeyRound } from 'lucide-react';
+import { getApiUrl } from '../utils/apiConfig';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function Register() {
     useEffect(() => {
         const fetchTimeout = async () => {
             try {
-                const res = await fetch('/api/v1/settings/otp_timeout');
+                const res = await fetch(getApiUrl('/api/v1/settings/otp_timeout'));
                 if (res.ok) {
                     const data = await res.json();
                     if (data.setting_value) setOtpTimeout(parseInt(data.setting_value));
@@ -62,7 +63,7 @@ export default function Register() {
         const poll = setInterval(async () => {
             attempts++;
             try {
-                const res = await fetch(`/api/v1/registration-status/${pendingEmail}`);
+                const res = await fetch(getApiUrl(`/api/v1/registration-status/${pendingEmail}`));
                 const data = await res.json();
 
                 if (data.delivery_status !== 'pending') {
@@ -100,7 +101,7 @@ export default function Register() {
         setDeliveryStatus('pending');
         setDeliveryError(null);
         try {
-            const res = await fetch('/api/v1/register', {
+            const res = await fetch(getApiUrl('/api/v1/register'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -132,7 +133,7 @@ export default function Register() {
         setInfo(''); // Clear old success status
         setLoading(true);
         try {
-            const res = await fetch('/api/v1/verify-otp', {
+            const res = await fetch(getApiUrl('/api/v1/verify-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: pendingEmail, otp })
@@ -162,7 +163,7 @@ export default function Register() {
         setDeliveryStatus('pending');
         setDeliveryError(null);
         try {
-            const res = await fetch('/api/v1/resend-otp', {
+            const res = await fetch(getApiUrl('/api/v1/resend-otp'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: pendingEmail })

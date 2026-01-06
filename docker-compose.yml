@@ -19,6 +19,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
+      - PORT=8080
     networks:
       - network
     extra_hosts:

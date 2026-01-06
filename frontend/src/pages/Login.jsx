@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle2, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { validateUsername, sanitizeInput } from '../utils/validation';
+import { getApiUrl } from '../utils/apiConfig';
 
 export default function Login() {
     const { login } = useAuth();
@@ -47,17 +48,17 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch('/api/v1/login', {
+            const res = await fetch(getApiUrl('/api/v1/login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    // 'X-Requested-With': 'XMLHttpRequest' // Removed to avoid preflight issues if cross-origin
                 },
                 body: JSON.stringify({
                     username: formData.username.trim(),
                     password: formData.password
                 }),
-                credentials: 'same-origin'
+                // credentials: 'same-origin' // Removed restricted credentials for easier cross-origin support if needed
             });
 
             const data = await res.json();
