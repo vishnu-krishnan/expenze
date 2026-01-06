@@ -85,9 +85,18 @@ public class MonthPlanController {
     public ResponseEntity<?> saveSalary(@AuthenticationPrincipal CustomUserDetails user,
             @RequestBody Map<String, Object> payload) {
         String monthKey = (String) payload.get("monthKey");
-        // Handle number safely
-        BigDecimal amount = new BigDecimal(payload.get("amount").toString());
-        monthPlanService.saveSalary(user.getId(), monthKey, amount);
-        return ResponseEntity.ok(Map.of("success", true));
+        Object amountObj = payload.get("amount");
+
+        if (monthKey == null || amountObj == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "MonthKey and Amount are required"));
+        }
+
+        try {
+            BigDecimal amount = new BigDecimal(amountObj.toString());
+            monthPlanService.saveSalary(user.getId(), monthKey, amount);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid amount format"));
+        }
     }
 }

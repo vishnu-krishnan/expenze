@@ -157,7 +157,7 @@ export default function RegularPayments() {
                                 value={newTmpl.name}
                                 onChange={e => setNewTmpl({ ...newTmpl, name: e.target.value })}
                                 required
-                                style={{ height: '50px', fontSize: '0.95rem' }}
+                                style={{ height: '42px', fontSize: '0.95rem' }}
                             />
                         </div>
                     </div>
@@ -171,7 +171,7 @@ export default function RegularPayments() {
                                 value={newTmpl.categoryId}
                                 onChange={e => setNewTmpl({ ...newTmpl, categoryId: e.target.value })}
                                 required
-                                style={{ height: '50px', fontSize: '0.95rem' }}
+                                style={{ height: '42px', fontSize: '0.95rem' }}
                             >
                                 <option value="">Select Category</option>
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -189,7 +189,7 @@ export default function RegularPayments() {
                                 placeholder="0.00"
                                 value={newTmpl.defaultPlannedAmount || ''}
                                 onChange={e => setNewTmpl({ ...newTmpl, defaultPlannedAmount: parseFloat(e.target.value) })}
-                                style={{ height: '50px', fontSize: '0.95rem' }}
+                                style={{ height: '42px', fontSize: '0.95rem' }}
                             />
                         </div>
                     </div>
@@ -203,7 +203,7 @@ export default function RegularPayments() {
                                 value={newTmpl.frequency}
                                 onChange={e => setNewTmpl({ ...newTmpl, frequency: e.target.value })}
                                 style={{
-                                    height: '50px',
+                                    height: '42px',
                                     fontSize: '0.95rem',
                                     paddingLeft: '2.75rem',
                                     cursor: 'pointer'
@@ -220,7 +220,7 @@ export default function RegularPayments() {
                     <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>Start Date</label>
-                            <div className="input-wrapper" style={{ position: 'relative', height: '50px' }}>
+                            <div className="input-wrapper" style={{ position: 'relative', height: '42px' }}>
                                 {/* VISUAL LAYER: Shows the formatted text or placeholder */}
                                 <div style={{
                                     position: 'absolute',
@@ -268,7 +268,7 @@ export default function RegularPayments() {
 
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>End Date <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.75rem' }}>(Optional)</span></label>
-                            <div className="input-wrapper" style={{ position: 'relative', height: '50px' }}>
+                            <div className="input-wrapper" style={{ position: 'relative', height: '42px' }}>
                                 {/* VISUAL LAYER */}
                                 <div style={{
                                     position: 'absolute',
@@ -324,7 +324,7 @@ export default function RegularPayments() {
                                 value={newTmpl.notes || ''}
                                 onChange={e => setNewTmpl({ ...newTmpl, notes: e.target.value })}
                                 style={{
-                                    height: '50px',
+                                    height: '42px',
                                     fontSize: '0.95rem'
                                 }}
                             />
@@ -333,8 +333,8 @@ export default function RegularPayments() {
 
                     <button type="submit" className="primary" style={{
                         gridColumn: '1 / -1',
-                        height: '56px',
-                        fontSize: '1.1rem',
+                        height: '48px',
+                        fontSize: '1rem',
                         marginTop: '1.5rem',
                         display: 'flex',
                         alignItems: 'center',
