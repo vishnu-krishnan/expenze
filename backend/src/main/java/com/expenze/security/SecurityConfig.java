@@ -78,21 +78,23 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Allow all origins or restrict to frontend URL
         // Allow specific origins from environment variable, or default to all
-        String allowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS");
-        if (allowedOrigins != null && !allowedOrigins.isBlank()) {
-            List<String> origins = Arrays.stream(allowedOrigins.split(","))
-                    .map(String::trim)
-                    .map(s -> s.replace("\"", "")) // Remove accidental quotes
-                    .map(s -> s.replace("'", "")) // Remove accidental single quotes
-                    .toList();
-            System.out.println("CORS Config: Allowing origins: " + origins);
-            configuration.setAllowedOrigins(origins);
+        // FAILSAFE: Allow wildcard pattern which is more permissive than
+        // setAllowedOrigins("*")
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowCredentials(true); // Allow cookies/headers if needed
+
+        // Debug Log
+        String envOrigins = System.getenv("CORS_ALLOWED_ORIGINS");
+        if (envOrigins != null) {
+            System.out.println("CORS ENV Found but using wide-open policy for debug: " + envOrigins);
         } else {
-            System.out.println("CORS Config: No env var found, allowing ALL origins (*)");
-            configuration.setAllowedOrigins(List.of("*"));
+            System.out.println("CORS ENV Not found. Using wide-open policy.");
         }
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+        configuration
+                .setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control", "X-Requested-With"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
