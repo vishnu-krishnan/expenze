@@ -82,6 +82,8 @@ public class SecurityConfig {
         if (allowedOrigins != null && !allowedOrigins.isBlank()) {
             List<String> origins = Arrays.stream(allowedOrigins.split(","))
                     .map(String::trim)
+                    .map(s -> s.replace("\"", "")) // Remove accidental quotes
+                    .map(s -> s.replace("'", "")) // Remove accidental single quotes
                     .toList();
             System.out.println("CORS Config: Allowing origins: " + origins);
             configuration.setAllowedOrigins(origins);
