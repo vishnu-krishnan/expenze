@@ -195,37 +195,36 @@ export default function Dashboard() {
             </div>
 
             <div className="charts-grid">
-                <div className="chart-container">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                        <div className="icon-wrapper info" style={{ padding: '8px' }}><TrendingUp size={18} /></div>
-                        <h3 style={{ margin: 0 }}>Spending Trend</h3>
+                {trendData && trendData.labels && trendData.labels.length > 0 && (
+                    <div className="chart-container">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                            <div className="icon-wrapper info" style={{ padding: '8px' }}><TrendingUp size={18} /></div>
+                            <h3 style={{ margin: 0 }}>Spending Trend</h3>
+                        </div>
+                        <div className="chart-wrapper">
+                            <Line data={trendData} options={{
+                                maintainAspectRatio: false,
+                                plugins: { legend: { position: 'top', align: 'end' } },
+                                scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] } } }
+                            }} />
+                        </div>
                     </div>
-                    <div className="chart-wrapper">
-                        {trendData && <Line data={trendData} options={{
-                            maintainAspectRatio: false,
-                            plugins: { legend: { position: 'top', align: 'end' } },
-                            scales: { y: { beginAtZero: true, grid: { borderDash: [5, 5] } } }
-                        }} />}
-                    </div>
-                </div>
-                <div className="chart-container">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                        <div className="icon-wrapper success" style={{ padding: '8px' }}><Target size={18} /></div>
-                        <h3 style={{ margin: 0 }}>Category Breakdown</h3>
-                    </div>
-                    <div className="chart-wrapper">
-                        {categoryData ? (
+                )}
+
+                {categoryData && categoryData.labels && categoryData.labels.length > 0 && categoryData.datasets[0].data.some(d => d > 0) && (
+                    <div className="chart-container">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                            <div className="icon-wrapper success" style={{ padding: '8px' }}><Target size={18} /></div>
+                            <h3 style={{ margin: 0 }}>Category Breakdown</h3>
+                        </div>
+                        <div className="chart-wrapper">
                             <Pie data={categoryData} options={{
                                 maintainAspectRatio: false,
                                 plugins: { legend: { position: 'bottom' } }
                             }} />
-                        ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)' }}>
-                                No data for this month
-                            </div>
-                        )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </section>
     );

@@ -12,7 +12,7 @@ header {
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1500;
 }
 
 .logo {
@@ -37,10 +37,13 @@ header {
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.1);
         opacity: 0.9;
@@ -85,15 +88,22 @@ header {
 }
 
 .mobile-toggle {
-    display: none;
-    background: transparent;
-    border: none;
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
     cursor: pointer;
     padding: 0.5rem;
-    z-index: 101;
+    border-radius: 8px;
+    z-index: 2147483647;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mobile-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .dashboard-nav {
