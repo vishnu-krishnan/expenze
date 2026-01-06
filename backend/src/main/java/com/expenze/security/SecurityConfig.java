@@ -80,8 +80,13 @@ public class SecurityConfig {
         // Allow specific origins from environment variable, or default to all
         String allowedOrigins = System.getenv("CORS_ALLOWED_ORIGINS");
         if (allowedOrigins != null && !allowedOrigins.isBlank()) {
-            configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+            List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                    .map(String::trim)
+                    .toList();
+            System.out.println("CORS Config: Allowing origins: " + origins);
+            configuration.setAllowedOrigins(origins);
         } else {
+            System.out.println("CORS Config: No env var found, allowing ALL origins (*)");
             configuration.setAllowedOrigins(List.of("*"));
         }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

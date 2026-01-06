@@ -48,7 +48,9 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const res = await fetch(getApiUrl('/api/v1/login'), {
+            const loginUrl = getApiUrl('/api/v1/login');
+            console.log('Attempting login to:', loginUrl);
+            const res = await fetch(loginUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
