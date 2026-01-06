@@ -249,10 +249,13 @@ export default function MonthPlan() {
                     </thead>
                     <tbody>
                         {sortedItems.length === 0 ? (
-                            <tr><td colSpan="7" style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
+                            <tr className="no-data-row"><td colSpan="7" style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                     <AlertCircle size={40} opacity={0.3} />
                                     <p>No records found for {formatMonthName(monthKey)}.<br />Use 'Populate' or add items manually.</p>
+                                    <button className="primary" onClick={handleGenerate} style={{ marginTop: '1rem' }} disabled={loading}>
+                                        {loading ? 'Generating...' : <><Plus size={18} /> Populate from Templates</>}
+                                    </button>
                                 </div>
                             </td></tr>
                         ) : (

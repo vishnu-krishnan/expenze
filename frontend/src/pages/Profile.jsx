@@ -191,8 +191,8 @@ export default function Profile() {
 
             {msg && (
                 <div className={`status-popup ${msg.includes('Error') ? 'status-error' :
-                        msg.includes('No changes') ? 'status-warning' :
-                            'status-success'
+                    msg.includes('No changes') ? 'status-warning' :
+                        'status-success'
                     }`}>
                     {msg}
                 </div>
@@ -213,7 +213,7 @@ export default function Profile() {
                         </small>
                     </div>
 
-                    <div className="split-layout" style={{ gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                    <div className="form-split">
                         <div className="input-group" style={{ marginBottom: 0 }}>
                             <label><Mail size={16} color="var(--primary)" style={{ verticalAlign: 'text-bottom', marginRight: '0.5rem' }} /> Email Address</label>
                             <input

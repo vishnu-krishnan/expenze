@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "salaries", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "userId", "monthKey" })
+        @UniqueConstraint(columnNames = { "user_id", "monthkey" })
 })
 @Data
 @NoArgsConstructor
@@ -27,7 +27,7 @@ public class Salary {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "month_key", nullable = false)
+    @Column(name = "monthkey", nullable = false)
     private String monthKey; // YYYY-MM
 
     @Column(nullable = false)

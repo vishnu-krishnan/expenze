@@ -194,7 +194,7 @@ export default function Categories() {
                     </div>
 
                     <div className="table-wrapper">
-                        <table className="data-table">
+                        <table className="data-table categories-table">
                             <thead>
                                 <tr>
                                     <th>Category Name</th>
@@ -203,7 +203,7 @@ export default function Categories() {
                             </thead>
                             <tbody>
                                 {categories.length === 0 ? (
-                                    <tr><td colSpan="2" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+                                    <tr className="no-data-row"><td colSpan="2" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
                                         No categories yet. Use Quick Add or the form!
                                     </td></tr>
                                 ) : (
