@@ -43,6 +43,6 @@ public class UserVerification {
     private String deliveryError;
 
     @CreationTimestamp
-    @Column(name = "createdAt", updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 }
