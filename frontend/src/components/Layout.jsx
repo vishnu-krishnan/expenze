@@ -67,7 +67,23 @@ export default function Layout({ children }) {
                     </span>
                 </div>
 
-                {/* Mobile Toggle Button */}
+                {/* Desktop Navigation (Visible > 1024px) */}
+                <nav className="desktop-menu">
+                    {navItems.map(item => (
+                        <button
+                            key={item.path}
+                            className={(location.pathname === item.path || (item.path === '/' && location.pathname === '/dashboard')) ? 'active' : ''}
+                            onClick={() => handleNavigate(item.path)}
+                        >
+                            <item.icon size={18} /> {item.label}
+                        </button>
+                    ))}
+                    <button className="logout-btn" onClick={logout}>
+                        <LogOut size={18} /> Logout
+                    </button>
+                </nav>
+
+                {/* Mobile Toggle Button (Visible <= 1024px) */}
                 <button className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                     {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -79,16 +95,9 @@ export default function Layout({ children }) {
 
             {ReactDOM.createPortal(
                 <>
-                    {/* Mobile Navigation - Portal to Body */}
+                    {/* Mobile Navigation Drawer (Visible <= 1024px when open) */}
                     <nav
-                        className={`desktop-nav ${mobileMenuOpen ? 'mobile-active' : ''}`}
-                        style={{
-                            transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
-                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            right: 0,
-                            left: 'auto',
-                            position: 'fixed'
-                        }}
+                        className={`mobile-menu ${mobileMenuOpen ? 'active' : ''}`}
                     >
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
                             <button

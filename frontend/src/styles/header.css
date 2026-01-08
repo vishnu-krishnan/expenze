@@ -60,13 +60,13 @@ header {
     padding-left: 0.75rem;
 }
 
-.desktop-nav {
+.desktop-menu {
     display: flex;
     gap: 0.5rem;
     margin-left: auto;
 }
 
-.desktop-nav button {
+.desktop-menu button {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -76,19 +76,24 @@ header {
     transition: all 0.3s ease;
 }
 
-.desktop-nav button:hover {
+.desktop-menu button:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
 }
 
-.desktop-nav button.active {
+.desktop-menu button.active {
     background: white;
     color: var(--primary);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.mobile-menu {
+    display: none;
+}
+
 .mobile-toggle {
-    display: flex;
+    display: none;
+    /* Hidden on Desktop */
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;

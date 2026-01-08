@@ -10,7 +10,11 @@
         background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
     }
 
-    .desktop-nav {
+    .desktop-menu {
+        display: none !important;
+    }
+
+    .mobile-menu {
         position: fixed !important;
         top: 0 !important;
         right: 0 !important;
@@ -25,8 +29,7 @@
         justify-content: flex-start !important;
         padding: 2rem 1.5rem !important;
 
-        /* Inline styles handle transform */
-        /* transition handled inline or here without important on transform */
+        transform: translateX(100%);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
         box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5) !important;
@@ -39,11 +42,11 @@
         pointer-events: auto !important;
     }
 
-    .desktop-nav.mobile-active {
-        /* Handled by inline styles */
+    .mobile-menu.active {
+        transform: translateX(0);
     }
 
-    .desktop-nav button {
+    .mobile-menu button {
         width: 100%;
         justify-content: flex-start;
         padding: 1.1rem 1.25rem;
@@ -61,19 +64,19 @@
         min-height: 52px;
     }
 
-    .desktop-nav button svg {
+    .mobile-menu button svg {
         flex-shrink: 0;
         width: 20px;
         height: 20px;
     }
 
-    .desktop-nav button:hover,
-    .desktop-nav button:active {
+    .mobile-menu button:hover,
+    .mobile-menu button:active {
         background: rgba(255, 255, 255, 0.25);
         transform: translateX(-3px);
     }
 
-    .desktop-nav button.active {
+    .mobile-menu button.active {
         background: white;
         color: var(--primary);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
