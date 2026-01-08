@@ -153,7 +153,7 @@ export default function Categories() {
         }
 
         setLoading(true);
-        await fetch('/api/v1/categories', {
+        await fetch(getApiUrl('/api/v1/categories'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
