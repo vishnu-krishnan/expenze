@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../utils/apiConfig';
 import {
     Plus,
     Trash2,
@@ -44,14 +45,14 @@ export default function RegularPayments() {
     }, [token]);
 
     const fetchTemplates = async () => {
-        const res = await fetch('/api/v1/regular', {
+        const res = await fetch(getApiUrl('/api/v1/regular'), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setTemplates(await res.json());
     };
 
     const fetchCategories = async () => {
-        const res = await fetch('/api/v1/categories', {
+        const res = await fetch(getApiUrl('/api/v1/categories'), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setCategories(await res.json());
@@ -80,7 +81,7 @@ export default function RegularPayments() {
             return;
         }
 
-        await fetch('/api/v1/regular', {
+        await fetch(getApiUrl('/api/v1/regular'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ export default function RegularPayments() {
 
     const handleDelete = async (id) => {
         if (!confirm('Delete this regular payment?')) return;
-        await fetch(`/api/v1/regular/${id}`, {
+        await fetch(getApiUrl(`/api/v1/regular/${id}`), {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

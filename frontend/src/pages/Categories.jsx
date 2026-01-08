@@ -47,7 +47,7 @@ export default function Categories() {
     }, [token]);
 
     const fetchCategories = async () => {
-        const res = await fetch('/api/v1/categories', {
+        const res = await fetch(getApiUrl('/api/v1/categories'), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) setCategories(await res.json());
@@ -66,7 +66,7 @@ export default function Categories() {
 
         setLoading(true);
         try {
-            const res = await fetch('/api/v1/categories', {
+            const res = await fetch(getApiUrl('/api/v1/categories'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export default function Categories() {
     };
 
     const handleSave = async (id) => {
-        await fetch(`/api/v1/categories/${id}`, {
+        await fetch(getApiUrl(`/api/v1/categories/${id}`), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export default function Categories() {
 
     const confirmDelete = async () => {
         if (!categoryToDelete) return;
-        await fetch(`/api/v1/categories/${categoryToDelete.id}`, {
+        await fetch(getApiUrl(`/api/v1/categories/${categoryToDelete.id}`), {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

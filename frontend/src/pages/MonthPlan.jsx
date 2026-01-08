@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../utils/apiConfig';
 import { Link } from 'react-router-dom';
 import {
     Calendar,
@@ -33,25 +34,25 @@ export default function MonthPlan() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/v1/month/${monthKey}`, {
+            const res = await fetch(getApiUrl(`/api/v1/month/${monthKey}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
             setItems(data?.items || []);
 
-            const catRes = await fetch('/api/v1/categories', {
+            const catRes = await fetch(getApiUrl('/api/v1/categories'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (catRes.ok) setCategories(await catRes.json());
 
-            const salRes = await fetch(`/api/v1/salary/${monthKey}`, {
+            const salRes = await fetch(getApiUrl(`/api/v1/salary/${monthKey}`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const salData = await salRes.json();
             setSalary(salData.amount || 0);
 
             // Fetch Profile for default budget
-            const profRes = await fetch('/api/v1/profile', {
+            const profRes = await fetch(getApiUrl('/api/v1/profile'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (profRes.ok) setProfile(await profRes.json());
@@ -64,7 +65,7 @@ export default function MonthPlan() {
 
     const handleGenerate = async () => {
         setLoading(true);
-        await fetch('/api/v1/month/generate', {
+        await fetch(getApiUrl('/api/v1/month/generate'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -80,7 +81,7 @@ export default function MonthPlan() {
         const updated = { ...item, [field]: value };
         setItems(items.map(i => i.id === id ? updated : i));
 
-        await fetch(`/api/v1/items/${id}`, {
+        await fetch(getApiUrl(`/api/v1/items/${id}`), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ export default function MonthPlan() {
 
     const updateSalary = async (val) => {
         setSalary(val);
-        await fetch('/api/v1/salary', {
+        await fetch(getApiUrl('/api/v1/salary'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -105,7 +106,7 @@ export default function MonthPlan() {
     const deleteItem = async (id) => {
         if (!confirm('Delete item?')) return;
         setItems(items.filter(i => i.id !== id));
-        await fetch(`/api/v1/items/${id}`, {
+        await fetch(getApiUrl(`/api/v1/items/${id}`), {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

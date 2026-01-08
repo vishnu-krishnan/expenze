@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../utils/apiConfig';
 import OtpModal from '../components/OtpModal';
 import {
     User,
@@ -28,7 +29,7 @@ export default function Profile() {
 
     const fetchProfile = async () => {
         try {
-            const res = await fetch('/api/v1/profile', {
+            const res = await fetch(getApiUrl('/api/v1/profile'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -69,7 +70,7 @@ export default function Profile() {
         try {
             // 1. Update Basic Profile Info (Phone, Budget) - only if changed
             if (phoneChanged || budgetChanged) {
-                const res = await fetch('/api/v1/profile', {
+                const res = await fetch(getApiUrl('/api/v1/profile'), {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -107,7 +108,7 @@ export default function Profile() {
             // 2. Handle Email Change Logic
             if (emailChanged) {
                 // Request Email Change OTP
-                const otpRes = await fetch('/api/v1/profile/request-email-change', {
+                const otpRes = await fetch(getApiUrl('/api/v1/profile/request-email-change'), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export default function Profile() {
 
     const handleVerifyOtp = async (otp) => {
         // Call verification endpoint
-        const res = await fetch('/api/v1/profile/verify-email-change', {
+        const res = await fetch(getApiUrl('/api/v1/profile/verify-email-change'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

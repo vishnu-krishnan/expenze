@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { getApiUrl } from '../utils/apiConfig';
 import {
     Users,
     Shield,
@@ -22,7 +24,7 @@ export default function Admin() {
             setLoading(true);
             setError('');
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/admin/users', {
+            const res = await fetch(getApiUrl('/api/v1/admin/users'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -46,7 +48,7 @@ export default function Admin() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/v1/admin/users/${u.id}`, {
+            const res = await fetch(getApiUrl(`/api/v1/admin/users/${u.id}`), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,7 +69,7 @@ export default function Admin() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/v1/admin/users/${id}`, {
+            const res = await fetch(getApiUrl(`/api/v1/admin/users/${id}`), {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

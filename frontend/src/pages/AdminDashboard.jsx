@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getApiUrl } from '../utils/apiConfig';
 import {
     Users,
     ShieldCheck,
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
-            const res = await fetch('/api/v1/admin/users', {
+            const res = await fetch(getApiUrl('/api/v1/admin/users'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

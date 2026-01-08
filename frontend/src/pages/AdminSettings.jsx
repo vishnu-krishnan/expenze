@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { getApiUrl } from '../utils/apiConfig';
 import { Settings, Mail, Shield, Zap, Globe, Info, Save, RefreshCw } from 'lucide-react';
 
 export default function AdminSettings() {
@@ -26,7 +28,7 @@ export default function AdminSettings() {
     const fetchSettings = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/admin/settings', {
+            const res = await fetch(getApiUrl('/api/v1/admin/settings'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -55,7 +57,7 @@ export default function AdminSettings() {
 
             // Save each setting
             for (const [key, value] of Object.entries(settings)) {
-                await fetch(`/api/v1/admin/settings/${key}`, {
+                await fetch(getApiUrl(`/api/v1/admin/settings/${key}`), {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
