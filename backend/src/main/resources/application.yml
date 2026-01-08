@@ -7,7 +7,7 @@ spring:
     password: ${PGPASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
     hibernate:
       ddl-auto: none
     show-sql: false
@@ -16,16 +16,20 @@ spring:
     baseline-on-migrate: true
 
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${EMAIL_HOST:smtp.gmail.com}
+    port: ${EMAIL_PORT:465}
     username: ${EMAIL_USER}
     password: ${EMAIL_PASS}
     properties:
       mail:
         smtp:
           auth: true
-          starttls:
+          ssl:
             enable: true
+            trust: "*"
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 
 server:
