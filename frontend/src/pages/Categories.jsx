@@ -27,7 +27,8 @@ import {
     Gift,
     Wifi,
     GraduationCap,
-    Plane
+    Plane,
+    IndianRupee
 } from 'lucide-react';
 
 export default function Categories() {
@@ -126,6 +127,7 @@ export default function Categories() {
 
     const commonCategories = [
         { label: 'Rent', icon: Home, color: '#3b82f6', emoji: '🏠' },
+        { label: 'Loan', icon: IndianRupee, color: '#ef4444', emoji: '💸' },
         { label: 'EMI', icon: Landmark, color: '#8b5cf6', emoji: '🏦' },
         { label: 'Groceries', icon: ShoppingCart, color: '#10b981', emoji: '🍎' },
         { label: 'Automotive', icon: Car, color: '#6366f1', emoji: '🚗' },

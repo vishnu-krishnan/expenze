@@ -221,31 +221,8 @@ export default function RegularPayments() {
                     <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>Start Date</label>
-                            <div className="input-wrapper" style={{ position: 'relative', height: '42px' }}>
-                                {/* VISUAL LAYER: Shows the formatted text or placeholder */}
-                                <div style={{
-                                    position: 'absolute',
-                                    inset: 0,
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '0.5rem',
-                                    background: 'var(--card-bg)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    paddingLeft: '2.75rem',
-                                    fontSize: '0.95rem',
-                                    color: newTmpl.startDate ? 'var(--text)' : 'var(--text-light)',
-                                    zIndex: 1, // Visual layer
-                                    pointerEvents: 'none', // Clicks pass through to the input
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden'
-                                }}>
-                                    {newTmpl.startDate ? formatDate(newTmpl.startDate) : 'Select Start Date...'}
-                                </div>
-
-                                {/* ICON */}
+                            <div className="input-wrapper" style={{ position: 'relative' }}>
                                 <CalendarRange className="input-icon" size={18} style={{ zIndex: 2 }} />
-
-                                {/* FUNCTIONAL LAYER: Invisible native picker on top */}
                                 <input
                                     type="date"
                                     required
@@ -254,13 +231,14 @@ export default function RegularPayments() {
                                     max="9999-12-31"
                                     min={MIN_START_DATE}
                                     style={{
-                                        position: 'absolute',
-                                        inset: 0,
+                                        height: '42px',
+                                        fontSize: '0.95rem',
+                                        paddingLeft: '2.75rem',
                                         width: '100%',
-                                        height: '100%',
-                                        opacity: 0, // Make it invisible
-                                        zIndex: 10, // Ensure it captures clicks
-                                        cursor: 'pointer'
+                                        borderRadius: '0.5rem',
+                                        border: '1px solid var(--border)',
+                                        background: 'var(--card-bg)',
+                                        color: 'var(--text)'
                                     }}
                                 />
                             </div>
@@ -269,44 +247,22 @@ export default function RegularPayments() {
 
                         <div className="input-group" style={{ margin: 0 }}>
                             <label>End Date <span style={{ fontWeight: 'normal', color: 'var(--text-light)', fontSize: '0.75rem' }}>(Optional)</span></label>
-                            <div className="input-wrapper" style={{ position: 'relative', height: '42px' }}>
-                                {/* VISUAL LAYER */}
-                                <div style={{
-                                    position: 'absolute',
-                                    inset: 0,
-                                    border: '1px solid var(--border)',
-                                    borderRadius: '0.5rem',
-                                    background: 'var(--card-bg)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    paddingLeft: '2.75rem',
-                                    fontSize: '0.95rem',
-                                    color: newTmpl.endDate ? 'var(--text)' : 'var(--text-light)',
-                                    zIndex: 1,
-                                    pointerEvents: 'none',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden'
-                                }}>
-                                    {newTmpl.endDate ? formatDate(newTmpl.endDate) : 'Ongoing (Always)'}
-                                </div>
-
-                                {/* ICON */}
+                            <div className="input-wrapper" style={{ position: 'relative' }}>
                                 <CalendarRange className="input-icon" size={18} style={{ zIndex: 2 }} />
-
-                                {/* FUNCTIONAL LAYER */}
                                 <input
                                     type="date"
                                     value={newTmpl.endDate || ''}
                                     onChange={e => setNewTmpl({ ...newTmpl, endDate: e.target.value })}
                                     min={getNextDay(newTmpl.startDate)}
                                     style={{
-                                        position: 'absolute',
-                                        inset: 0,
+                                        height: '42px',
+                                        fontSize: '0.95rem',
+                                        paddingLeft: '2.75rem',
                                         width: '100%',
-                                        height: '100%',
-                                        opacity: 0,
-                                        zIndex: 10,
-                                        cursor: 'pointer'
+                                        borderRadius: '0.5rem',
+                                        border: '1px solid var(--border)',
+                                        background: 'var(--card-bg)',
+                                        color: 'var(--text)'
                                     }}
                                 />
                             </div>
