@@ -1,0 +1,7 @@
+CREATE TABLE password_reset_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expiry_date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

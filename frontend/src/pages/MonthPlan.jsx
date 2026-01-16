@@ -76,31 +76,58 @@ export default function MonthPlan() {
         loadData();
     };
 
-    const updateItem = async (id, field, value) => {
-        const item = items.find(i => i.id === id);
-        const updated = { ...item, [field]: value };
-        setItems(items.map(i => i.id === id ? updated : i));
-
-        await fetch(getApiUrl(`/api/v1/items/${id}`), {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(updated)
-        });
+    // 1. Update local state immediately for smooth typing
+    const handleItemChange = (id, field, value) => {
+        setItems(prev => prev.map(item =>
+            item.id === id ? { ...item, [field]: value } : item
+        ));
     };
 
-    const updateSalary = async (val) => {
+    // 2. Persist to DB only when user is done typing (onBlur)
+    const saveItem = async (item) => {
+        try {
+            await fetch(getApiUrl(`/api/v1/items/${item.id}`), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(item)
+            });
+        } catch (error) {
+            console.error("Failed to save item:", error);
+            // Optionally revert state here if needed
+        }
+    };
+
+    // Special handler for immediate save (e.g., Checkbox)
+    const handlePaidToggle = (item, isPaid) => {
+        const updated = { ...item, isPaid };
+        // Update local
+        setItems(prev => prev.map(i => i.id === item.id ? updated : i));
+        // Save immediately
+        saveItem(updated);
+    };
+
+    // Salary: Local Update
+    const handleSalaryChange = (val) => {
         setSalary(val);
-        await fetch(getApiUrl('/api/v1/salary'), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ monthKey, amount: val })
-        });
+    };
+
+    // Salary: Persist (onBlur)
+    const saveSalary = async () => {
+        try {
+            await fetch(getApiUrl('/api/v1/salary'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ monthKey, amount: salary })
+            });
+        } catch (error) {
+            console.error("Failed to save salary:", error);
+        }
     };
 
     const deleteItem = async (id) => {
@@ -202,7 +229,8 @@ export default function MonthPlan() {
                     <input
                         type="number"
                         value={salary || ''}
-                        onChange={e => updateSalary(parseFloat(e.target.value) || 0)}
+                        onChange={e => handleSalaryChange(parseFloat(e.target.value) || 0)}
+                        onBlur={saveSalary}
                         placeholder="0"
                         style={{
                             border: 'none',
@@ -263,18 +291,49 @@ export default function MonthPlan() {
                             sortedItems.map(item => (
                                 <tr key={item.id} className={item.isPaid ? 'paid-row' : ''} style={{ opacity: item.isPaid ? 0.7 : 1 }}>
                                     <td style={{ fontWeight: '500' }}>{item.categoryName}</td>
-                                    <td><input value={item.name} onChange={e => updateItem(item.id, 'name', e.target.value)} style={{ border: 'transparent', background: 'transparent' }} /></td>
-                                    <td><input type="number" value={item.plannedAmount} onChange={e => updateItem(item.id, 'plannedAmount', parseFloat(e.target.value))} style={{ border: 'transparent', background: 'transparent', width: '100px' }} /></td>
-                                    <td><input type="number" value={item.actualAmount} onChange={e => updateItem(item.id, 'actualAmount', parseFloat(e.target.value))} style={{ border: 'transparent', background: 'transparent', width: '100px', fontWeight: 'bold' }} /></td>
+                                    <td>
+                                        <input
+                                            value={item.name}
+                                            onChange={e => handleItemChange(item.id, 'name', e.target.value)}
+                                            onBlur={() => saveItem(item)}
+                                            style={{ border: 'transparent', background: 'transparent' }}
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            value={item.plannedAmount}
+                                            onChange={e => handleItemChange(item.id, 'plannedAmount', parseFloat(e.target.value))}
+                                            onBlur={() => saveItem(item)}
+                                            style={{ border: 'transparent', background: 'transparent', width: '100px' }}
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            value={item.actualAmount}
+                                            onChange={e => handleItemChange(item.id, 'actualAmount', parseFloat(e.target.value))}
+                                            onBlur={() => saveItem(item)}
+                                            style={{ border: 'transparent', background: 'transparent', width: '100px', fontWeight: 'bold' }}
+                                        />
+                                    </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <input
                                             type="checkbox"
                                             checked={!!item.isPaid}
-                                            onChange={e => updateItem(item.id, 'isPaid', e.target.checked ? 1 : 0)}
+                                            onChange={e => handlePaidToggle(item, e.target.checked ? 1 : 0)}
                                             style={{ width: '20px', height: '20px' }}
                                         />
                                     </td>
-                                    <td><input value={item.notes || ''} onChange={e => updateItem(item.id, 'notes', e.target.value)} placeholder="Add notes..." style={{ border: 'transparent', background: 'transparent', fontStyle: 'italic', fontSize: '0.85rem' }} /></td>
+                                    <td>
+                                        <input
+                                            value={item.notes || ''}
+                                            onChange={e => handleItemChange(item.id, 'notes', e.target.value)}
+                                            onBlur={() => saveItem(item)}
+                                            placeholder="Add notes..."
+                                            style={{ border: 'transparent', background: 'transparent', fontStyle: 'italic', fontSize: '0.85rem' }}
+                                        />
+                                    </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <button className="danger small" onClick={() => deleteItem(item.id)} style={{ padding: '0.5rem' }}>
                                             <Trash2 size={16} />

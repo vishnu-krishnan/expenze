@@ -36,4 +36,24 @@ public class EmailServiceImpl implements EmailService {
             log.info("FALLBACK: OTP for {}: {}", to, otp);
         }
     }
+
+    @Override
+    public void sendPasswordResetEmail(String to, String link) {
+        try {
+            org.springframework.mail.SimpleMailMessage message = new org.springframework.mail.SimpleMailMessage();
+            message.setFrom(senderEmail);
+            message.setTo(to);
+            message.setSubject("Expenze - Password Reset Request");
+            message.setText("We received a request to reset your password.\n\n" +
+                    "Click the link below to reset it:\n" + link + "\n\n" +
+                    "If you didn't request this, please ignore this email.\n\n" +
+                    "Best Regards,\nExpenze Team");
+
+            javaMailSender.send(message);
+            log.info("Password reset email sent successfully to {}", to);
+        } catch (Exception e) {
+            log.error("Failed to send password reset email to {}", to, e);
+            log.info("FALLBACK: Reset Link for {}: {}", to, link);
+        }
+    }
 }

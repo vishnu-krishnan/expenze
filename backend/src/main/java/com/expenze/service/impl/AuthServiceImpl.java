@@ -33,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final UserVerificationRepository userVerificationRepository;
+    private final com.expenze.repository.PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
@@ -185,5 +186,52 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void verifyOtp(String email, String otp) {
         // Redundant with completeRegistration for this specific flow
+    }
+
+    @Transactional
+    @Override
+    public void forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        // Generate Token
+        String token = java.util.UUID.randomUUID().toString();
+
+        // Remove old tokens
+        passwordResetTokenRepository.deleteByUserId(user.getId());
+
+        com.expenze.entity.PasswordResetToken prt = com.expenze.entity.PasswordResetToken.builder()
+                .userId(user.getId())
+                .token(token)
+                .expiryDate(LocalDateTime.now().plusHours(1))
+                .build();
+
+        passwordResetTokenRepository.save(prt);
+
+        // Send Email (Assuming frontend on localhost:3000 for local, need to be dynamic
+        // for prod ideally)
+        // For now, hardcode localhost:3000 as per dev environment
+        String link = "http://localhost:3000/reset-password?token=" + token;
+        emailService.sendPasswordResetEmail(email, link);
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        com.expenze.entity.PasswordResetToken prt = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid password reset token"));
+
+        if (prt.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Token expired");
+        }
+
+        User user = userRepository.findById(prt.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Invalidate token
+        passwordResetTokenRepository.delete(prt);
     }
 }

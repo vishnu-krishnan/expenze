@@ -33,7 +33,7 @@ button.primary:hover:not(:disabled) {
 }
 
 button.danger {
-    background: var(--danger);
+    background: #dc2626;
     color: white;
 }
 

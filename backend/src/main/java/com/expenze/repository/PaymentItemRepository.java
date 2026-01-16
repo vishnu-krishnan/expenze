@@ -10,16 +10,17 @@ import java.util.Optional;
 
 @Repository
 public interface PaymentItemRepository extends JpaRepository<PaymentItem, Long> {
-    List<PaymentItem> findByMonthPlanId(Long monthPlanId);
+        List<PaymentItem> findByMonthPlanId(Long monthPlanId);
 
-    List<PaymentItem> findByUserIdAndMonthPlanId(Long userId, Long monthPlanId);
+        List<PaymentItem> findByUserIdAndMonthPlanId(Long userId, Long monthPlanId);
 
-    @Query("SELECT pi FROM PaymentItem pi " +
-            "JOIN Category c ON pi.categoryId = c.id " +
-            "WHERE pi.monthPlanId = :monthPlanId AND pi.userId = :userId " +
-            "ORDER BY c.sortOrder ASC, pi.name ASC")
-    List<PaymentItem> findAllByMonthPlanIdWithCategoryOrder(Long monthPlanId, Long userId);
+        @Query("SELECT pi FROM PaymentItem pi " +
+                        "LEFT JOIN Category c ON pi.categoryId = c.id " +
+                        "WHERE pi.monthPlanId = :monthPlanId AND pi.userId = :userId " +
+                        "ORDER BY c.sortOrder ASC, pi.name ASC")
+        List<PaymentItem> findAllByMonthPlanIdWithCategoryOrder(Long monthPlanId, Long userId);
 
-    Optional<PaymentItem> findByMonthPlanIdAndNameAndCategoryIdAndUserId(Long monthPlanId, String name, Long categoryId,
-            Long userId);
+        Optional<PaymentItem> findByMonthPlanIdAndNameAndCategoryIdAndUserId(Long monthPlanId, String name,
+                        Long categoryId,
+                        Long userId);
 }

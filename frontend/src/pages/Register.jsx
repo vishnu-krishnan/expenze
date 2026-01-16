@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCircle2, Lock, Mail, Phone, Loader2, KeyRound } from 'lucide-react';
 import { getApiUrl } from '../utils/apiConfig';
+import signupImg from '../assets/signup.jpg';
 
 export default function Register() {
     const navigate = useNavigate();
@@ -190,201 +191,263 @@ export default function Register() {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <div className="auth-header">
-                    <div className="logo" style={{ marginBottom: '1rem' }}>
-                        <span className="rupee-icon">₹</span>
-                        Expenze
+        <div className="auth-page-wrapper" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            padding: '2rem',
+            background: 'transparent'
+        }}>
+            <div className="auth-card-split" style={{
+                display: 'flex',
+                maxWidth: '1000px',
+                width: '100%',
+                background: 'var(--bg-card)',
+                borderRadius: '16px',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.1)',
+                overflow: 'hidden',
+                minHeight: '600px'
+            }}>
+                {/* Image Section */}
+                <div className="auth-image-side" style={{
+                    flex: '1',
+                    background: 'var(--bg-secondary)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <img
+                        src={signupImg}
+                        alt="Finance Management"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0
+                        }}
+                    />
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '3rem 2rem',
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+                        color: 'white',
+                        textAlign: 'center'
+                    }}>
+                        <h3 style={{ margin: '0 0 0.5rem 0', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>Join Expenze Today</h3>
+                        <p style={{ margin: 0, fontSize: '0.95rem', color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
+                            Start your journey towards financial freedom.
+                        </p>
                     </div>
-                    <h2>{mode === 'REGISTER' ? 'Create Account' : 'Verify Your Account'}</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>
-                        {mode === 'REGISTER'
-                            ? 'Join Expenze to manage your finances'
-                            : `A verification code has been sent to ${pendingEmail}`}
-                    </p>
                 </div>
 
-                {error && <div className="status-msg status-error">{error}</div>}
-                {info && <div className="status-msg status-success">{info}</div>}
-
-                {mode === 'VERIFY' && (
-                    <div style={{
-                        marginTop: '1.25rem',
-                        padding: '1rem',
-                        background: 'var(--bg-secondary)',
-                        borderRadius: '0.75rem',
-                        border: '1px solid var(--border)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.75rem'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
-                            <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>Email Status:</span>
-                            <span style={{
-                                fontWeight: '600',
-                                color: deliveryStatus === 'sent' ? 'var(--success)' :
-                                    deliveryStatus === 'failed' ? 'var(--danger)' : 'var(--warning)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem'
-                            }}>
-                                {deliveryStatus === 'sent' ? '✅ Delivered' :
-                                    deliveryStatus === 'failed' ? '❌ Failed' : '⌛ Sending...'}
-                            </span>
+                {/* Form Section */}
+                <div className="auth-form-side" style={{
+                    flex: '1',
+                    padding: '3rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                }}>
+                    <div className="auth-header">
+                        <div className="logo" style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>
+                            <span className="rupee-icon" style={{ background: 'var(--primary)', color: 'white', width: '32px', height: '32px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginRight: '8px' }}>₹</span>
+                            Expenze
                         </div>
+                        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{mode === 'REGISTER' ? 'Create Account' : 'Verify Your Account'}</h2>
+                        <p style={{ color: 'var(--text-secondary)' }}>
+                            {mode === 'REGISTER'
+                                ? 'Join Expenze to manage your finances'
+                                : `A verification code has been sent to ${pendingEmail}`}
+                        </p>
+                    </div>
 
-                        {timeLeft !== null && timeLeft > 0 && (
+                    {error && <div className="status-msg status-error" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Loader2 size={16} style={{ display: 'none' }} /> {error}</div>}
+                    {info && <div className="status-msg status-success" style={{ marginBottom: '1.5rem' }}>{info}</div>}
+
+                    {mode === 'VERIFY' && (
+                        <div style={{
+                            marginBottom: '1.5rem',
+                            padding: '1rem',
+                            background: 'var(--bg-secondary)',
+                            borderRadius: '0.75rem',
+                            border: '1px solid var(--border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.75rem'
+                        }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
-                                <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>OTP Expires in:</span>
+                                <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>Email Status:</span>
                                 <span style={{
-                                    fontWeight: '700',
-                                    color: timeLeft < 30 ? 'var(--danger)' : 'var(--primary)',
-                                    fontVariantNumeric: 'tabular-nums'
+                                    fontWeight: '600',
+                                    color: deliveryStatus === 'sent' ? 'var(--success)' :
+                                        deliveryStatus === 'failed' ? 'var(--danger)' : 'var(--warning)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
                                 }}>
-                                    {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                                    {deliveryStatus === 'sent' ? '✅ Delivered' :
+                                        deliveryStatus === 'failed' ? '❌ Failed' : '⌛ Sending...'}
                                 </span>
+                            </div>
+
+                            {timeLeft !== null && timeLeft > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                                    <span style={{ color: 'var(--text-secondary)', fontWeight: '500' }}>OTP Expires in:</span>
+                                    <span style={{
+                                        fontWeight: '700',
+                                        color: timeLeft < 30 ? 'var(--danger)' : 'var(--primary)',
+                                        fontVariantNumeric: 'tabular-nums'
+                                    }}>
+                                        {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {mode === 'REGISTER' && (
+                        <form onSubmit={handleRegister}>
+                            <div className="input-group">
+                                <label>Username</label>
+                                <div className="input-wrapper">
+                                    <UserCircle2 className="input-icon" size={20} />
+                                    <input type="text" name="username" placeholder="Choose a username" value={formData.username} onChange={handleChange} required autoFocus />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Email Address</label>
+                                <div className="input-wrapper">
+                                    <Mail className="input-icon" size={20} />
+                                    <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Phone (Optional)</label>
+                                <div className="input-wrapper">
+                                    <Phone className="input-icon" size={20} />
+                                    <input type="tel" name="phone" placeholder="+91 98765 43210" value={formData.phone} onChange={handleChange} />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Password</label>
+                                <div className="input-wrapper">
+                                    <Lock className="input-icon" size={20} />
+                                    <input type="password" name="password" placeholder="Create a strong password" value={formData.password} onChange={handleChange} required />
+                                </div>
+                            </div>
+                            <button type="submit" className="primary auth-btn" disabled={loading} style={{ marginTop: '1rem' }}>
+                                {loading ? (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <Loader2 className="animate-spin" size={18} />
+                                        Creating Account...
+                                    </span>
+                                ) : 'Create Account'}
+                            </button>
+                        </form>
+                    )}
+
+                    {mode === 'VERIFY' && (
+                        <form onSubmit={handleVerify}>
+                            <div className="input-group">
+                                <label>One-Time Password</label>
+                                <div className="input-wrapper">
+                                    <KeyRound className="input-icon" size={20} />
+                                    <input
+                                        className="otp-box"
+                                        type="text"
+                                        placeholder="------"
+                                        maxLength={6}
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        required
+                                        autoFocus
+                                        disabled={timeLeft === 0}
+                                    />
+                                </div>
+                                {testOtp && (
+                                    <div style={{
+                                        marginTop: '0.75rem',
+                                        fontSize: '0.75rem',
+                                        color: '#4b5563',
+                                        background: '#f3f4f6',
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '0.5rem',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem',
+                                        border: '1px dashed #d1d5db'
+                                    }}>
+                                        <span>Dev Mode OTP:</span>
+                                        <strong style={{ color: 'var(--primary)', letterSpacing: '1px' }}>{testOtp}</strong>
+                                    </div>
+                                )}
+                            </div>
+                            <button type="submit" className="primary auth-btn" disabled={loading || timeLeft === 0} style={{ marginTop: '1rem' }}>
+                                {loading ? <Loader2 className="animate-spin" size={18} /> : 'Verify & Access'}
+                            </button>
+
+                            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                                <button
+                                    type="button"
+                                    className="text-btn"
+                                    onClick={handleResendOtp}
+                                    disabled={loading}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'var(--primary)',
+                                        cursor: 'pointer',
+                                        fontWeight: '500',
+                                        fontSize: '0.9rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '0.5rem',
+                                        width: '100%'
+                                    }}
+                                >
+                                    {loading && deliveryStatus === 'pending' ? <Loader2 className="animate-spin" size={14} /> : 'Didn\'t receive code? Resend OTP'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {/* Action Links */}
+                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column', alignItems: 'center', marginTop: '1.5rem' }}>
+                        {mode === 'VERIFY' ? (
+                            <>
+                                {timeLeft === 0 && (
+                                    <div
+                                        className="toggle-link"
+                                        onClick={() => {
+                                            setError('');
+                                            setInfo('');
+                                            setTestOtp(null);
+                                            setOtpExpiry(null);
+                                            setTimeLeft(null);
+                                            setMode('REGISTER');
+                                        }}
+                                        style={{ textAlign: 'center', cursor: 'pointer' }}
+                                    >
+                                        <span style={{ fontSize: '0.85rem' }}>Entered the wrong email?</span>
+                                        <span style={{ color: 'var(--primary)', fontWeight: '600', marginLeft: '0.25rem' }}>Change it here</span>
+                                    </div>
+                                )}
+                                <div className="toggle-link" onClick={() => navigate('/login')} style={{ textAlign: 'center', cursor: 'pointer' }}>
+                                    ← Back to Login
+                                </div>
+                            </>
+                        ) : (
+                            <div className="toggle-link" onClick={() => navigate('/login')} style={{ textAlign: 'center', cursor: 'pointer' }}>
+                                Already have an account? <strong>Sign In</strong>
                             </div>
                         )}
                     </div>
-                )}
-
-                {mode === 'REGISTER' && (
-                    <form onSubmit={handleRegister}>
-                        <div className="input-group">
-                            <label>Username</label>
-                            <div className="input-wrapper">
-                                <UserCircle2 className="input-icon" size={20} />
-                                <input type="text" name="username" placeholder="Choose a username" value={formData.username} onChange={handleChange} required autoFocus />
-                            </div>
-                        </div>
-                        <div className="input-group">
-                            <label>Email Address</label>
-                            <div className="input-wrapper">
-                                <Mail className="input-icon" size={20} />
-                                <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
-                            </div>
-                        </div>
-                        <div className="input-group">
-                            <label>Phone (Optional)</label>
-                            <div className="input-wrapper">
-                                <Phone className="input-icon" size={20} />
-                                <input type="tel" name="phone" placeholder="+91 98765 43210" value={formData.phone} onChange={handleChange} />
-                            </div>
-                        </div>
-                        <div className="input-group">
-                            <label>Password</label>
-                            <div className="input-wrapper">
-                                <Lock className="input-icon" size={20} />
-                                <input type="password" name="password" placeholder="Create a strong password" value={formData.password} onChange={handleChange} required />
-                            </div>
-                        </div>
-                        <button type="submit" className="primary auth-btn" disabled={loading}>
-                            {loading ? (
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Loader2 className="animate-spin" size={18} />
-                                    Creating Account...
-                                </span>
-                            ) : 'Create Account'}
-                        </button>
-                    </form>
-                )}
-
-                {mode === 'VERIFY' && (
-                    <form onSubmit={handleVerify} style={{ marginTop: '1.5rem' }}>
-                        <div className="input-group">
-                            <label>One-Time Password</label>
-                            <div className="input-wrapper">
-                                <KeyRound className="input-icon" size={20} />
-                                <input
-                                    className="otp-box"
-                                    type="text"
-                                    placeholder="------"
-                                    maxLength={6}
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
-                                    required
-                                    autoFocus
-                                    disabled={timeLeft === 0}
-                                />
-                            </div>
-                            {testOtp && (
-                                <div style={{
-                                    marginTop: '0.75rem',
-                                    fontSize: '0.75rem',
-                                    color: '#4b5563',
-                                    background: '#f3f4f6',
-                                    padding: '0.5rem 0.75rem',
-                                    borderRadius: '0.5rem',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    gap: '0.5rem',
-                                    border: '1px dashed #d1d5db'
-                                }}>
-                                    <span>Dev Mode OTP:</span>
-                                    <strong style={{ color: 'var(--primary)', letterSpacing: '1px' }}>{testOtp}</strong>
-                                </div>
-                            )}
-                        </div>
-                        <button type="submit" className="primary auth-btn" disabled={loading || timeLeft === 0}>
-                            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Verify & Access'}
-                        </button>
-
-                        <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                            <button
-                                type="button"
-                                className="text-btn"
-                                onClick={handleResendOtp}
-                                disabled={loading}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--primary)',
-                                    cursor: 'pointer',
-                                    fontWeight: '500',
-                                    fontSize: '0.9rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.5rem',
-                                    width: '100%'
-                                }}
-                            >
-                                {loading && deliveryStatus === 'pending' ? <Loader2 className="animate-spin" size={14} /> : 'Didn\'t receive code? Resend OTP'}
-                            </button>
-                        </div>
-                    </form>
-                )}
-
-                {/* Action Links */}
-                <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column', alignItems: 'center', marginTop: '1rem' }}>
-                    {mode === 'VERIFY' ? (
-                        <>
-                            {timeLeft === 0 && (
-                                <div
-                                    className="toggle-link"
-                                    onClick={() => {
-                                        setError('');
-                                        setInfo('');
-                                        setTestOtp(null);
-                                        setOtpExpiry(null);
-                                        setTimeLeft(null);
-                                        setMode('REGISTER');
-                                    }}
-                                >
-                                    <span style={{ fontSize: '0.85rem' }}>Entered the wrong email?</span>
-                                    <span style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: '600', marginLeft: '0.25rem' }}>Change it here</span>
-                                </div>
-                            )}
-                            <div className="toggle-link" onClick={() => navigate('/login')}>
-                                ← Back to Login
-                            </div>
-                        </>
-                    ) : (
-                        <div className="toggle-link" onClick={() => navigate('/login')}>
-                            Already have an account? Sign In
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

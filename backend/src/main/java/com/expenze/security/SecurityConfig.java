@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
                         .requestMatchers("/api/v1/login", "/api/v1/register", "/api/v1/verify-otp",
-                                "/api/v1/resend-otp",
+                                "/api/v1/resend-otp", "/api/v1/forgot-password", "/api/v1/reset-password",
                                 "/api/v1/registration-status/**", "/api/v1/settings/**")
                         .permitAll()
                         // Admin Endpoints

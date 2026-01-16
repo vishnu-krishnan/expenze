@@ -31,16 +31,13 @@ public class MonthPlanServiceImpl implements MonthPlanService {
     private final CategoryRepository categoryRepository;
 
     @Override
+    @Transactional
     public MonthPlanDto getMonthPlan(Long userId, String monthKey) {
-        MonthPlan plan = monthPlanRepository.findByUserIdAndMonthKey(userId, monthKey).orElse(null);
-        if (plan == null) {
-            log.debug("No MonthPlan found for user {} and month {}. Returning empty DTO.", userId, monthKey);
-            return MonthPlanDto.builder()
-                    .userId(userId)
-                    .monthKey(monthKey)
-                    .items(new ArrayList<>())
-                    .build();
-        }
+        // Always ensure plan exists and is populated with regular payments
+        generateMonthPlan(userId, monthKey);
+
+        MonthPlan plan = monthPlanRepository.findByUserIdAndMonthKey(userId, monthKey)
+                .orElseThrow(() -> new RuntimeException("Failed to generate plan"));
 
         List<PaymentItem> items = paymentItemRepository.findAllByMonthPlanIdWithCategoryOrder(plan.getId(), userId);
 
@@ -98,6 +95,7 @@ public class MonthPlanServiceImpl implements MonthPlanService {
                 log.trace("Created payment item from regular payment: {}", rp.getName());
             }
         }
+        paymentItemRepository.flush();
         return plan.getId();
     }
 

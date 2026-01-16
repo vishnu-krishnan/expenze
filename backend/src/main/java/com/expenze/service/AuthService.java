@@ -25,4 +25,8 @@ public interface AuthService {
     Object resendOtp(String email);
 
     Object getRegistrationStatus(String email);
+
+    void forgotPassword(String email);
+
+    void resetPassword(String token, String newPassword);
 }

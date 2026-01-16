@@ -21,10 +21,10 @@ public class SystemSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "setting_key", unique = true, nullable = false)
+    @Column(name = "key_name", unique = true, nullable = false)
     private String settingKey;
 
-    @Column(name = "setting_value")
+    @Column(name = "key_value")
     private String settingValue;
 
     @Column(name = "setting_type")
@@ -41,6 +41,6 @@ public class SystemSetting {
     private Integer isPublic = 0;
 
     @UpdateTimestamp
-    @Column(name = "updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
