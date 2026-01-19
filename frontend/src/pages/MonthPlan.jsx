@@ -322,6 +322,38 @@ export default function MonthPlan() {
                     )}
                 </table>
             </div>
+
+            {/* Monthly Budget moved to bottom */}
+            <div className="toolbar" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.75rem 1.25rem',
+                background: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '12px',
+                border: '1px solid var(--border)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                marginTop: '1rem'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div className="icon-wrapper primary" style={{ padding: '6px', color: 'var(--primary)' }}><CircleDollarSign size={18} /></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+                        <label style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monthly Budget</label>
+                        <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: '400' }}>From Profile</span>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '500' }}>₹</span>
+                    <span style={{
+                        fontSize: '1.5rem',
+                        fontWeight: '700',
+                        color: 'var(--primary)',
+                        lineHeight: '1'
+                    }}>
+                        {profile?.defaultBudget || 0}
+                    </span>
+                </div>
+            </div>
         </section>
     );
 }
