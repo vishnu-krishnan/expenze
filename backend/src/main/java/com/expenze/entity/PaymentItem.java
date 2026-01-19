@@ -45,4 +45,8 @@ public class PaymentItem {
     private Integer isPaid = 0;
 
     private String notes;
+
+    @Column(name = "priority")
+    @Builder.Default
+    private String priority = "MEDIUM"; // HIGH, MEDIUM, LOW
 }
