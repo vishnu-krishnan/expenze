@@ -35,21 +35,33 @@ export default function Dashboard() {
         setLoading(true);
         try {
             // Parallelize fetches for better performance
-            const [monthRes, profRes, summaryRes, catRes] = await Promise.all([
+            const [monthRes, profRes, summaryRes, catRes, templateRes] = await Promise.all([
                 fetch(getApiUrl(`/api/v1/month/${key}`), { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(getApiUrl('/api/v1/profile'), { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(getApiUrl('/api/v1/summary/last6'), { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(getApiUrl(`/api/v1/category-expenses/${key}`), { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(getApiUrl(`/api/v1/category-expenses/${key}`), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl('/api/v1/templates'), { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             // 1. Month Data
             const data = await monthRes.json();
+            const templates = templateRes.ok ? await templateRes.json() : [];
+
             let planned = 0, actual = 0, count = 0;
-            if (data?.items) {
+
+            // If month plan items exist, use them
+            if (data?.items && data.items.length > 0) {
                 data.items.forEach(i => {
                     planned += parseFloat(i.plannedAmount) || 0;
                     actual += parseFloat(i.actualAmount) || 0;
                     if (!i.isPaid) count++;
+                });
+            } else {
+                // If NO items exist (month plan not generated), estimate planned from active templates
+                templates.forEach(t => {
+                    if (t.isActive) {
+                        planned += parseFloat(t.amount) || 0;
+                    }
                 });
             }
 

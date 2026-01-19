@@ -120,6 +120,7 @@ public class MonthPlanServiceImpl implements MonthPlanService {
         item.setActualAmount(dto.getActualAmount());
         item.setIsPaid(dto.getIsPaid());
         item.setNotes(dto.getNotes());
+        item.setPriority(dto.getPriority());
 
         paymentItemRepository.save(item);
     }

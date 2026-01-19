@@ -22,4 +22,5 @@ public class PaymentItemDto {
     private BigDecimal actualAmount;
     private Integer isPaid;
     private String notes;
+    private String priority; // HIGH, MEDIUM, LOW
 }

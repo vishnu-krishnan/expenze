@@ -10,7 +10,13 @@ import {
     Save,
     AlertCircle,
     CheckCircle2,
-    Wallet
+    Wallet,
+    Plus,
+    Trash2,
+    Tag,
+    Edit2,
+    Check,
+    X
 } from 'lucide-react';
 
 export default function Profile() {
@@ -23,8 +29,20 @@ export default function Profile() {
     const [loading, setLoading] = useState(true);
     const [otpModalOpen, setOtpModalOpen] = useState(false);
 
+    // Category Templates
+    const [categories, setCategories] = useState([]);
+    const [templates, setTemplates] = useState({});
+    const [newTemplate, setNewTemplate] = useState({});
+    const [templateMsg, setTemplateMsg] = useState('');
+    const [editingId, setEditingId] = useState(null);
+    const [editingValue, setEditingValue] = useState('');
+
     useEffect(() => {
-        if (token) fetchProfile();
+        if (token) {
+            fetchProfile();
+            loadCategories();
+            loadTemplates();
+        }
     }, [token]);
 
     const fetchProfile = async () => {
@@ -171,6 +189,118 @@ export default function Profile() {
         setTimeout(() => setMsg(''), 3000);
     };
 
+    // Template Management Functions
+    const loadCategories = async () => {
+        try {
+            const res = await fetch(getApiUrl('/api/v1/category'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setCategories(data);
+            }
+        } catch (err) {
+            console.error('Error loading categories:', err);
+        }
+    };
+
+    const loadTemplates = async () => {
+        try {
+            const res = await fetch(getApiUrl('/api/v1/category-templates'), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setTemplates(data);
+            }
+        } catch (err) {
+            console.error('Error loading templates:', err);
+        }
+    };
+
+    const initializeDefaults = async () => {
+        try {
+            const res = await fetch(getApiUrl('/api/v1/category-templates/initialize'), {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                setTemplateMsg('Default templates loaded successfully!');
+                setTimeout(() => setTemplateMsg(''), 3000);
+                loadTemplates();
+            }
+        } catch (err) {
+            setTemplateMsg('Error loading defaults');
+        }
+    };
+
+    const addTemplate = async (categoryId) => {
+        if (!newTemplate[categoryId]?.trim()) return;
+
+        try {
+            const res = await fetch(getApiUrl('/api/v1/category-templates'), {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    categoryId,
+                    subOption: newTemplate[categoryId].trim(),
+                    sortOrder: templates[categoryId]?.length || 0
+                })
+            });
+
+            if (res.ok) {
+                setNewTemplate({ ...newTemplate, [categoryId]: '' });
+                loadTemplates();
+            }
+        } catch (err) {
+            console.error('Error adding template:', err);
+        }
+    };
+
+    const updateTemplate = async (id, categoryId) => {
+        if (!editingValue.trim()) return;
+
+        try {
+            const res = await fetch(getApiUrl(`/api/v1/category-templates/${id}`), {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    categoryId,
+                    subOption: editingValue.trim()
+                })
+            });
+
+            if (res.ok) {
+                setEditingId(null);
+                setEditingValue('');
+                loadTemplates();
+            }
+        } catch (err) {
+            console.error('Error updating template:', err);
+        }
+    };
+
+    const deleteTemplate = async (id) => {
+        try {
+            const res = await fetch(getApiUrl(`/api/v1/category-templates/${id}`), {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                loadTemplates();
+            }
+        } catch (err) {
+            console.error('Error deleting template:', err);
+        }
+    };
+
     if (loading) {
         return (
             <section className="view active">
@@ -262,6 +392,173 @@ export default function Profile() {
                         <Save size={18} /> Save Changes
                     </button>
                 </form>
+            </div>
+
+            {/* Category Templates Section */}
+            <div className="panel" style={{ marginTop: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <div>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <Tag size={20} color="var(--primary)" /> Category Templates
+                        </h3>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+                            Define quick options for faster expense entry
+                        </p>
+                    </div>
+                    <button className="primary small" onClick={initializeDefaults}>
+                        <Plus size={14} /> Load Defaults
+                    </button>
+                </div>
+
+                {templateMsg && (
+                    <div className="status-popup status-success" style={{ position: 'relative', marginBottom: '1rem' }}>
+                        {templateMsg}
+                    </div>
+                )}
+
+                {categories.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+                        No categories found. Create categories first to add templates.
+                    </p>
+                ) : (
+                    <div style={{ display: 'grid', gap: '1.5rem' }}>
+                        {categories.map(category => (
+                            <div key={category.id} style={{
+                                padding: '1.25rem',
+                                background: 'rgba(255, 255, 255, 0.5)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)'
+                            }}>
+                                <h4 style={{
+                                    marginBottom: '1rem',
+                                    color: 'var(--primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    {category.icon && <span>{category.icon}</span>}
+                                    {category.name}
+                                    {templates[category.id] && (
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            background: 'var(--primary)',
+                                            color: 'white',
+                                            padding: '0.15rem 0.5rem',
+                                            borderRadius: '12px'
+                                        }}>
+                                            {templates[category.id].length}
+                                        </span>
+                                    )}
+                                </h4>
+
+                                {/* Existing templates */}
+                                {templates[category.id]?.length > 0 && (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: '0.75rem',
+                                        marginBottom: '1.25rem'
+                                    }}>
+                                        {templates[category.id].map(t => (
+                                            <div key={t.id} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                padding: '0.4rem 0.6rem',
+                                                background: 'white',
+                                                borderRadius: '8px',
+                                                border: editingId === t.id ? '2px solid var(--primary)' : '1px solid var(--border)',
+                                                boxShadow: 'var(--shadow-sm)',
+                                                transition: 'all 0.2s ease'
+                                            }}>
+                                                {editingId === t.id ? (
+                                                    <>
+                                                        <input
+                                                            value={editingValue}
+                                                            onChange={e => setEditingValue(e.target.value)}
+                                                            autoFocus
+                                                            onKeyPress={e => e.key === 'Enter' && updateTemplate(t.id, t.categoryId)}
+                                                            style={{
+                                                                border: 'none',
+                                                                padding: '0.25rem',
+                                                                width: '100px',
+                                                                fontSize: '0.9rem',
+                                                                outline: 'none'
+                                                            }}
+                                                        />
+                                                        <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                                            <button
+                                                                className="primary small"
+                                                                onClick={() => updateTemplate(t.id, t.categoryId)}
+                                                                style={{ padding: '0.2rem', minWidth: 'auto', background: 'var(--success)' }}
+                                                            >
+                                                                <Check size={12} />
+                                                            </button>
+                                                            <button
+                                                                className="danger small"
+                                                                onClick={() => setEditingId(null)}
+                                                                style={{ padding: '0.2rem', minWidth: 'auto' }}
+                                                            >
+                                                                <X size={12} />
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span style={{ fontSize: '0.95rem', fontWeight: '500' }}>{t.subOption}</span>
+                                                        <div style={{ display: 'flex', gap: '0.25rem', marginLeft: '0.5rem' }}>
+                                                            <button
+                                                                className="small"
+                                                                onClick={() => {
+                                                                    setEditingId(t.id);
+                                                                    setEditingValue(t.subOption);
+                                                                }}
+                                                                style={{ padding: '0.2rem', minWidth: 'auto', background: 'transparent', color: 'var(--text-secondary)' }}
+                                                                title="Edit"
+                                                            >
+                                                                <Edit2 size={12} />
+                                                            </button>
+                                                            <button
+                                                                className="danger small"
+                                                                onClick={() => deleteTemplate(t.id)}
+                                                                style={{ padding: '0.2rem', minWidth: 'auto' }}
+                                                                title="Delete"
+                                                            >
+                                                                <Trash2 size={12} />
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Add new template */}
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Add new option..."
+                                        value={newTemplate[category.id] || ''}
+                                        onChange={e => setNewTemplate({
+                                            ...newTemplate,
+                                            [category.id]: e.target.value
+                                        })}
+                                        onKeyPress={e => e.key === 'Enter' && addTemplate(category.id)}
+                                        style={{ flex: 1 }}
+                                    />
+                                    <button
+                                        className="primary small"
+                                        onClick={() => addTemplate(category.id)}
+                                        disabled={!newTemplate[category.id]?.trim()}
+                                    >
+                                        <Plus size={14} /> Add
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* OTP Verification Modal */}

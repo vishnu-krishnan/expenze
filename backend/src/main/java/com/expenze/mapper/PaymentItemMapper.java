@@ -20,6 +20,7 @@ public class PaymentItemMapper {
                 .actualAmount(entity.getActualAmount())
                 .isPaid(entity.getIsPaid())
                 .notes(entity.getNotes())
+                .priority(entity.getPriority())
                 .build();
     }
 
@@ -36,6 +37,7 @@ public class PaymentItemMapper {
                 .actualAmount(dto.getActualAmount())
                 .isPaid(dto.getIsPaid())
                 .notes(dto.getNotes())
+                .priority(dto.getPriority())
                 .build();
     }
 }

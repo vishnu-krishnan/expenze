@@ -13,4 +13,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByUserIdOrderBySortOrderAscNameAsc(Long userId);
 
     List<Category> findByUserId(Long userId);
+
+    List<Category> findByUserIdAndIsActiveOrderBySortOrderAsc(Long userId, Integer isActive);
 }
