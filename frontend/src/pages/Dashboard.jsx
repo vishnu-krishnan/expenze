@@ -34,11 +34,16 @@ export default function Dashboard() {
     const loadDashboardData = async (key) => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl(`/api/v1/month/${key}`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
+            // Parallelize fetches for better performance
+            const [monthRes, profRes, summaryRes, catRes] = await Promise.all([
+                fetch(getApiUrl(`/api/v1/month/${key}`), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl('/api/v1/profile'), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl('/api/v1/summary/last6'), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl(`/api/v1/category-expenses/${key}`), { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
 
+            // 1. Month Data
+            const data = await monthRes.json();
             let planned = 0, actual = 0, count = 0;
             if (data?.items) {
                 data.items.forEach(i => {
@@ -48,11 +53,13 @@ export default function Dashboard() {
                 });
             }
 
-            const salRes = await fetch(getApiUrl(`/api/v1/salary/${key}`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const salData = await salRes.json();
-            setSalary(salData.amount || 0);
+            // 2. Profile (Budget) - replacing Salary entity
+            let budgetAmount = 0;
+            if (profRes.ok) {
+                const prof = await profRes.json();
+                budgetAmount = parseFloat(prof.defaultBudget) || 0;
+                setSalary(budgetAmount); // We treat 'salary' state as 'Current Budget'
+            }
 
             setStats({
                 planned,
@@ -61,9 +68,7 @@ export default function Dashboard() {
                 count
             });
 
-            const summaryRes = await fetch(getApiUrl('/api/v1/summary/last6'), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            // 3. Trend Data
             if (summaryRes.ok) {
                 const summary = await summaryRes.json();
                 setTrendData({
@@ -78,9 +83,7 @@ export default function Dashboard() {
                 });
             }
 
-            const catRes = await fetch(getApiUrl(`/api/v1/category-expenses/${key}`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            // 4. Category Data
             if (catRes.ok) {
                 const catData = await catRes.json();
                 setCategoryData({
@@ -95,7 +98,7 @@ export default function Dashboard() {
                 });
             }
         } catch (error) {
-            console.error(error);
+            console.error("Dashboard loading error:", error);
         } finally {
             setLoading(false);
         }

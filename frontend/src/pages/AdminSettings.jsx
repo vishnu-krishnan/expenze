@@ -141,14 +141,14 @@ export default function AdminSettings() {
                             style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border)', background: 'var(--card-bg)', width: '100%' }}
                         >
                             <option value="gmail">Gmail SMTP</option>
-                            <option value="sendgrid">SendGrid API (Recommended for Railway)</option>
+                            <option value="sendgrid">SendGrid API</option>
                             <option value="resend">Resend API</option>
                             <option value="smtp">Custom SMTP</option>
                         </select>
                         <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '0.25rem' }}>
-                            {provider === 'sendgrid' && '✅ Best for Railway - No SMTP port blocking'}
+                            {provider === 'sendgrid' && '✅ Secure API-based delivery'}
                             {provider === 'resend' && '✅ Modern API-based email service'}
-                            {provider === 'gmail' && '⚠️ May not work on Railway (SMTP blocked)'}
+                            {provider === 'gmail' && 'Standard Gmail SMTP'}
                             {provider === 'smtp' && 'Generic SMTP configuration'}
                         </small>
                     </div>
@@ -276,13 +276,7 @@ export default function AdminSettings() {
                         </>
                     )}
 
-                    {/* Railway Warning - Only for SMTP providers */}
-                    {(provider === 'gmail' || provider === 'smtp') && (
-                        <div className="status-msg" style={{ background: '#fffbeb', border: '1px solid #f59e0b', color: '#92400e' }}>
-                            <strong>⚠️ Railway Deployment:</strong> SMTP ports (25, 465, 587) are blocked on Railway.
-                            This provider may not work on Railway. Consider using SendGrid or Resend API instead.
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Security Settings */}

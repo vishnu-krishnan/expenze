@@ -22,7 +22,7 @@ export default function MonthPlan() {
     const [monthKey, setMonthKey] = useState(new Date().toISOString().slice(0, 7));
     const [items, setItems] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [salary, setSalary] = useState(0);
+
     const [loading, setLoading] = useState(false);
     const [sort, setSort] = useState({ key: 'categoryName', order: 'asc' });
     const [profile, setProfile] = useState(null);
@@ -34,33 +34,23 @@ export default function MonthPlan() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl(`/api/v1/month/${monthKey}`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
+            const [monthRes, catRes, profRes] = await Promise.all([
+                fetch(getApiUrl(`/api/v1/month/${monthKey}`), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl('/api/v1/categories'), { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(getApiUrl('/api/v1/profile'), { headers: { 'Authorization': `Bearer ${token}` } })
+            ]);
+
+            const data = await monthRes.json();
             setItems(data?.items || []);
 
-            const catRes = await fetch(getApiUrl('/api/v1/categories'), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
             if (catRes.ok) setCategories(await catRes.json());
-
-            const salRes = await fetch(getApiUrl(`/api/v1/salary/${monthKey}`), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const salData = await salRes.json();
-            setSalary(salData.amount || 0);
-
-            // Fetch Profile for default budget
-            const profRes = await fetch(getApiUrl('/api/v1/profile'), {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
             if (profRes.ok) setProfile(await profRes.json());
 
         } catch (err) {
             console.error('Error loading month plan:', err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleGenerate = async () => {
@@ -109,26 +99,7 @@ export default function MonthPlan() {
         saveItem(updated);
     };
 
-    // Salary: Local Update
-    const handleSalaryChange = (val) => {
-        setSalary(val);
-    };
 
-    // Salary: Persist (onBlur)
-    const saveSalary = async () => {
-        try {
-            await fetch(getApiUrl('/api/v1/salary'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ monthKey, amount: salary })
-            });
-        } catch (error) {
-            console.error("Failed to save salary:", error);
-        }
-    };
 
     const deleteItem = async (id) => {
         if (!confirm('Delete item?')) return;
@@ -206,44 +177,20 @@ export default function MonthPlan() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Monthly Budget</label>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            {/* Smart Budget Suggestions - only show if salary is not set at all */}
-                            {(salary === null || salary === undefined || salary === '' || salary === 0) && profile?.defaultBudget > 0 && (
-                                <button
-                                    onClick={() => updateSalary(profile.defaultBudget)}
-                                    className="small text-only"
-                                    style={{ color: 'var(--primary)', fontSize: '0.75rem', padding: 0, textDecoration: 'underline' }}
-                                >
-                                    Apply Default (₹{profile.defaultBudget})
-                                </button>
-                            )}
-                            {(!profile?.defaultBudget || profile?.defaultBudget <= 0) && (
-                                <Link to="/profile" style={{ color: 'var(--danger)', fontSize: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                    <AlertCircle size={12} /> Set default in Profile
-                                </Link>
-                            )}
+                            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Default from Profile</span>
                         </div>
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>₹</span>
-                    <input
-                        type="number"
-                        value={salary || ''}
-                        onChange={e => handleSalaryChange(parseFloat(e.target.value) || 0)}
-                        onBlur={saveSalary}
-                        placeholder="0"
-                        style={{
-                            border: 'none',
-                            background: 'transparent',
-                            padding: '0.5rem',
-                            fontSize: '2rem',
-                            fontWeight: '700',
-                            width: '180px',
-                            outline: 'none',
-                            textAlign: 'right',
-                            color: 'var(--primary)'
-                        }}
-                    />
+                    <span style={{
+                        fontSize: '2rem',
+                        fontWeight: '700',
+                        color: 'var(--primary)',
+                        padding: '0.5rem'
+                    }}>
+                        {profile?.defaultBudget || 0}
+                    </span>
                 </div>
             </div>
 
@@ -358,8 +305,8 @@ export default function MonthPlan() {
                                 <td colSpan="3" style={{ textAlign: 'right', paddingRight: '2rem' }}>
                                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', background: 'white', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
                                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>REMAINING:</span>
-                                        <strong style={{ fontSize: '1.1rem', color: (salary - getTotalActual()) >= 0 ? 'var(--success)' : 'var(--danger)' }}>
-                                            ₹{(salary - getTotalActual()).toFixed(0)}
+                                        <strong style={{ fontSize: '1.1rem', color: ((profile?.defaultBudget || 0) - getTotalActual()) >= 0 ? 'var(--success)' : 'var(--danger)' }}>
+                                            ₹{((profile?.defaultBudget || 0) - getTotalActual()).toFixed(0)}
                                         </strong>
                                     </div>
                                 </td>
