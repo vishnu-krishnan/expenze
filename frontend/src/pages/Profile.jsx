@@ -36,6 +36,8 @@ export default function Profile() {
     const [templateMsg, setTemplateMsg] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [editingValue, setEditingValue] = useState('');
+    const [showAddCategory, setShowAddCategory] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
 
     useEffect(() => {
         if (token) {
@@ -224,13 +226,20 @@ export default function Profile() {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
+            const data = await res.json().catch(() => ({}));
+
             if (res.ok) {
-                setTemplateMsg('Default templates loaded successfully!');
-                setTimeout(() => setTemplateMsg(''), 3000);
-                loadTemplates();
+                setTemplateMsg(data.message || 'Default categories and templates loaded successfully!');
+                setTimeout(() => setTemplateMsg(''), 4000);
+                // Refresh both categories and templates since categories might have been created
+                await Promise.all([loadCategories(), loadTemplates()]);
+            } else {
+                throw new Error(data.error || 'Failed to load defaults');
             }
         } catch (err) {
-            setTemplateMsg('Error loading defaults');
+            setTemplateMsg('Error: ' + err.message);
+            setTimeout(() => setTemplateMsg(''), 4000);
         }
     };
 
@@ -298,6 +307,39 @@ export default function Profile() {
             }
         } catch (err) {
             console.error('Error deleting template:', err);
+        }
+    };
+
+    const handleAddCategory = async (e) => {
+        e.preventDefault();
+        const cleanName = newCategoryName.trim();
+        if (!cleanName) return;
+
+        if (categories.some(c => c.name.toLowerCase() === cleanName.toLowerCase())) {
+            setTemplateMsg('Error: Category already exists');
+            setTimeout(() => setTemplateMsg(''), 3000);
+            return;
+        }
+
+        try {
+            const res = await fetch(getApiUrl('/api/v1/categories'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: cleanName, icon: '📁' })
+            });
+
+            if (res.ok) {
+                setNewCategoryName('');
+                setShowAddCategory(false);
+                await loadCategories();
+                setTemplateMsg('Category added successfully');
+                setTimeout(() => setTemplateMsg(''), 3000);
+            }
+        } catch (err) {
+            setTemplateMsg('Error: ' + err.message);
         }
     };
 
@@ -405,13 +447,38 @@ export default function Profile() {
                             Define quick options for faster expense entry
                         </p>
                     </div>
-                    <button className="primary small" onClick={initializeDefaults}>
-                        <Plus size={14} /> Load Defaults
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="small" onClick={() => setShowAddCategory(!showAddCategory)}>
+                            {showAddCategory ? <X size={14} /> : <Plus size={14} />} Category
+                        </button>
+                        <button className="primary small" onClick={initializeDefaults}>
+                            <Plus size={14} /> Load Defaults
+                        </button>
+                    </div>
                 </div>
 
+                {showAddCategory && (
+                    <div className="panel" style={{ background: 'var(--bg-secondary)', marginBottom: '1.5rem', animation: 'slideDown 0.2s ease-out' }}>
+                        <form onSubmit={handleAddCategory} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                            <div className="input-group" style={{ marginBottom: 0, flex: 1 }}>
+                                <input
+                                    type="text"
+                                    placeholder="Enter new category name..."
+                                    value={newCategoryName}
+                                    onChange={e => setNewCategoryName(e.target.value)}
+                                    required
+                                    autoFocus
+                                />
+                            </div>
+                            <button type="submit" className="primary small" style={{ height: '2.5rem' }}>
+                                Create
+                            </button>
+                        </form>
+                    </div>
+                )}
+
                 {templateMsg && (
-                    <div className="status-popup status-success" style={{ position: 'relative', marginBottom: '1rem' }}>
+                    <div className={`status-popup ${templateMsg.includes('Error') ? 'status-error' : 'status-success'}`} style={{ position: 'relative', marginBottom: '1rem' }}>
                         {templateMsg}
                     </div>
                 )}

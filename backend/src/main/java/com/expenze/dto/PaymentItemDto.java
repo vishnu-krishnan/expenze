@@ -23,4 +23,5 @@ public class PaymentItemDto {
     private Integer isPaid;
     private String notes;
     private String priority; // HIGH, MEDIUM, LOW
+    private String monthKey; // Optional: specify month by key instead of ID
 }

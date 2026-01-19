@@ -102,6 +102,25 @@ public class MonthPlanServiceImpl implements MonthPlanService {
     @Override
     @Transactional
     public Long addManualItem(Long userId, PaymentItemDto dto) {
+        log.debug("Adding manual item: {} for user: {}", dto.getName(), userId);
+
+        // If monthPlanId is not provided but monthKey is, resolve it
+        if (dto.getMonthPlanId() == null && dto.getMonthKey() != null) {
+            MonthPlan plan = monthPlanRepository.findByUserIdAndMonthKey(userId, dto.getMonthKey())
+                    .orElseGet(() -> {
+                        log.info("Creating new month plan for key: {} for manual item", dto.getMonthKey());
+                        return monthPlanRepository.save(MonthPlan.builder()
+                                .userId(userId)
+                                .monthKey(dto.getMonthKey())
+                                .build());
+                    });
+            dto.setMonthPlanId(plan.getId());
+        }
+
+        if (dto.getMonthPlanId() == null) {
+            throw new RuntimeException("Month Plan ID or Month Key is required");
+        }
+
         dto.setUserId(userId);
         PaymentItem item = paymentItemMapper.toEntity(dto);
         item = paymentItemRepository.save(item);

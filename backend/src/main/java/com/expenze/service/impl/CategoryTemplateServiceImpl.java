@@ -206,64 +206,84 @@ public class CategoryTemplateServiceImpl implements CategoryTemplateService {
     @Transactional
     public void initializeDefaultTemplates(Long userId) {
         try {
-            log.debug("Initializing default templates for user: {}", userId);
+            log.info("Initializing default templates for user: {}", userId);
 
             if (userId == null) {
                 throw new BadRequestException("User ID cannot be null");
             }
 
-            // Check if user already has templates
-            List<CategoryTemplate> existing = templateRepository
-                    .findByUserIdAndIsActiveOrderBySortOrderAsc(userId, 1);
+            // Get user's existing categories
+            List<Category> userCategories = categoryRepository.findByUserId(userId);
+            Map<String, Category> categoryNameMap = userCategories.stream()
+                    .collect(Collectors.toMap(Category::getName, c -> c, (a, b) -> a));
 
-            if (!existing.isEmpty()) {
-                log.info("User {} already has {} templates, skipping initialization",
-                        userId, existing.size());
-                return;
+            // Default categories with their icons
+            Map<String, String> defaultCategoryIcons = new LinkedHashMap<>();
+            defaultCategoryIcons.put("Fuel", "⛽");
+            defaultCategoryIcons.put("Groceries", "🛒");
+            defaultCategoryIcons.put("Utilities", "💡");
+            defaultCategoryIcons.put("Transport", "🚲");
+            defaultCategoryIcons.put("Food", "🍽️");
+            defaultCategoryIcons.put("Shopping", "🛍️");
+            defaultCategoryIcons.put("Healthcare", "🏥");
+            defaultCategoryIcons.put("Entertainment", "🎭");
+
+            // Ensure categories exist
+            int categoriesCreated = 0;
+            int sortOrder = userCategories.size();
+            for (Map.Entry<String, String> entry : defaultCategoryIcons.entrySet()) {
+                if (!categoryNameMap.containsKey(entry.getKey())) {
+                    Category newCat = Category.builder()
+                            .userId(userId)
+                            .name(entry.getKey())
+                            .icon(entry.getValue())
+                            .isActive(1)
+                            .sortOrder(sortOrder++)
+                            .build();
+                    newCat = categoryRepository.save(newCat);
+                    categoryNameMap.put(entry.getKey(), newCat);
+                    categoriesCreated++;
+                    log.debug("Created default category: {} for user: {}", entry.getKey(), userId);
+                }
             }
-
-            // Get user's categories
-            List<Category> categories = categoryRepository
-                    .findByUserIdAndIsActiveOrderBySortOrderAsc(userId, 1);
-
-            if (categories.isEmpty()) {
-                log.warn("User {} has no categories, cannot initialize templates", userId);
-                throw new BadRequestException(
-                        "No categories found. Please create categories first before initializing templates.");
-            }
-
-            Map<String, Long> categoryMap = categories.stream()
-                    .collect(Collectors.toMap(
-                            Category::getName,
-                            Category::getId,
-                            (a, b) -> a));
 
             // Default templates
-            Map<String, List<String>> defaults = getDefaultTemplates();
+            Map<String, List<String>> defaultTemplates = getDefaultTemplates();
 
-            int count = 0;
-            for (Map.Entry<String, List<String>> entry : defaults.entrySet()) {
+            int templatesCreated = 0;
+            for (Map.Entry<String, List<String>> entry : defaultTemplates.entrySet()) {
                 String categoryName = entry.getKey();
-                Long categoryId = categoryMap.get(categoryName);
+                Category category = categoryNameMap.get(categoryName);
 
-                if (categoryId != null) {
-                    int order = 0;
+                if (category != null) {
+                    // Check existing templates for THIS category to avoid duplicates
+                    List<CategoryTemplate> existingTemplates = templateRepository
+                            .findByUserIdAndCategoryIdAndIsActiveOrderBySortOrderAsc(userId, category.getId(), 1);
+
+                    Set<String> existingOptions = existingTemplates.stream()
+                            .map(t -> t.getSubOption().toLowerCase())
+                            .collect(Collectors.toSet());
+
+                    int tOrder = existingTemplates.size();
                     for (String subOption : entry.getValue()) {
-                        CategoryTemplate template = CategoryTemplate.builder()
-                                .userId(userId)
-                                .categoryId(categoryId)
-                                .subOption(subOption)
-                                .sortOrder(order++)
-                                .isActive(1)
-                                .build();
+                        if (!existingOptions.contains(subOption.toLowerCase())) {
+                            CategoryTemplate template = CategoryTemplate.builder()
+                                    .userId(userId)
+                                    .categoryId(category.getId())
+                                    .subOption(subOption)
+                                    .sortOrder(tOrder++)
+                                    .isActive(1)
+                                    .build();
 
-                        templateRepository.save(template);
-                        count++;
+                            templateRepository.save(template);
+                            templatesCreated++;
+                        }
                     }
                 }
             }
 
-            log.info("Initialized {} default templates for user {}", count, userId);
+            log.info("Initialization complete for user {}: Created {} categories and {} templates",
+                    userId, categoriesCreated, templatesCreated);
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {

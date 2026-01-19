@@ -160,28 +160,16 @@ export default function MonthPlan() {
     const getTotalPlanned = () => items.reduce((sum, i) => sum + (parseFloat(i.plannedAmount) || 0), 0);
     const getTotalActual = () => items.reduce((sum, i) => sum + (parseFloat(i.actualAmount) || 0), 0);
 
-    const sortedItems = useMemo(() => {
-        return [...items].sort((a, b) => {
-            let valA = a[sort.key];
-            let valB = b[sort.key];
-
-            if (['plannedAmount', 'actualAmount'].includes(sort.key)) {
-                valA = parseFloat(valA || 0);
-                valB = parseFloat(valB || 0);
+    const groupedItems = useMemo(() => {
+        const groups = {};
+        sortedItems.forEach(item => {
+            if (!groups[item.categoryName]) {
+                groups[item.categoryName] = [];
             }
-
-            if (valA < valB) return sort.order === 'asc' ? -1 : 1;
-            if (valA > valB) return sort.order === 'asc' ? 1 : -1;
-            return 0;
+            groups[item.categoryName].push(item);
         });
-    }, [items, sort]);
-
-    const toggleSort = (key) => {
-        setSort(prev => ({
-            key,
-            order: prev.key === key && prev.order === 'asc' ? 'desc' : 'asc'
-        }));
-    };
+        return groups;
+    }, [sortedItems]);
 
     return (
         <section className="view active">
@@ -281,6 +269,16 @@ export default function MonthPlan() {
                         </div>
 
                         <div className="input-group" style={{ marginBottom: 0 }}>
+                            <label>Actual Amount</label>
+                            <input
+                                type="number"
+                                value={newItem.actualAmount}
+                                onChange={e => setNewItem({ ...newItem, actualAmount: e.target.value })}
+                                placeholder="0.00"
+                            />
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: 0 }}>
                             <label>Priority</label>
                             <select
                                 value={newItem.priority}
@@ -290,6 +288,16 @@ export default function MonthPlan() {
                                 <option value="MEDIUM">🟡 Medium</option>
                                 <option value="LOW">🟢 Low</option>
                             </select>
+                        </div>
+
+                        <div className="input-group" style={{ marginBottom: 0, gridColumn: 'span 2' }}>
+                            <label>Notes (Optional)</label>
+                            <input
+                                type="text"
+                                value={newItem.notes}
+                                onChange={e => setNewItem({ ...newItem, notes: e.target.value })}
+                                placeholder="Add context..."
+                            />
                         </div>
 
                         <button type="submit" className="primary" style={{ padding: '0.75rem' }}>
@@ -333,7 +341,7 @@ export default function MonthPlan() {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedItems.length === 0 ? (
+                        {items.length === 0 ? (
                             <tr className="no-data-row"><td colSpan="7" style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                                     <AlertCircle size={40} opacity={0.3} />
@@ -344,78 +352,100 @@ export default function MonthPlan() {
                                 </div>
                             </td></tr>
                         ) : (
-                            sortedItems.map(item => (
-                                <tr key={item.id} className={item.isPaid ? 'paid-row' : ''} style={{
-                                    opacity: item.isPaid ? 0.7 : 1,
-                                    borderLeft: item.priority === 'HIGH' ? '4px solid #ef4444' :
-                                        item.priority === 'LOW' ? '4px solid #9ca3af' : 'none',
-                                    background: item.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.02)' : 'transparent'
-                                }}>
-                                    <td style={{ fontWeight: '500' }}>{item.categoryName}</td>
-                                    <td>
-                                        <select
-                                            value={item.priority || 'MEDIUM'}
-                                            onChange={e => {
-                                                handleItemChange(item.id, 'priority', e.target.value);
-                                                saveItem({ ...item, priority: e.target.value });
-                                            }}
-                                            style={{
-                                                padding: '0.2rem 0.5rem',
-                                                fontSize: '0.75rem',
-                                                borderRadius: '4px',
-                                                border: '1px solid var(--border)',
-                                                background: item.priority === 'HIGH' ? '#fee2e2' :
-                                                    item.priority === 'LOW' ? '#f3f4f6' : '#fef9c3',
-                                                color: item.priority === 'HIGH' ? '#991b1b' :
-                                                    item.priority === 'LOW' ? '#374151' : '#854d0e',
-                                                fontWeight: '600'
-                                            }}
-                                        >
-                                            <option value="HIGH">🔴 High</option>
-                                            <option value="MEDIUM">🟡 Medium</option>
-                                            <option value="LOW">🟢 Low</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input
-                                            value={item.name}
-                                            onChange={e => handleItemChange(item.id, 'name', e.target.value)}
-                                            onBlur={() => saveItem(item)}
-                                            style={{ border: 'transparent', background: 'transparent', width: '100%' }}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="number"
-                                            value={item.plannedAmount}
-                                            onChange={e => handleItemChange(item.id, 'plannedAmount', parseFloat(e.target.value))}
-                                            onBlur={() => saveItem(item)}
-                                            style={{ border: 'transparent', background: 'transparent', width: '80px' }}
-                                        />
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="number"
-                                            value={item.actualAmount}
-                                            onChange={e => handleItemChange(item.id, 'actualAmount', parseFloat(e.target.value))}
-                                            onBlur={() => saveItem(item)}
-                                            style={{ border: 'transparent', background: 'transparent', width: '80px', fontWeight: 'bold' }}
-                                        />
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={!!item.isPaid}
-                                            onChange={e => handlePaidToggle(item, e.target.checked ? 1 : 0)}
-                                            style={{ width: '18px', height: '18px' }}
-                                        />
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <button className="danger small" onClick={() => deleteItem(item.id)} style={{ padding: '0.4rem' }}>
-                                            <Trash2 size={14} />
-                                        </button>
-                                    </td>
-                                </tr>
+                            Object.entries(groupedItems).map(([categoryName, categoryItems]) => (
+                                <optgroup key={categoryName}>
+                                    <tr style={{ background: 'var(--bg-secondary)', borderLeft: '4px solid var(--primary)' }}>
+                                        <td colSpan="7" style={{ padding: '0.75rem 1rem', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.5px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                    {categories.find(c => c.name === categoryName)?.icon && (
+                                                        <span>{categories.find(c => c.name === categoryName).icon}</span>
+                                                    )}
+                                                    {categoryName.toUpperCase()}
+                                                    <span style={{ fontSize: '0.7rem', background: 'var(--primary)', color: 'white', padding: '0.1rem 0.5rem', borderRadius: '10px', marginLeft: '0.5rem' }}>
+                                                        {categoryItems.length}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                    Total: ₹{categoryItems.reduce((sum, i) => sum + (parseFloat(i.actualAmount) || 0), 0).toFixed(0)}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {categoryItems.map(item => (
+                                        <tr key={item.id} className={item.isPaid ? 'paid-row' : ''} style={{
+                                            opacity: item.isPaid ? 0.7 : 1,
+                                            borderLeft: item.priority === 'HIGH' ? '4px solid #ef4444' :
+                                                item.priority === 'LOW' ? '4px solid #9ca3af' : 'none',
+                                            background: item.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.02)' : 'transparent'
+                                        }}>
+                                            <td style={{ fontWeight: '500', paddingLeft: '2rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{item.categoryName}</td>
+                                            <td>
+                                                <select
+                                                    value={item.priority || 'MEDIUM'}
+                                                    onChange={e => {
+                                                        handleItemChange(item.id, 'priority', e.target.value);
+                                                        saveItem({ ...item, priority: e.target.value });
+                                                    }}
+                                                    style={{
+                                                        padding: '0.2rem 0.5rem',
+                                                        fontSize: '0.75rem',
+                                                        borderRadius: '4px',
+                                                        border: '1px solid var(--border)',
+                                                        background: item.priority === 'HIGH' ? '#fee2e2' :
+                                                            item.priority === 'LOW' ? '#f3f4f6' : '#fef9c3',
+                                                        color: item.priority === 'HIGH' ? '#991b1b' :
+                                                            item.priority === 'LOW' ? '#374151' : '#854d0e',
+                                                        fontWeight: '600'
+                                                    }}
+                                                >
+                                                    <option value="HIGH">🔴 High</option>
+                                                    <option value="MEDIUM">🟡 Medium</option>
+                                                    <option value="LOW">🟢 Low</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    value={item.name}
+                                                    onChange={e => handleItemChange(item.id, 'name', e.target.value)}
+                                                    onBlur={() => saveItem(item)}
+                                                    style={{ border: 'transparent', background: 'transparent', width: '100%' }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    value={item.plannedAmount}
+                                                    onChange={e => handleItemChange(item.id, 'plannedAmount', parseFloat(e.target.value))}
+                                                    onBlur={() => saveItem(item)}
+                                                    style={{ border: 'transparent', background: 'transparent', width: '80px' }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    value={item.actualAmount}
+                                                    onChange={e => handleItemChange(item.id, 'actualAmount', parseFloat(e.target.value))}
+                                                    onBlur={() => saveItem(item)}
+                                                    style={{ border: 'transparent', background: 'transparent', width: '80px', fontWeight: 'bold' }}
+                                                />
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!item.isPaid}
+                                                    onChange={e => handlePaidToggle(item, e.target.checked ? 1 : 0)}
+                                                    style={{ width: '18px', height: '18px' }}
+                                                />
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <button className="danger small" onClick={() => deleteItem(item.id)} style={{ padding: '0.4rem' }}>
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </optgroup>
                             ))
                         )}
                     </tbody>
