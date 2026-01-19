@@ -4,6 +4,9 @@ import { getApiUrl } from '../utils/apiConfig';
 import {
     Plus,
     Trash2,
+    Edit2,
+    Check,
+    X,
     Repeat,
     Calendar,
     IndianRupee,
@@ -36,6 +39,8 @@ export default function RegularPayments() {
     });
     const [focusState, setFocusState] = useState({ start: false, end: false });
     const [sort, setSort] = useState({ key: 'name', order: 'asc' });
+    const [editId, setEditId] = useState(null);
+    const [editData, setEditData] = useState({});
 
     useEffect(() => {
         if (token) {
@@ -132,6 +137,29 @@ export default function RegularPayments() {
         }));
     };
 
+    const handleEdit = (template) => {
+        setEditId(template.id);
+        setEditData(template);
+    };
+
+    const handleSave = async () => {
+        try {
+            await fetch(getApiUrl(`/api/v1/regular/${editId}`), {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(editData)
+            });
+            setEditId(null);
+            setEditData({});
+            fetchTemplates();
+        } catch (err) {
+            console.error('Failed to update:', err);
+        }
+    };
+
     return (
         <section className="view active">
             <div className="view-header">
@@ -213,6 +241,7 @@ export default function RegularPayments() {
                                 <option value="MONTHLY">Monthly</option>
                                 <option value="WEEKLY">Weekly</option>
                                 <option value="YEARLY">Yearly</option>
+                                <option value="ONE_TIME">One-Time Payment</option>
                             </select>
                         </div>
                     </div>
@@ -347,31 +376,110 @@ export default function RegularPayments() {
                         ) : (
                             sortedTemplates.map(t => (
                                 <tr key={t.id}>
-                                    <td style={{ fontWeight: '600', color: 'var(--text)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                            <div style={{
-                                                width: '32px', height: '32px', borderRadius: '50%',
-                                                background: 'var(--bg-secondary)', display: 'flex',
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Tag size={16} color="var(--primary)" />
-                                            </div>
-                                            {t.name}
-                                        </div>
-                                    </td>
-                                    <td><span className="badge badge-info">{t.categoryName}</span></td>
-                                    <td><span style={{ fontSize: '0.85rem', textTransform: 'capitalize' }}>{t.frequency?.toLowerCase() || 'monthly'}</span></td>
-                                    <td><strong>₹{parseFloat(t.defaultPlannedAmount).toFixed(0)}</strong></td>
-                                    <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <Calendar size={14} /> {formatDate(t.startDate)} → {t.endDate ? formatDate(t.endDate) : 'Ongoing'}
-                                        </div>
-                                    </td>
-                                    <td style={{ textAlign: 'center' }}>
-                                        <button className="danger small" onClick={() => handleDelete(t.id)} style={{ padding: '0.5rem' }}>
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </td>
+                                    {editId === t.id ? (
+                                        <>
+                                            <td>
+                                                <input
+                                                    value={editData.name}
+                                                    onChange={e => setEditData({ ...editData, name: e.target.value })}
+                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--primary)', borderRadius: '4px' }}
+                                                />
+                                            </td>
+                                            <td>
+                                                <select
+                                                    value={editData.categoryId}
+                                                    onChange={e => setEditData({ ...editData, categoryId: parseInt(e.target.value) })}
+                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--primary)', borderRadius: '4px' }}
+                                                >
+                                                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select
+                                                    value={editData.frequency}
+                                                    onChange={e => setEditData({ ...editData, frequency: e.target.value })}
+                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--primary)', borderRadius: '4px' }}
+                                                >
+                                                    <option value="MONTHLY">Monthly</option>
+                                                    <option value="WEEKLY">Weekly</option>
+                                                    <option value="YEARLY">Yearly</option>
+                                                    <option value="ONE_TIME">One-Time</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    value={editData.defaultPlannedAmount}
+                                                    onChange={e => setEditData({ ...editData, defaultPlannedAmount: parseFloat(e.target.value) })}
+                                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--primary)', borderRadius: '4px' }}
+                                                />
+                                            </td>
+                                            <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Calendar size={14} /> {formatDate(t.startDate)} → {t.endDate ? formatDate(t.endDate) : 'Ongoing'}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                                    <button className="primary small" onClick={handleSave} style={{ padding: '0.5rem' }}><Check size={16} /></button>
+                                                    <button className="small" onClick={() => setEditId(null)} style={{ padding: '0.5rem' }}><X size={16} /></button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td style={{ fontWeight: '600', color: 'var(--text)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                    <div style={{
+                                                        width: '32px', height: '32px', borderRadius: '50%',
+                                                        background: 'var(--bg-secondary)', display: 'flex',
+                                                        alignItems: 'center', justifyContent: 'center'
+                                                    }}>
+                                                        <Tag size={16} color="var(--primary)" />
+                                                    </div>
+                                                    {t.name}
+                                                </div>
+                                            </td>
+                                            <td><span className="badge badge-info">{t.categoryName}</span></td>
+                                            <td>
+                                                <span style={{
+                                                    fontSize: '0.85rem',
+                                                    textTransform: 'capitalize',
+                                                    padding: '0.25rem 0.6rem',
+                                                    background: t.frequency === 'ONE_TIME' ? '#fef3c7' : 'transparent',
+                                                    borderRadius: '6px',
+                                                    color: t.frequency === 'ONE_TIME' ? '#92400e' : 'inherit'
+                                                }}>
+                                                    {t.frequency?.toLowerCase().replace('_', '-') || 'monthly'}
+                                                </span>
+                                            </td>
+                                            <td><strong>₹{parseFloat(t.defaultPlannedAmount).toFixed(0)}</strong></td>
+                                            <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Calendar size={14} /> {formatDate(t.startDate)} → {t.endDate ? formatDate(t.endDate) : 'Ongoing'}
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                                    <button className="small" onClick={() => handleEdit(t)} style={{ padding: '0.5rem' }}>
+                                                        <Edit2 size={16} />
+                                                    </button>
+                                                    <button
+                                                        className="danger small"
+                                                        onClick={() => handleDelete(t.id)}
+                                                        style={{
+                                                            padding: '0.5rem',
+                                                            background: 'rgba(239, 68, 68, 0.1)',
+                                                            color: '#dc2626',
+                                                            border: '1px solid rgba(239, 68, 68, 0.2)'
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))
                         )}

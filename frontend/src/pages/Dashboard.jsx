@@ -154,47 +154,153 @@ export default function Dashboard() {
             </div>
 
             <div className="cards-container">
-                <div className="card">
+                <div className="card" style={{
+                    background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.05) 0%, rgba(13, 148, 136, 0.02) 100%)',
+                    border: '1px solid rgba(13, 148, 136, 0.15)'
+                }}>
                     <div className="card-header-icon">
-                        <h3>Overview</h3>
+                        <h3 style={{ color: '#0d9488' }}>Overview</h3>
                         <div className="icon-wrapper primary"><TrendingUp size={20} /></div>
                     </div>
-                    <p>₹{stats.actual.toFixed(0)}</p>
-                    <div className="stat-row" style={{ marginTop: '1rem' }}><span>Planned</span> <span>₹{stats.planned.toFixed(0)}</span></div>
-                    <div className="stat-row"><span>Budget</span> <span>₹{salary.toFixed(0)}</span></div>
+                    <p style={{ fontSize: '2.25rem', fontWeight: '700', color: '#0d9488', marginBottom: '0.5rem' }}>
+                        ₹{stats.actual.toFixed(0)}
+                    </p>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.6)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        marginTop: '1rem'
+                    }}>
+                        <div className="stat-row" style={{ marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>📊 Planned Budget</span>
+                            <span style={{ fontWeight: '600' }}>₹{stats.planned.toFixed(0)}</span>
+                        </div>
+                        <div className="stat-row">
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>💰 Monthly Budget</span>
+                            <span style={{ fontWeight: '600', color: '#0d9488' }}>₹{salary.toFixed(0)}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div className={`card card-${getExpenseClass()}`}>
+                <div className={`card card-${getExpenseClass()}`} style={{
+                    background: getExpenseClass() === 'danger'
+                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%)'
+                        : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%)',
+                    border: `1px solid ${getExpenseClass() === 'danger' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`
+                }}>
                     <div className="card-header-icon">
-                        <h3>Spending</h3>
+                        <h3 style={{ color: getExpenseClass() === 'danger' ? '#dc2626' : '#059669' }}>Spending</h3>
                         <div className={`icon-wrapper ${getExpenseClass()}`}>
                             {getExpenseClass() === 'danger' ? <ArrowUpCircle size={20} /> : <ArrowDownCircle size={20} />}
                         </div>
                     </div>
-                    <p>₹{stats.actual.toFixed(0)}</p>
-                    <small style={{ color: 'var(--text-secondary)' }}>
-                        {salary ? `📌 ${((stats.actual / salary) * 100).toFixed(1)}% of budget` : 'No budget set'}
-                    </small>
+                    <p style={{
+                        fontSize: '2.25rem',
+                        fontWeight: '700',
+                        color: getExpenseClass() === 'danger' ? '#dc2626' : '#059669',
+                        marginBottom: '0.5rem'
+                    }}>
+                        ₹{stats.actual.toFixed(0)}
+                    </p>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.6)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        marginTop: '1rem'
+                    }}>
+                        <div style={{ marginBottom: '0.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Budget Usage</span>
+                                <strong style={{ fontSize: '0.95rem', color: getExpenseClass() === 'danger' ? '#dc2626' : '#059669' }}>
+                                    {salary ? `${((stats.actual / salary) * 100).toFixed(1)}%` : 'N/A'}
+                                </strong>
+                            </div>
+                            {salary > 0 && (
+                                <div style={{
+                                    width: '100%',
+                                    height: '6px',
+                                    background: '#e5e7eb',
+                                    borderRadius: '3px',
+                                    overflow: 'hidden'
+                                }}>
+                                    <div style={{
+                                        width: `${Math.min((stats.actual / salary) * 100, 100)}%`,
+                                        height: '100%',
+                                        background: getExpenseClass() === 'danger' ? '#ef4444' : '#10b981',
+                                        transition: 'width 0.3s ease'
+                                    }} />
+                                </div>
+                            )}
+                        </div>
+                        <small style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                            {getExpenseClass() === 'danger' ? '⚠️ Over budget limit' : '✅ Within safe limits'}
+                        </small>
+                    </div>
                 </div>
 
-                <div className="card">
+                <div className="card" style={{
+                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(251, 191, 36, 0.02) 100%)',
+                    border: '1px solid rgba(251, 191, 36, 0.2)'
+                }}>
                     <div className="card-header-icon">
-                        <h3>Pending</h3>
+                        <h3 style={{ color: '#d97706' }}>Pending</h3>
                         <div className="icon-wrapper warning"><Clock size={20} /></div>
                     </div>
-                    <p>₹{((stats.planned - stats.actual) > 0 ? (stats.planned - stats.actual) : 0).toFixed(0)}</p>
-                    <small style={{ color: 'var(--text-secondary)' }}>📝 {stats.count} unpaid bills</small>
+                    <p style={{ fontSize: '2.25rem', fontWeight: '700', color: '#d97706', marginBottom: '0.5rem' }}>
+                        ₹{((stats.planned - stats.actual) > 0 ? (stats.planned - stats.actual) : 0).toFixed(0)}
+                    </p>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.6)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        marginTop: '1rem'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '1.5rem' }}>📝</span>
+                            <div>
+                                <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{stats.count}</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Unpaid Bills</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="card">
+                <div className="card" style={{
+                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)'
+                }}>
                     <div className="card-header-icon">
-                        <h3>Remaining</h3>
+                        <h3 style={{ color: '#2563eb' }}>Remaining</h3>
                         <div className="icon-wrapper success"><Wallet size={20} /></div>
                     </div>
-                    <p>₹{(salary - stats.actual).toFixed(0)}</p>
-                    <small style={{ color: 'var(--text-secondary)' }}>
-                        {salary ? `🎯 ${(((salary - stats.actual) / salary) * 100).toFixed(1)}% safe to save` : 'Set a budget'}
-                    </small>
+                    <p style={{
+                        fontSize: '2.25rem',
+                        fontWeight: '700',
+                        color: (salary - stats.actual) >= 0 ? '#2563eb' : '#dc2626',
+                        marginBottom: '0.5rem'
+                    }}>
+                        ₹{(salary - stats.actual).toFixed(0)}
+                    </p>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.6)',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        marginTop: '1rem'
+                    }}>
+                        <div style={{ marginBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                💎 Available to Save
+                            </span>
+                        </div>
+                        <strong style={{ fontSize: '1rem', color: '#2563eb' }}>
+                            {salary ? `${(((salary - stats.actual) / salary) * 100).toFixed(1)}%` : 'Set a budget'}
+                        </strong>
+                        {salary > 0 && (salary - stats.actual) >= 0 && (
+                            <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#059669' }}>
+                                🎯 Great job managing expenses!
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -224,7 +330,20 @@ export default function Dashboard() {
                         <div className="chart-wrapper">
                             <Pie data={categoryData} options={{
                                 maintainAspectRatio: false,
-                                plugins: { legend: { position: 'bottom' } }
+                                plugins: {
+                                    legend: { position: 'bottom' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                const label = context.label || '';
+                                                const value = context.parsed || 0;
+                                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                const percentage = ((value / total) * 100).toFixed(1);
+                                                return `${label}: ₹${value.toFixed(0)} (${percentage}%)`;
+                                            }
+                                        }
+                                    }
+                                }
                             }} />
                         </div>
                     </div>

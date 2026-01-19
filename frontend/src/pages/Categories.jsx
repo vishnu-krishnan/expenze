@@ -129,6 +129,7 @@ export default function Categories() {
         { label: 'Rent', icon: Home, color: '#3b82f6', emoji: '🏠' },
         { label: 'Loan', icon: IndianRupee, color: '#ef4444', emoji: '💸' },
         { label: 'EMI', icon: Landmark, color: '#8b5cf6', emoji: '🏦' },
+        { label: 'Credit Card', icon: IndianRupee, color: '#ef4444', emoji: '💳' },
         { label: 'Groceries', icon: ShoppingCart, color: '#10b981', emoji: '🍎' },
         { label: 'Automotive', icon: Car, color: '#6366f1', emoji: '🚗' },
         { label: 'Utilities', icon: Zap, color: '#f59e0b', emoji: '💡' },
