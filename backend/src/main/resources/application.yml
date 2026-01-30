@@ -37,3 +37,7 @@ server:
 
 jwt:
   secret: ${JWT_SECRET:defaultSecretKeyWhichShouldBeLongEnoughForHS256Algorithm}
+
+ai:
+  groq:
+    api-key: ${GROQ_API_KEY:}

@@ -17,6 +17,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - PORT=8080
     networks:
       - network

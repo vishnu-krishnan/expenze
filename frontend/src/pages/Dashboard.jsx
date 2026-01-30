@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getApiUrl } from '../utils/apiConfig';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from 'chart.js';
@@ -13,13 +14,15 @@ import {
     ChevronLeft,
     ChevronRight,
     Target,
-    Activity
+    Activity,
+    Smartphone
 } from 'lucide-react';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title);
 
 export default function Dashboard() {
     const { token } = useAuth();
+    const navigate = useNavigate();
     const [monthKey, setMonthKey] = useState(new Date().toISOString().slice(0, 7));
     const [stats, setStats] = useState({ planned: 0, actual: 0, diff: 0, count: 0 });
     const [salary, setSalary] = useState(0);
@@ -40,7 +43,7 @@ export default function Dashboard() {
                 fetch(getApiUrl('/api/v1/profile'), { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(getApiUrl('/api/v1/summary/last6'), { headers: { 'Authorization': `Bearer ${token}` } }),
                 fetch(getApiUrl(`/api/v1/category-expenses/${key}`), { headers: { 'Authorization': `Bearer ${token}` } }),
-                fetch(getApiUrl('/api/v1/templates'), { headers: { 'Authorization': `Bearer ${token}` } })
+                fetch(getApiUrl('/api/v1/regular'), { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
 
             // 1. Month Data
@@ -57,10 +60,10 @@ export default function Dashboard() {
                     if (!i.isPaid) count++;
                 });
             } else {
-                // If NO items exist (month plan not generated), estimate planned from active templates
+                // If NO items exist (month plan not generated), estimate planned from active regular payments
                 templates.forEach(t => {
                     if (t.isActive) {
-                        planned += parseFloat(t.amount) || 0;
+                        planned += parseFloat(t.defaultPlannedAmount) || 0;
                     }
                 });
             }
@@ -312,6 +315,73 @@ export default function Dashboard() {
                                 🎯 Great job managing expenses!
                             </div>
                         )}
+                    </div>
+                </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                <div className="panel" style={{
+                    background: 'linear-gradient(135deg, var(--primary) 0%, #0f766e 100%)',
+                    color: 'white',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1.5rem 2rem',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }} onClick={() => navigate('/import')}>
+                    <div style={{ zIndex: 1 }}>
+                        <h3 style={{ color: 'white', margin: 0, fontSize: '1.25rem' }}>Smart SMS Import</h3>
+                        <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                            Automatically add expenses from your bank SMS.
+                        </p>
+                    </div>
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        zIndex: 1
+                    }}>
+                        <Smartphone size={32} />
+                    </div>
+                    {/* Decorative bubble */}
+                    <div style={{
+                        position: 'absolute',
+                        right: '-20px',
+                        bottom: '-20px',
+                        width: '120px',
+                        height: '120px',
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '50%'
+                    }} />
+                </div>
+
+                <div className="panel" style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '1.5rem 2rem',
+                    cursor: 'pointer',
+                    border: '1px solid var(--border)',
+                    transition: 'all 0.2s'
+                }} onClick={() => navigate('/month')}>
+                    <div>
+                        <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Monthly Plan</h3>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                            View and manage your detailed spending plan.
+                        </p>
+                    </div>
+                    <div style={{
+                        background: 'var(--bg-secondary)',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        color: 'var(--primary)'
+                    }}>
+                        <Calendar size={32} />
                     </div>
                 </div>
             </div>

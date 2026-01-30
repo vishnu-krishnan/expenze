@@ -11,6 +11,7 @@ import AdminSettings from './pages/AdminSettings';
 import MonthPlan from './pages/MonthPlan';
 import Categories from './pages/Categories';
 import Templates from './pages/Templates';
+import SmsImport from './pages/SmsImport';
 import Layout from './components/Layout';
 
 function PrivateRoute({ children, adminOnly = false }) {
@@ -45,6 +46,7 @@ export default function App() {
           {/* User Routes */}
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/month" element={<PrivateRoute><MonthPlan /></PrivateRoute>} />
+          <Route path="/import" element={<PrivateRoute><SmsImport /></PrivateRoute>} />
           <Route path="/categories" element={<PrivateRoute><Categories /></PrivateRoute>} />
           <Route path="/regular" element={<PrivateRoute><Templates /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />

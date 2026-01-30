@@ -12,7 +12,8 @@ import {
     Users,
     Repeat,
     Menu,
-    X
+    X,
+    Smartphone
 } from 'lucide-react';
 
 export default function Layout({ children }) {
@@ -46,6 +47,7 @@ export default function Layout({ children }) {
     ] : [
         { path: '/', label: 'Dashboard', icon: Activity },
         { path: '/month', label: 'Monthly Plan', icon: Calendar },
+        { path: '/import', label: 'Smart Import', icon: Smartphone },
         { path: '/regular', label: 'Regular Payments', icon: Repeat },
         { path: '/categories', label: 'Categories', icon: Layers },
         { path: '/profile', label: 'Profile', icon: User },
