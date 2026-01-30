@@ -335,11 +335,19 @@
     }
 
     /* Month Plan - Premium Card View */
+    .monthly-plan-table,
+    .monthly-plan-table thead,
+    .monthly-plan-table tbody,
+    .monthly-plan-table tfoot {
+        display: block;
+        width: 100%;
+    }
+
     .monthly-plan-table thead {
         display: none;
     }
 
-    .monthly-plan-table tbody tr {
+    .monthly-plan-table tbody tr.data-row {
         display: flex;
         flex-direction: column;
         padding: 1.25rem;
@@ -353,6 +361,19 @@
         gap: 0.75rem;
     }
 
+    .monthly-plan-table tbody tr.category-group-header {
+        display: block;
+        margin-top: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .monthly-plan-table tbody tr.category-group-header td {
+        display: block;
+        width: 100% !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
     .monthly-plan-table td {
         display: flex;
         flex-direction: column !important;
@@ -364,7 +385,7 @@
     }
 
     /* Item Name Header (Order -2) */
-    .monthly-plan-table td:nth-child(2) {
+    .monthly-plan-table td:nth-child(3) {
         order: -2;
         font-size: 1.1rem;
         font-weight: 700;
@@ -375,7 +396,7 @@
         width: 100%;
     }
 
-    .monthly-plan-table td:nth-child(2)::before {
+    .monthly-plan-table td:nth-child(3)::before {
         display: none;
     }
 
@@ -404,24 +425,28 @@
         content: "Category";
     }
 
-    .monthly-plan-table td:nth-child(3)::before {
-        content: "Planned";
+    .monthly-plan-table td:nth-child(2)::before {
+        content: "Priority";
     }
 
     .monthly-plan-table td:nth-child(4)::before {
-        content: "Actual";
+        content: "Planned";
     }
 
     .monthly-plan-table td:nth-child(5)::before {
-        content: "Paid";
+        content: "Actual";
     }
 
     .monthly-plan-table td:nth-child(6)::before {
-        content: "Notes";
+        content: "Paid";
+    }
+
+    .monthly-plan-table td:nth-child(7)::before {
+        content: "Actions";
     }
 
     /* Paid Highlight */
-    .monthly-plan-table td:nth-child(5) {
+    .monthly-plan-table td:nth-child(6) {
         font-weight: 600;
         color: var(--success);
     }

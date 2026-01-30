@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Fragment } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getApiUrl } from '../utils/apiConfig';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,8 @@ import {
     ArrowUp,
     ArrowDown,
     Tag,
-    ChevronDown
+    ChevronDown,
+    X
 } from 'lucide-react';
 
 export default function MonthPlan() {
@@ -160,16 +161,57 @@ export default function MonthPlan() {
     const getTotalPlanned = () => items.reduce((sum, i) => sum + (parseFloat(i.plannedAmount) || 0), 0);
     const getTotalActual = () => items.reduce((sum, i) => sum + (parseFloat(i.actualAmount) || 0), 0);
 
-    const groupedItems = useMemo(() => {
+    const toggleSort = (key) => {
+        setSort(prev => ({
+            key,
+            order: prev.key === key && prev.order === 'asc' ? 'desc' : 'asc'
+        }));
+    };
+
+    console.log('MonthPlan items check:', Array.isArray(items), items?.length);
+
+    const itemsToRender = useMemo(() => {
+        if (!Array.isArray(items)) return [];
+        const currentSort = sort || { key: 'categoryName', order: 'asc' };
+
+        return [...items].sort((a, b) => {
+            let valA = a?.[currentSort.key] ?? '';
+            let valB = b?.[currentSort.key] ?? '';
+
+            if (typeof valA === 'string') valA = valA.toLowerCase();
+            if (typeof valB === 'string') valB = valB.toLowerCase();
+
+            if (valA < valB) return currentSort.order === 'asc' ? -1 : 1;
+            if (valA > valB) return currentSort.order === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [items, sort]);
+
+    const itemsGrouped = useMemo(() => {
         const groups = {};
-        sortedItems.forEach(item => {
-            if (!groups[item.categoryName]) {
-                groups[item.categoryName] = [];
+        if (!Array.isArray(itemsToRender)) return groups;
+
+        itemsToRender.forEach(item => {
+            const cat = item?.categoryName || 'Uncategorized';
+            if (!groups[cat]) {
+                groups[cat] = [];
             }
-            groups[item.categoryName].push(item);
+            groups[cat].push(item);
         });
         return groups;
-    }, [sortedItems]);
+    }, [itemsToRender]);
+
+    if (loading && items.length === 0) {
+        return (
+            <section className="view active">
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
+                    <div className="spinner" style={{ width: '40px', height: '40px', border: '4px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                    <p style={{ color: 'var(--text-secondary)' }}>Loading Month Plan...</p>
+                </div>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </section>
+        );
+    }
 
     return (
         <section className="view active">
@@ -342,19 +384,21 @@ export default function MonthPlan() {
                     </thead>
                     <tbody>
                         {items.length === 0 ? (
-                            <tr className="no-data-row"><td colSpan="7" style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                                    <AlertCircle size={40} opacity={0.3} />
-                                    <p>No records found for {formatMonthName(monthKey)}.<br />Use 'Populate' or add items manually.</p>
-                                    <button className="primary" onClick={handleGenerate} style={{ marginTop: '1rem' }} disabled={loading}>
-                                        {loading ? 'Generating...' : <><Plus size={18} /> Populate from Templates</>}
-                                    </button>
-                                </div>
-                            </td></tr>
+                            <tr className="no-data-row">
+                                <td colSpan="7" style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                        <AlertCircle size={40} opacity={0.3} />
+                                        <p>No records found for {formatMonthName(monthKey)}.<br />Use 'Populate' or add items manually.</p>
+                                        <button className="primary" onClick={handleGenerate} style={{ marginTop: '1rem' }} disabled={loading}>
+                                            {loading ? 'Generating...' : <><Plus size={18} /> Populate from Templates</>}
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         ) : (
-                            Object.entries(groupedItems).map(([categoryName, categoryItems]) => (
-                                <optgroup key={categoryName}>
-                                    <tr style={{ background: 'var(--bg-secondary)', borderLeft: '4px solid var(--primary)' }}>
+                            Object.entries(itemsGrouped).map(([categoryName, categoryItems]) => (
+                                <Fragment key={categoryName}>
+                                    <tr className="category-group-header" style={{ background: 'var(--bg-secondary)', borderLeft: '4px solid var(--primary)' }}>
                                         <td colSpan="7" style={{ padding: '0.75rem 1rem', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.5px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -373,7 +417,7 @@ export default function MonthPlan() {
                                         </td>
                                     </tr>
                                     {categoryItems.map(item => (
-                                        <tr key={item.id} className={item.isPaid ? 'paid-row' : ''} style={{
+                                        <tr key={item.id} className={item.isPaid ? 'paid-row data-row' : 'data-row'} style={{
                                             opacity: item.isPaid ? 0.7 : 1,
                                             borderLeft: item.priority === 'HIGH' ? '4px solid #ef4444' :
                                                 item.priority === 'LOW' ? '4px solid #9ca3af' : 'none',
@@ -445,23 +489,23 @@ export default function MonthPlan() {
                                             </td>
                                         </tr>
                                     ))}
-                                </optgroup>
+                                </Fragment>
                             ))
                         )}
                     </tbody>
                     {items.length > 0 && (
                         <tfoot style={{ background: 'var(--bg-secondary)' }}>
                             <tr>
-                                <td colSpan="2" style={{ padding: '1.25rem' }}>
+                                <td colSpan="3" style={{ padding: '1.25rem' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '700' }}>
                                         <Calculator size={18} /> SUMMARY
                                     </div>
                                 </td>
-                                <td><strong>₹{getTotalPlanned().toFixed(0)}</strong></td>
+                                <td><strong title="Total Planned">₹{getTotalPlanned().toFixed(0)}</strong></td>
                                 <td className={getTotalActual() > getTotalPlanned() ? 'negative' : 'positive'}>
-                                    <strong>₹{getTotalActual().toFixed(0)}</strong>
+                                    <strong title="Total Actual">₹{getTotalActual().toFixed(0)}</strong>
                                 </td>
-                                <td colSpan="3" style={{ textAlign: 'right', paddingRight: '2rem' }}>
+                                <td colSpan="2" style={{ textAlign: 'right', paddingRight: '2rem' }}>
                                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', background: 'white', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
                                         <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>REMAINING:</span>
                                         <strong style={{ fontSize: '1.1rem', color: ((profile?.defaultBudget || 0) - getTotalActual()) >= 0 ? 'var(--success)' : 'var(--danger)' }}>
