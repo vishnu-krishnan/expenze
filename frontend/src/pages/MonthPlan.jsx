@@ -64,6 +64,17 @@ export default function MonthPlan() {
 
     const handleAddItem = async (e) => {
         e.preventDefault();
+
+        // Sanitize data: convert numeric fields to actual numbers
+        const payload = {
+            ...newItem,
+            plannedAmount: newItem.plannedAmount !== '' ? parseFloat(newItem.plannedAmount) : 0,
+            actualAmount: newItem.actualAmount !== '' ? parseFloat(newItem.actualAmount) : 0,
+            monthKey: monthKey
+        };
+
+        console.log('Adding item with payload:', payload);
+
         try {
             const res = await fetch(getApiUrl('/api/v1/items'), {
                 method: 'POST',
@@ -71,20 +82,23 @@ export default function MonthPlan() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    ...newItem,
-                    monthKey
-                })
+                body: JSON.stringify(payload)
             });
 
             if (res.ok) {
+                console.log('Item added successfully');
                 setNewItem({ categoryId: '', name: '', plannedAmount: '', actualAmount: '', priority: 'MEDIUM', notes: '' });
                 setSelectedSubOption('');
                 setShowAddForm(false);
-                loadData();
+                await loadData();
+            } else {
+                const errData = await res.json().catch(() => ({ error: 'Unknown server error' }));
+                console.error('Failed to add item:', errData);
+                alert(`Error: ${errData.error || 'Check all fields and try again'}`);
             }
         } catch (error) {
             console.error("Error adding item:", error);
+            alert("Connection error while adding item. Please check your internet.");
         }
     };
 
@@ -242,7 +256,7 @@ export default function MonthPlan() {
             {/* Manual Add Form */}
             {showAddForm && (
                 <div className="panel" style={{ marginBottom: '1.5rem', animation: 'slideDown 0.3s ease-out' }}>
-                    <form onSubmit={handleAddItem} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'end' }}>
+                    <form onSubmit={handleAddItem} className="grid-form" style={{ alignItems: 'end' }}>
                         <div className="input-group" style={{ marginBottom: 0 }}>
                             <label>Category</label>
                             <select
@@ -419,11 +433,12 @@ export default function MonthPlan() {
                                     {categoryItems.map(item => (
                                         <tr key={item.id} className={item.isPaid ? 'paid-row data-row' : 'data-row'} style={{
                                             opacity: item.isPaid ? 0.7 : 1,
-                                            borderLeft: item.priority === 'HIGH' ? '4px solid #ef4444' :
-                                                item.priority === 'LOW' ? '4px solid #9ca3af' : 'none',
-                                            background: item.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.02)' : 'transparent'
+                                            borderLeft: item.priority === 'HIGH' ? '5px solid #ef4444' :
+                                                item.priority === 'LOW' ? '5px solid #94a3b8' : '5px solid var(--primary)',
+                                            background: item.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.02)' :
+                                                item.priority === 'LOW' ? 'rgba(148, 163, 184, 0.02)' : 'transparent'
                                         }}>
-                                            <td style={{ fontWeight: '500', paddingLeft: '2rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{item.categoryName}</td>
+                                            <td style={{ fontWeight: '600', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{item.categoryName}</td>
                                             <td>
                                                 <select
                                                     value={item.priority || 'MEDIUM'}

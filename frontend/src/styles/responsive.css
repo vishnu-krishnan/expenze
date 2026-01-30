@@ -334,7 +334,7 @@
         gap: 0.75rem;
     }
 
-    /* Month Plan - Premium Card View */
+    /* Month Plan - Premium Card View Revamp */
     .monthly-plan-table,
     .monthly-plan-table thead,
     .monthly-plan-table tbody,
@@ -348,23 +348,22 @@
     }
 
     .monthly-plan-table tbody tr.data-row {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         padding: 1.25rem;
         margin-bottom: 1.25rem;
         background: white;
         border: 1px solid var(--border);
         border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         border-left: 5px solid var(--primary);
         position: relative;
-        gap: 0.75rem;
+        gap: 1rem;
     }
 
     .monthly-plan-table tbody tr.category-group-header {
         display: block;
-        margin-top: 2rem;
-        margin-bottom: 0.5rem;
+        margin: 2rem 0 0.75rem 0;
     }
 
     .monthly-plan-table tbody tr.category-group-header td {
@@ -381,44 +380,54 @@
         padding: 0 !important;
         border: none !important;
         width: 100% !important;
-        gap: 0.25rem;
+        gap: 0.35rem;
     }
 
-    /* Item Name Header (Order -2) */
+    /* Full-width fields in the grid */
+    .monthly-plan-table td:nth-child(1),
+    .monthly-plan-table td:nth-child(2),
+    .monthly-plan-table td:nth-child(3),
+    .monthly-plan-table td:nth-child(7) {
+        grid-column: 1 / -1;
+    }
+
+    /* Side-by-side amount pair */
+    .monthly-plan-table td:nth-child(4),
+    .monthly-plan-table td:nth-child(5) {
+        grid-column: span 1;
+    }
+
+    /* Item Name Highlight - Header of Card */
     .monthly-plan-table td:nth-child(3) {
         order: -2;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.25rem;
         padding-bottom: 0.5rem !important;
         border-bottom: 1px solid #f1f5f9 !important;
-        width: 100%;
+        margin-bottom: 0.25rem;
     }
 
-    .monthly-plan-table td:nth-child(3)::before {
-        display: none;
+    .monthly-plan-table td:nth-child(3) input {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: var(--primary) !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
     }
 
-    /* Category Subtitle (Order -1) */
+    /* Hide redundant category on mobile cards since groups have headers */
     .monthly-plan-table td:nth-child(1) {
-        order: -1;
-        font-size: 0.85rem;
-        color: #64748b;
-        margin-bottom: 0.5rem;
+        display: none !important;
     }
 
-    /* Keeping label for category context */
-
-    /* Meta Labels */
+    /* Labels styling */
     .monthly-plan-table td::before {
         display: block;
-        margin-bottom: 0;
         text-transform: uppercase;
         font-size: 0.65rem !important;
         letter-spacing: 0.08em;
         color: #94a3b8;
         font-weight: 700;
+        margin-bottom: 2px;
     }
 
     .monthly-plan-table td:nth-child(1)::before {
@@ -427,6 +436,10 @@
 
     .monthly-plan-table td:nth-child(2)::before {
         content: "Priority";
+    }
+
+    .monthly-plan-table td:nth-child(3)::before {
+        display: none;
     }
 
     .monthly-plan-table td:nth-child(4)::before {
@@ -438,37 +451,112 @@
     }
 
     .monthly-plan-table td:nth-child(6)::before {
-        content: "Paid";
+        content: "Payment Status";
     }
 
     .monthly-plan-table td:nth-child(7)::before {
         content: "Actions";
     }
 
-    /* Paid Highlight */
-    .monthly-plan-table td:nth-child(6) {
-        font-weight: 600;
-        color: var(--success);
+    /* Input & Select fields for finger-friendly interaction */
+    .monthly-plan-table input[type="number"],
+    .monthly-plan-table select {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        padding: 0.6rem !important;
+        font-size: 1rem !important;
+        width: 100% !important;
+        color: var(--text);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
-    /* Actions Footer */
-    .monthly-plan-table td:last-child {
-        order: 100;
+    /* Paid / Checkbox styling */
+    .monthly-plan-table td:nth-child(6) {
+        grid-column: 1 / -1;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: #f0fdf4;
+        padding: 0.75rem 1rem !important;
+        border-radius: 12px;
+        border: 1px dashed #bbf7d0;
+    }
+
+    .monthly-plan-table td:nth-child(6)::before {
+        margin-bottom: 0;
+        color: #166534;
+    }
+
+    .monthly-plan-table td:nth-child(6) input {
+        width: 24px !important;
+        height: 24px !important;
+        accent-color: var(--success);
+    }
+
+    /* Actions positioning */
+    .monthly-plan-table td:nth-child(7) {
         flex-direction: row !important;
         justify-content: flex-end;
-        align-items: center;
-        border-top: 1px solid var(--border) !important;
-        padding-top: 1rem !important;
-        margin-top: 0.25rem;
-        gap: 0.75rem;
+        align-items: center !important;
+        border-top: 1px solid #f1f5f9 !important;
+        padding-top: 0.75rem !important;
+        margin-top: 0.5rem;
     }
 
-    /* Ensure visibility of all columns */
-    .monthly-plan-table th:nth-child(5),
-    .monthly-plan-table td:nth-child(5),
-    .monthly-plan-table th:nth-child(6),
-    .monthly-plan-table td:nth-child(6) {
+    /* Stats / Footer revamp for mobile */
+    .monthly-plan-table tfoot {
+        margin-top: 2rem;
+    }
+
+    .monthly-plan-table tfoot tr {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: transparent !important;
+    }
+
+    .monthly-plan-table tfoot td {
         display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding: 1.25rem !important;
+        background: white !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .monthly-plan-table tfoot td::before {
+        font-weight: 700;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+    }
+
+    .monthly-plan-table tfoot td:nth-child(1)::before {
+        content: "SUMMARY TYPE";
+    }
+
+    .monthly-plan-table tfoot td:nth-child(2)::before {
+        content: "TOTAL PLANNED";
+    }
+
+    .monthly-plan-table tfoot td:nth-child(3)::before {
+        content: "TOTAL ACTUAL";
+    }
+
+    .monthly-plan-table tfoot td:nth-child(4)::before {
+        content: "REMAINING";
+    }
+
+    .monthly-plan-table tfoot td div {
+        text-align: right;
+    }
+
+    .monthly-plan-table tfoot td strong {
+        font-size: 1.25rem;
     }
 
     /* Categories - Premium Card View */
@@ -582,7 +670,7 @@
         color: var(--text);
     }
 
-    .dashboard-nav button {
+    .dashboard-nav button:not(.primary) {
         width: 36px !important;
         height: 36px !important;
         min-width: 36px !important;
@@ -596,6 +684,15 @@
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
+    }
+
+    .dashboard-nav button.primary {
+        padding: 0 1rem !important;
+        height: 36px !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+        font-size: 0.85rem !important;
+        border-radius: 8px !important;
     }
 
     .dashboard-nav button:hover {
@@ -707,16 +804,19 @@
     }
 
     /* Mobile Button Fixes */
-    button[type="submit"],
-    button.primary {
+    .panel button.primary,
+    .panel button[type="submit"],
+    form button.primary,
+    form button[type="submit"] {
         width: 100% !important;
         padding: 1rem !important;
         font-size: 1rem !important;
         min-height: 50px;
     }
 
-    .panel form button[type="submit"] {
-        margin-top: 1rem;
+    .dashboard-nav button.primary {
+        width: auto !important;
+        padding: 0 1rem !important;
     }
 }
 
