@@ -5,6 +5,11 @@ import 'data/services/api_service.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/screens/auth/login_screen.dart';
 import 'presentation/screens/dashboard/dashboard_screen.dart';
+import 'presentation/screens/month/month_plan_screen.dart';
+import 'presentation/screens/categories/categories_screen.dart';
+import 'presentation/screens/regular/regular_payments_screen.dart';
+import 'presentation/screens/sms/sms_import_screen.dart';
+import 'presentation/screens/profile/profile_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +41,11 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginScreen(),
           '/dashboard': (context) => const DashboardScreen(),
+          '/month': (context) => const MonthPlanScreen(),
+          '/categories': (context) => const CategoriesScreen(),
+          '/regular': (context) => const RegularPaymentsScreen(),
+          '/import': (context) => const SmsImportScreen(),
+          '/profile': (context) => const ProfileScreen(),
         },
       ),
     );

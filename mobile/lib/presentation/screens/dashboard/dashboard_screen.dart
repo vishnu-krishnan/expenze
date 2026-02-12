@@ -101,6 +101,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/profile');
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await Provider.of<AuthProvider>(context, listen: false).logout();
@@ -329,10 +335,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           icon: Icons.smartphone,
           color: AppTheme.primary,
           onTap: () {
-            // TODO: Navigate to SMS import
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('SMS Import - Coming soon!')),
-            );
+            Navigator.of(context).pushNamed('/import');
           },
         ),
         const SizedBox(height: 12),
@@ -342,10 +345,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
           icon: Icons.calendar_month,
           color: AppTheme.secondary,
           onTap: () {
-            // TODO: Navigate to monthly plan
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Monthly Plan - Coming soon!')),
-            );
+            Navigator.of(context).pushNamed('/month');
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildActionCard(
+          title: 'Categories',
+          subtitle: 'Manage your spending categories',
+          icon: Icons.category,
+          color: AppTheme.info,
+          onTap: () {
+            Navigator.of(context).pushNamed('/categories');
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildActionCard(
+          title: 'Regular Payments',
+          subtitle: 'Track recurring bills and subscriptions',
+          icon: Icons.repeat,
+          color: AppTheme.success,
+          onTap: () {
+            Navigator.of(context).pushNamed('/regular');
           },
         ),
       ],
