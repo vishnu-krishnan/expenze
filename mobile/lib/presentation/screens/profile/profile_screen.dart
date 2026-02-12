@@ -40,14 +40,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: const Text('Account Identity'),
         actions: [
-          IconButton(
-            onPressed: () {
-              if (_isEditing) _saveProfile();
-              setState(() => _isEditing = !_isEditing);
-            },
-            icon: Icon(_isEditing ? LucideIcons.check : LucideIcons.edit3,
-                color: AppTheme.primary),
-          ),
+          _isEditing
+              ? IconButton(
+                  onPressed: () async {
+                    await _saveProfile();
+                    if (mounted) setState(() => _isEditing = false);
+                  },
+                  icon: const Icon(LucideIcons.check,
+                      color: AppTheme.success, size: 28),
+                )
+              : IconButton(
+                  onPressed: () => setState(() => _isEditing = true),
+                  icon: const Icon(LucideIcons.edit3, color: AppTheme.primary),
+                ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Consumer<AuthProvider>(
@@ -243,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _saveProfile() async {
+  Future<void> _saveProfile() async {
     final auth = context.read<AuthProvider>();
     await auth.updateProfile(
       fullName: _nameController.text,
@@ -251,7 +257,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       phone: _phoneController.text,
       defaultBudget: double.tryParse(_budgetController.text) ?? 0,
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile synchronized successfully')));
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Profile synchronized successfully'),
+        backgroundColor: AppTheme.success,
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
   }
 }

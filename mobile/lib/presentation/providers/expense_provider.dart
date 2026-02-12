@@ -11,11 +11,13 @@ class ExpenseProvider with ChangeNotifier {
   Map<String, double> _summary = {'planned': 0, 'actual': 0, 'remaining': 0};
   bool _isLoading = false;
   String _currentMonthKey = DateTime.now().toIso8601String().substring(0, 7);
+  List<Map<String, dynamic>> _trends = [];
 
   List<Expense> get expenses => _expenses;
   Map<String, double> get summary => _summary;
   bool get isLoading => _isLoading;
   String get currentMonthKey => _currentMonthKey;
+  List<Map<String, dynamic>> get trends => _trends;
 
   void setMonth(String monthKey) {
     _currentMonthKey = monthKey;
@@ -40,6 +42,19 @@ class ExpenseProvider with ChangeNotifier {
       };
     } catch (e) {
       print('Error loading expenses: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadTrends(int months) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _trends = await _repository.getTrends(months);
+    } catch (e) {
+      print('Error loading trends: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

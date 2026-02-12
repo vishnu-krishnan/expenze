@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -47,6 +47,11 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE users ADD COLUMN full_name TEXT');
       } catch (_) {}
     }
+    if (oldVersion < 5) {
+      try {
+        await db.execute('ALTER TABLE users ADD COLUMN phone TEXT');
+      } catch (_) {}
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -57,6 +62,7 @@ class DatabaseHelper {
         username TEXT NOT NULL UNIQUE,
         full_name TEXT,
         email TEXT,
+        phone TEXT,
         password TEXT,
         default_budget REAL DEFAULT 0,
         synced INTEGER DEFAULT 0,

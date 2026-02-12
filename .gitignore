@@ -14,6 +14,7 @@ node_modules/
 .env
 .env.local
 #docs/
+EXPENZE.txt
 railway/
 
 # OS

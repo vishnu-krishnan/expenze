@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/theme/app_theme.dart';
 import '../screens/dashboard/dashboard_screen.dart';
-import '../screens/month/month_plan_screen.dart';
+import '../screens/analytics/analytics_screen.dart';
 import '../screens/regular/regular_payments_screen.dart';
 import '../screens/profile/profile_screen.dart';
 
@@ -18,7 +18,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
 
   final List<Widget> _screens = [
     const DashboardScreen(),
-    const MonthPlanScreen(),
+    const AnalyticsScreen(),
     const RegularPaymentsScreen(),
     const ProfileScreen(),
   ];
@@ -30,48 +30,67 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         index: _selectedIndex,
         children: _screens,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        backgroundColor: Colors.white,
-        elevation: 8,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppTheme.primary,
-        unselectedItemColor: AppTheme.textSecondary,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
         ),
-        unselectedLabelStyle: const TextStyle(
-          fontSize: 12,
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          backgroundColor: Colors.white,
+          elevation: 0,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: AppTheme.primary,
+          unselectedItemColor: AppTheme.textSecondary,
+          selectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            letterSpacing: 0.2,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 11,
+          ),
+          items: [
+            _buildNavItem(LucideIcons.home, 'Home', 0),
+            _buildNavItem(LucideIcons.pieChart, 'Analytics', 1),
+            _buildNavItem(LucideIcons.creditCard, 'Bills', 2),
+            _buildNavItem(LucideIcons.user, 'Profile', 3),
+          ],
         ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.home, size: 20),
-            activeIcon: Icon(LucideIcons.home, size: 22),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.pieChart, size: 20),
-            activeIcon: Icon(LucideIcons.pieChart, size: 22),
-            label: 'Analytics',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.creditCard, size: 20),
-            activeIcon: Icon(LucideIcons.creditCard, size: 22),
-            label: 'Bills',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(LucideIcons.user, size: 20),
-            activeIcon: Icon(LucideIcons.user, size: 22),
-            label: 'Profile',
-          ),
-        ],
       ),
+    );
+  }
+
+  BottomNavigationBarItem _buildNavItem(
+      IconData icon, String label, int index) {
+    final isSelected = _selectedIndex == index;
+    return BottomNavigationBarItem(
+      icon: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.all(isSelected ? 8 : 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primary.withOpacity(0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          size: isSelected ? 24 : 22,
+        ),
+      ),
+      label: label,
     );
   }
 }

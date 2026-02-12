@@ -121,8 +121,8 @@ class ExpenseRepository {
     return result;
   }
 
-  // Get last 6 months summary
-  Future<List<Map<String, dynamic>>> getLast6MonthsSummary() async {
+  // Get spending trends for specified months
+  Future<List<Map<String, dynamic>>> getTrends(int months) async {
     final db = await _dbHelper.database;
 
     final result = await db.rawQuery('''
@@ -131,11 +131,10 @@ class ExpenseRepository {
         SUM(planned_amount) as total_planned,
         SUM(actual_amount) as total_actual
       FROM expenses
-      WHERE month_key >= date('now', '-6 months')
       GROUP BY month_key
       ORDER BY month_key DESC
-      LIMIT 6
-    ''');
+      LIMIT ?
+    ''', [months]);
 
     return result;
   }
