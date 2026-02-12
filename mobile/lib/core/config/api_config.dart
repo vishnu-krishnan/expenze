@@ -8,6 +8,12 @@ class ApiConfig {
   // API Endpoints
   static const String loginEndpoint = '/api/v1/login';
   static const String registerEndpoint = '/api/v1/register';
+  static const String verifyOtpEndpoint = '/api/v1/verify-otp';
+  static const String resendOtpEndpoint = '/api/v1/resend-otp';
+  static const String registrationStatusEndpoint =
+      '/api/v1/registration-status';
+  static const String otpTimeoutEndpoint = '/api/v1/settings/otp_timeout';
+  static const String resetPasswordEndpoint = '/api/v1/reset-password';
   static const String profileEndpoint = '/api/v1/profile';
   static const String monthEndpoint = '/api/v1/month';
   static const String summaryEndpoint = '/api/v1/summary/last6';

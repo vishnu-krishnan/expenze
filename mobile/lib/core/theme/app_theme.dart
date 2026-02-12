@@ -1,33 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors matching your frontend
-  static const Color primary = Color(0xFF0D9488); // Teal
-  static const Color primaryDark = Color(0xFF0F766E);
-  static const Color secondary = Color(0xFF3B82F6); // Blue
-  static const Color success = Color(0xFF10B981); // Green
-  static const Color warning = Color(0xFFF59E0B); // Amber
-  static const Color danger = Color(0xFFEF4444); // Red
-  static const Color info = Color(0xFF06B6D4); // Cyan
+  // Premium Teal Palette
+  static const Color primary = Color(0xFF0097A7); // Teal
+  static const Color primaryDark = Color(0xFF005F6A);
+  static const Color secondary = Color(0xFFD4F1F4); // Light Teal
+  static const Color accent = Color(0xFF003D40); // Deep Teal
 
-  // Background colors
-  static const Color bgPrimary = Color(0xFFFAFAFA);
-  static const Color bgSecondary = Color(0xFFF5F5F5);
+  static const Color success = Color(0xFF10B981);
+  static const Color warning = Color(0xFFF59E0B);
+  static const Color danger = Color(0xFFEF4444);
+  static const Color info = Color(0xFF06B6D4);
+
+  // Background colors - iOS/Modern Soft style
+  static const Color bgPrimary = Color(0xFFF8FAFC);
+  static const Color bgSecondary = Color(0xFFF1F5F9);
   static const Color bgCard = Colors.white;
 
-  // Text colors
-  static const Color textPrimary = Color(0xFF1F2937);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textLight = Color(0xFF9CA3AF);
+  // Text colors - High Contrast
+  static const Color textPrimary = Color(0xFF0F172A);
+  static const Color textSecondary = Color(0xFF475569);
+  static const Color textLight = Color(0xFF94A3B8);
 
-  // Border
-  static const Color border = Color(0xFFE5E7EB);
+  // Border & Depth
+  static const Color border = Color(0xFFE2E8F0);
+  static List<BoxShadow> softShadow = [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.03),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  // Glassmorphism Token
+  static BoxDecoration glassDecoration = BoxDecoration(
+    color: Colors.white.withOpacity(0.7),
+    borderRadius: BorderRadius.circular(24),
+    border: Border.all(color: Colors.white.withOpacity(0.2)),
+  );
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     primaryColor: primary,
     scaffoldBackgroundColor: bgPrimary,
+    textTheme: GoogleFonts.outfitTextTheme(), // More modern, rounder than Inter
     colorScheme: const ColorScheme.light(
       primary: primary,
       secondary: secondary,
@@ -35,25 +53,26 @@ class AppTheme {
       surface: bgCard,
     ),
 
-    // AppBar Theme
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.white,
+    // AppBar Theme - Modern Floating style
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
       foregroundColor: textPrimary,
       elevation: 0,
-      centerTitle: false,
-      titleTextStyle: TextStyle(
+      centerTitle: true,
+      titleTextStyle: GoogleFonts.outfit(
         color: textPrimary,
         fontSize: 20,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.bold,
+        letterSpacing: -0.5,
       ),
     ),
 
-    // Card Theme
+    // Card Theme - Highly rounded
     cardTheme: CardTheme(
       color: bgCard,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         side: const BorderSide(color: border, width: 1),
       ),
     ),
@@ -63,74 +82,52 @@ class AppTheme {
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: border),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: border),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         borderSide: const BorderSide(color: primary, width: 2),
       ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: danger),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     ),
 
-    // Elevated Button Theme
+    // Elevated Button Theme - Floating Gradient look-alike
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
-        textStyle: const TextStyle(
+        textStyle: GoogleFonts.outfit(
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.2,
         ),
       ),
-    ),
-
-    // Text Button Theme
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: primary,
-        textStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-
-    // Text Theme
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(
-          fontSize: 32, fontWeight: FontWeight.w700, color: textPrimary),
-      displayMedium: TextStyle(
-          fontSize: 28, fontWeight: FontWeight.w700, color: textPrimary),
-      displaySmall: TextStyle(
-          fontSize: 24, fontWeight: FontWeight.w600, color: textPrimary),
-      headlineMedium: TextStyle(
-          fontSize: 20, fontWeight: FontWeight.w600, color: textPrimary),
-      headlineSmall: TextStyle(
-          fontSize: 18, fontWeight: FontWeight.w600, color: textPrimary),
-      titleLarge: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w600, color: textPrimary),
-      titleMedium: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w500, color: textPrimary),
-      bodyLarge: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w400, color: textPrimary),
-      bodyMedium: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w400, color: textPrimary),
-      bodySmall: TextStyle(
-          fontSize: 12, fontWeight: FontWeight.w400, color: textSecondary),
     ),
   );
+
+  // Helper method for consistent input decoration
+  static InputDecoration inputDecoration(String hint, IconData icon) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Icon(icon, color: textSecondary, size: 20),
+      ),
+      hintStyle: GoogleFonts.outfit(color: textLight, fontSize: 16),
+    );
+  }
+
+  // Helper for primary button style
+  static ButtonStyle get primaryButtonStyle =>
+      lightTheme.elevatedButtonTheme.style!;
 }

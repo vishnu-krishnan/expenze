@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/expense_provider.dart';
 import '../../../core/theme/app_theme.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -11,421 +13,360 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String _monthKey = DateTime.now().toIso8601String().substring(0, 7);
-  bool _isLoading = true;
-
-  // Stats
-  double _planned = 0;
-  double _actual = 0;
-  double _salary = 0;
-  int _pendingCount = 0;
-
   @override
   void initState() {
     super.initState();
-    _loadDashboardData();
-  }
-
-  Future<void> _loadDashboardData() async {
-    setState(() => _isLoading = true);
-
-    // TODO: Load actual data from API
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-
-    // Mock data for now
-    setState(() {
-      _planned = 25000;
-      _actual = 18500;
-      _salary = 50000;
-      _pendingCount = 3;
-      _isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<ExpenseProvider>(context, listen: false);
+      provider.loadMonthData(provider.currentMonthKey);
     });
   }
 
   void _handleMonthChange(int offset) {
-    final parts = _monthKey.split('-');
-    final year = int.parse(parts[0]);
-    final month = int.parse(parts[1]);
+    final provider = Provider.of<ExpenseProvider>(context, listen: false);
+    final parts = provider.currentMonthKey.split('-');
+    final date = DateTime(int.parse(parts[0]), int.parse(parts[1]) + offset, 1);
+    final nextKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+    provider.setMonth(nextKey);
+  }
 
-    final date = DateTime(year, month + offset, 1);
-    setState(() {
-      _monthKey = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-    });
-    _loadDashboardData();
+  String _getTimeBasedGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 17) return 'Good Afternoon,';
+    return 'Good Evening,';
   }
 
   String _formatMonthName(String key) {
+    if (key.isEmpty) return 'Select Month';
     final parts = key.split('-');
     final date = DateTime(int.parse(parts[0]), int.parse(parts[1]));
-    return '${_getMonthName(date.month)} ${date.year}';
-  }
-
-  String _getMonthName(int month) {
     const months = [
-      'January',
-      'February',
-      'March',
-      'April',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
       'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
-    return months[month - 1];
-  }
-
-  Color _getExpenseClass() {
-    if (_salary == 0)
-      return _actual > _planned ? AppTheme.danger : AppTheme.success;
-    final pct = (_actual / _salary) * 100;
-    if (pct >= 90) return AppTheme.danger;
-    if (pct >= 70) return AppTheme.warning;
-    return AppTheme.success;
+    return '${months[date.month - 1]} ${date.year}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    final user = auth.user;
+
     return Scaffold(
       backgroundColor: AppTheme.bgPrimary,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Icon(Icons.dashboard, color: AppTheme.primary, size: 24),
-            const SizedBox(width: 12),
-            const Text('Dashboard'),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () {
-              Navigator.of(context).pushNamed('/profile');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await Provider.of<AuthProvider>(context, listen: false).logout();
-              if (mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            },
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _loadDashboardData,
-              child: SingleChildScrollView(
+      body: SafeArea(
+        child: Consumer<ExpenseProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final summary = provider.summary;
+            final actual = summary['actual'] ?? 0.0;
+            final planned = summary['planned'] ?? 0.0;
+            final remaining = summary['remaining'] ?? 0.0;
+            final pctUsed = planned > 0 ? (actual / planned) : 0.0;
+
+            return RefreshIndicator(
+              onRefresh: () => provider.loadMonthData(provider.currentMonthKey),
+              child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Welcome message
-                    const Text(
-                      'Welcome back! Here\'s your financial overview.',
-                      style: TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 14,
+                slivers: [
+                  // 1. Sleek Header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getTimeBasedGreeting(),
+                            style: TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            user?['fullName'] ?? user?['username'] ?? 'User',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                  ),
 
-                    // Month selector
-                    _buildMonthSelector(),
-                    const SizedBox(height: 24),
+                  // 2. The Wallet Card
+                  SliverToBoxAdapter(
+                    child:
+                        _buildWalletCard(actual, remaining, pctUsed, provider),
+                  ),
 
-                    // Stats cards
-                    _buildStatsCards(),
-                    const SizedBox(height: 24),
+                  // 3. Quick Actions
+                  SliverToBoxAdapter(
+                    child: _buildQuickActions(),
+                  ),
 
-                    // Quick actions
-                    _buildQuickActions(),
+                  // 4. Analytics Section Title
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Spending Insights',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text('Details'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // 5. Recent Items
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          // Placeholder for actual transactions
+                          return _buildCategoryItem('Groceries', '₹2,400',
+                              LucideIcons.shoppingCart, Colors.orange);
+                        },
+                        childCount: 3,
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWalletCard(double actual, double remaining, double pctUsed,
+      ExpenseProvider provider) {
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! > 0)
+          _handleMonthChange(-1);
+        else if (details.primaryVelocity! < 0) _handleMonthChange(1);
+      },
+      child: Container(
+        margin: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
+        height: 220,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppTheme.primary, AppTheme.accent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Total Spent',
+                        style: TextStyle(color: Colors.white70, fontSize: 13)),
+                    Text(
+                      '₹${actual.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
-              ),
+                _buildMonthIndicator(provider),
+              ],
             ),
-    );
-  }
-
-  Widget _buildMonthSelector() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => _handleMonthChange(-1),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today,
-                  size: 18, color: AppTheme.primary),
-              const SizedBox(width: 8),
-              Text(
-                _formatMonthName(_monthKey),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+            const Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        remaining >= 0 ? 'Remaining' : 'Exceeded',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12),
+                      ),
+                      Text(
+                        '₹${remaining.abs().toStringAsFixed(0)}',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => _handleMonthChange(1),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsCards() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                title: 'Overview',
-                amount: _actual,
-                subtitle: 'Planned: ₹${_planned.toStringAsFixed(0)}',
-                icon: Icons.trending_up,
-                color: AppTheme.primary,
-              ),
+                const Icon(LucideIcons.landmark,
+                    color: Colors.white54, size: 24),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                title: 'Spending',
-                amount: _actual,
-                subtitle: _salary > 0
-                    ? '${((_actual / _salary) * 100).toStringAsFixed(1)}% used'
-                    : 'N/A',
-                icon: _getExpenseClass() == AppTheme.danger
-                    ? Icons.arrow_upward
-                    : Icons.arrow_downward,
-                color: _getExpenseClass(),
+            const SizedBox(height: 16),
+            Container(
+              height: 6,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: pctUsed.clamp(0.0, 1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                title: 'Pending',
-                amount: (_planned - _actual) > 0 ? (_planned - _actual) : 0,
-                subtitle: '$_pendingCount unpaid bills',
-                icon: Icons.schedule,
-                color: AppTheme.warning,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                title: 'Remaining',
-                amount: _salary - _actual,
-                subtitle: _salary > 0
-                    ? '${(((_salary - _actual) / _salary) * 100).toStringAsFixed(1)}% left'
-                    : 'Set budget',
-                icon: Icons.account_balance_wallet,
-                color: AppTheme.secondary,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildStatCard({
-    required String title,
-    required double amount,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-  }) {
+  Widget _buildMonthIndicator(ExpenseProvider provider) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 16, color: color),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '₹${amount.toStringAsFixed(0)}',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-        ],
+      child: Text(
+        _formatMonthName(provider.currentMonthKey),
+        style: const TextStyle(
+            color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
       ),
     );
   }
 
   Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Quick Actions',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          title: 'Smart SMS Import',
-          subtitle: 'Automatically add expenses from bank SMS',
-          icon: Icons.smartphone,
-          color: AppTheme.primary,
-          onTap: () {
-            Navigator.of(context).pushNamed('/import');
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          title: 'Monthly Plan',
-          subtitle: 'View and manage your detailed spending plan',
-          icon: Icons.calendar_month,
-          color: AppTheme.secondary,
-          onTap: () {
-            Navigator.of(context).pushNamed('/month');
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          title: 'Categories',
-          subtitle: 'Manage your spending categories',
-          icon: Icons.category,
-          color: AppTheme.info,
-          onTap: () {
-            Navigator.of(context).pushNamed('/categories');
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildActionCard(
-          title: 'Regular Payments',
-          subtitle: 'Track recurring bills and subscriptions',
-          icon: Icons.repeat,
-          color: AppTheme.success,
-          onTap: () {
-            Navigator.of(context).pushNamed('/regular');
-          },
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildActionItem(LucideIcons.plus, 'Add', () {}),
+          _buildActionItem(LucideIcons.smartphone, 'Import',
+              () => Navigator.pushNamed(context, '/import')),
+          _buildActionItem(LucideIcons.grid, 'Cats',
+              () => Navigator.pushNamed(context, '/categories')),
+          _buildActionItem(LucideIcons.repeat, 'Bills',
+              () => Navigator.pushNamed(context, '/regular')),
+        ],
+      ),
     );
   }
 
-  Widget _buildActionCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
+  Widget _buildActionItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: color, size: 24),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: AppTheme.softShadow,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
+            child: Icon(icon, color: AppTheme.primary, size: 22),
+          ),
+          const SizedBox(height: 8),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textSecondary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(
+      String title, String amount, IconData icon, Color color) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const Icon(Icons.chevron_right, color: AppTheme.textLight),
-          ],
-        ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
+                Text('Monthly spending',
+                    style: TextStyle(color: AppTheme.textLight, fontSize: 11)),
+              ],
+            ),
+          ),
+          Text(
+            amount,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: AppTheme.textPrimary),
+          ),
+        ],
       ),
     );
   }

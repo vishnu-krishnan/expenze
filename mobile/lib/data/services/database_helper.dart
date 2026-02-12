@@ -19,9 +19,34 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 4,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      try {
+        await db.execute('ALTER TABLE regular_payments ADD COLUMN notes TEXT');
+        await db
+            .execute('ALTER TABLE regular_payments ADD COLUMN start_date TEXT');
+        await db
+            .execute('ALTER TABLE regular_payments ADD COLUMN end_date TEXT');
+        await db
+            .execute('ALTER TABLE regular_payments ADD COLUMN frequency TEXT');
+      } catch (_) {}
+    }
+    if (oldVersion < 3) {
+      try {
+        await db.execute('ALTER TABLE users ADD COLUMN password TEXT');
+      } catch (_) {}
+    }
+    if (oldVersion < 4) {
+      try {
+        await db.execute('ALTER TABLE users ADD COLUMN full_name TEXT');
+      } catch (_) {}
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -30,7 +55,9 @@ class DatabaseHelper {
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
+        full_name TEXT,
         email TEXT,
+        password TEXT,
         default_budget REAL DEFAULT 0,
         synced INTEGER DEFAULT 0,
         created_at TEXT,
@@ -92,6 +119,10 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         category_id INTEGER,
         default_planned_amount REAL DEFAULT 0,
+        notes TEXT,
+        start_date TEXT,
+        end_date TEXT,
+        frequency TEXT,
         is_active INTEGER DEFAULT 1,
         synced INTEGER DEFAULT 0,
         created_at TEXT,
@@ -100,7 +131,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // SMS messages table (for imported transactions)
+    // SMS messages table
     await db.execute('''
       CREATE TABLE sms_messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -117,7 +148,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // Sync queue table (for offline changes)
+    // Sync queue table
     await db.execute('''
       CREATE TABLE sync_queue (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -131,62 +162,30 @@ class DatabaseHelper {
     ''');
 
     // Insert default categories
-    await db.insert('categories', {
-      'name': 'Food & Dining',
-      'icon': '🍔',
-      'color': '#0d9488',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
+    final now = DateTime.now().toIso8601String();
+    final categories = [
+      {'name': 'Food & Dining', 'icon': '🍔', 'color': '#0d9488'},
+      {'name': 'Transportation', 'icon': '🚗', 'color': '#3b82f6'},
+      {'name': 'Shopping', 'icon': '🛍️', 'color': '#f59e0b'},
+      {'name': 'Bills & Utilities', 'icon': '💡', 'color': '#ef4444'},
+      {'name': 'Entertainment', 'icon': '🎬', 'color': '#8b5cf6'},
+      {'name': 'Healthcare', 'icon': '🏥', 'color': '#ec4899'},
+    ];
 
-    await db.insert('categories', {
-      'name': 'Transportation',
-      'icon': '🚗',
-      'color': '#3b82f6',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
-
-    await db.insert('categories', {
-      'name': 'Shopping',
-      'icon': '🛍️',
-      'color': '#f59e0b',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
-
-    await db.insert('categories', {
-      'name': 'Bills & Utilities',
-      'icon': '💡',
-      'color': '#ef4444',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
-
-    await db.insert('categories', {
-      'name': 'Entertainment',
-      'icon': '🎬',
-      'color': '#8b5cf6',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
-
-    await db.insert('categories', {
-      'name': 'Healthcare',
-      'icon': '🏥',
-      'color': '#ec4899',
-      'synced': 0,
-      'created_at': DateTime.now().toIso8601String(),
-    });
+    for (var cat in categories) {
+      await db.insert('categories', {
+        ...cat,
+        'synced': 0,
+        'created_at': now,
+      });
+    }
   }
 
-  // Close database
   Future<void> close() async {
     final db = await instance.database;
     db.close();
   }
 
-  // Clear all data (for logout)
   Future<void> clearAllData() async {
     final db = await instance.database;
     await db.delete('users');
@@ -195,40 +194,54 @@ class DatabaseHelper {
     await db.delete('regular_payments');
     await db.delete('sms_messages');
     await db.delete('sync_queue');
-    // Keep categories as they're default data
   }
 
-  // Upsert user by email (used for Google login and local users)
+  // Auth related
+  Future<Map<String, dynamic>?> getUser(String username) async {
+    final db = await instance.database;
+    final res = await db.query('users',
+        where: 'username = ?', whereArgs: [username], limit: 1);
+    return res.isNotEmpty ? res.first : null;
+  }
+
+  Future<int> registerUser({
+    required String username,
+    required String password,
+    String? fullName,
+    String? email,
+  }) async {
+    final db = await instance.database;
+    return await db.insert('users', {
+      'username': username,
+      'password': password,
+      'full_name': fullName,
+      'email': email,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
   Future<int> upsertUser({
     required String username,
+    String? fullName,
     String? email,
     double? defaultBudget,
   }) async {
     final db = await instance.database;
     final now = DateTime.now().toIso8601String();
 
-    // Try to find existing user by email (preferred) or username
     Map<String, dynamic>? existing;
     if (email != null && email.isNotEmpty) {
-      final res = await db.query(
-        'users',
-        where: 'email = ?',
-        whereArgs: [email],
-        limit: 1,
-      );
+      final res = await db.query('users',
+          where: 'email = ?', whereArgs: [email], limit: 1);
       if (res.isNotEmpty) existing = res.first;
     }
-
-    existing ??= (await db.query(
-      'users',
-      where: 'username = ?',
-      whereArgs: [username],
-      limit: 1,
-    ))
+    existing ??= (await db.query('users',
+            where: 'username = ?', whereArgs: [username], limit: 1))
         .firstOrNull;
 
     final data = <String, dynamic>{
       'username': username,
+      'full_name': fullName ?? existing?['full_name'],
       'email': email,
       'default_budget': defaultBudget ?? (existing?['default_budget'] ?? 0.0),
       'updated_at': now,
@@ -236,16 +249,24 @@ class DatabaseHelper {
     };
 
     if (existing != null) {
-      await db.update(
-        'users',
-        data,
-        where: 'id = ?',
-        whereArgs: [existing['id']],
-      );
+      await db
+          .update('users', data, where: 'id = ?', whereArgs: [existing['id']]);
       return existing['id'] as int;
     } else {
       data['created_at'] = now;
       return await db.insert('users', data);
     }
+  }
+
+  Future<void> updateUserProfile(int id, Map<String, dynamic> data) async {
+    final db = await instance.database;
+    await db.update(
+        'users',
+        {
+          ...data,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [id]);
   }
 }

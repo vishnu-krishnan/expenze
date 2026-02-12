@@ -1,0 +1,51 @@
+Technical Specification: Identity and Authorization Overhaul
+____________________________________________________
+
+System Overview
+The system utilizes a local SQLite database (sqflite) to manage user identity and authentication. The presentation layer uses Provider for state management, linking the AuthProvider to the DatabaseHelper for all secure operations.
+
+Architecture Diagram
+[Auth UI] -> [AuthProvider] -> [DatabaseHelper] -> [SQLite (users table)]
+
+Component Breakdown
+1. DatabaseHelper (v4):
+   - Table: users
+   - Columns: id, username (UNIQUE), full_name, email, password, default_budget, created_at, updated_at.
+   - Methods: registerUser, getUser, updateUserProfile, upsertUser.
+
+2. AuthProvider:
+   - State: token, user (Map), error, isGoogleAvailable.
+   - Methods: login, register, updateProfile, initialize.
+
+3. DashboardScreen:
+   - Logic: _getTimeBasedGreeting() using DateTime.now().hour.
+   - Logic: _handleMonthChange via GestureDetector(onHorizontalDragEnd).
+
+Data Flow
+- Signup: RegisterScreen -\u003e AuthProvider.register() -\u003e DB Insert.
+- Login: LoginScreen -\u003e AuthProvider.login() -\u003e DB Query (username) -\u003e Password Comparison.
+- Profile Update: ProfileScreen -\u003e AuthProvider.updateProfile() -\u003e DB Update -\u003e Prefs Sync.
+
+API Contracts (Internal)
+- login(username, password) -\u003e Future\u003cbool\u003e
+- register(username, password, fullName, email) -\u003e Future\u003cbool\u003e
+- updateProfile({fullName, username, phone, defaultBudget}) -\u003e Future\u003cvoid\u003e
+
+Validation Rules
+- Username: Non-empty, Unique.
+- Passcode: Non-empty (Min 4 chars).
+- Full Name: Non-empty.
+
+Security Model
+- Credentials stored locally in plain text (V1). Future enhancement: Argon2/PBKDF2 hashing.
+- Session managed via SharedPreferences (auth_token).
+
+Testing Plan
+- Unit: Verify DatabaseHelper upsert/retrieval.
+- Integration: Verify Login/Register flow transitions correctly to Dashboard.
+- Edge: Duplicate username registration, invalid password login.
+
+Rollback Plan
+- Revert schema to version 2; remove password and full_name requirements in AuthProvider.
+____________________________________________________
+Date: 2026-02-12

@@ -9,6 +9,7 @@ class Expense {
   final String? dueDate;
   final String? paidDate;
   final String? notes;
+  final String priority;
   final int synced;
   final String? createdAt;
   final String? updatedAt;
@@ -24,6 +25,7 @@ class Expense {
     this.dueDate,
     this.paidDate,
     this.notes,
+    this.priority = 'MEDIUM',
     this.synced = 0,
     this.createdAt,
     this.updatedAt,
@@ -42,6 +44,7 @@ class Expense {
       'due_date': dueDate,
       'paid_date': paidDate,
       'notes': notes,
+      'priority': priority,
       'synced': synced,
       'created_at': createdAt ?? DateTime.now().toIso8601String(),
       'updated_at': updatedAt ?? DateTime.now().toIso8601String(),
@@ -61,6 +64,7 @@ class Expense {
       dueDate: map['due_date'],
       paidDate: map['paid_date'],
       notes: map['notes'],
+      priority: map['priority'] ?? 'MEDIUM',
       synced: map['synced'] ?? 0,
       createdAt: map['created_at'],
       updatedAt: map['updated_at'],
@@ -82,6 +86,7 @@ class Expense {
       dueDate: json['dueDate'] ?? json['due_date'],
       paidDate: json['paidDate'] ?? json['paid_date'],
       notes: json['notes'],
+      priority: json['priority'] ?? 'MEDIUM',
       synced: 1, // Data from API is already synced
       createdAt: json['createdAt'] ?? json['created_at'],
       updatedAt: json['updatedAt'] ?? json['updated_at'],
@@ -100,6 +105,7 @@ class Expense {
       'isPaid': isPaid,
       'dueDate': dueDate,
       'paidDate': paidDate,
+      'priority': priority,
       'notes': notes,
     };
   }
@@ -116,6 +122,7 @@ class Expense {
     String? dueDate,
     String? paidDate,
     String? notes,
+    String? priority,
     int? synced,
     String? createdAt,
     String? updatedAt,
@@ -131,6 +138,7 @@ class Expense {
       dueDate: dueDate ?? this.dueDate,
       paidDate: paidDate ?? this.paidDate,
       notes: notes ?? this.notes,
+      priority: priority ?? this.priority,
       synced: synced ?? this.synced,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

@@ -1,60 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../providers/auth_provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
   final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _showPassword = false;
+
   bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
+    _fullNameController.dispose();
     _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(
-      _usernameController.text.trim(),
-      _passwordController.text,
-    );
+    try {
+      final auth = context.read<AuthProvider>();
+      final success = await auth.register(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+        fullName: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+      );
 
-    if (mounted) setState(() => _isLoading = false);
+      if (!mounted) return;
 
-    if (success && mounted) {
-      Navigator.of(context).pushReplacementNamed('/main');
-    }
-  }
-
-  Future<void> _handleGoogleLogin() async {
-    if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.loginWithGoogle();
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (success) {
-      Navigator.of(context).pushReplacementNamed('/main');
+      if (success) {
+        Navigator.pushReplacementNamed(context, '/main');
+      } else {
+        setState(
+            () => _errorMessage = auth.error ?? 'Failed to create account');
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Registration failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -118,57 +124,60 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 32),
                     const Text(
-                      'Welcome Back',
+                      'Create Account',
                       style:
                           TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Sign in to manage your finances',
+                      'Start your offline-first financial journey',
                       style: TextStyle(
                           color: AppTheme.textSecondary, fontSize: 13),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
-                    Consumer<AuthProvider>(
-                      builder: (context, auth, _) {
-                        if (auth.error != null) {
-                          return _buildErrorContainer(auth.error!);
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
+                    if (_errorMessage != null)
+                      _buildErrorContainer(_errorMessage!),
 
                     _buildTextField(
-                      controller: _usernameController,
-                      label: 'Username',
-                      hint: 'Enter your username',
+                      controller: _fullNameController,
+                      label: 'Full Name',
+                      hint: 'What should we call you?',
                       icon: LucideIcons.user,
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
-                      controller: _passwordController,
-                      label: 'Password',
-                      hint: 'Enter your password',
-                      icon: LucideIcons.lock,
-                      obscureText: !_showPassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _showPassword ? LucideIcons.eyeOff : LucideIcons.eye,
-                          size: 18,
-                        ),
-                        onPressed: () =>
-                            setState(() => _showPassword = !_showPassword),
-                      ),
+                      controller: _usernameController,
+                      label: 'Username',
+                      hint: 'Unique identification name',
+                      icon: LucideIcons.atSign,
                       validator: (v) => v!.isEmpty ? 'Required' : null,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email (Optional)',
+                      hint: 'For better identification',
+                      icon: LucideIcons.mail,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _passwordController,
+                      label: 'Passcode',
+                      hint: 'Choose a strong code',
+                      icon: LucideIcons.lock,
+                      obscureText: true,
+                      validator: (v) =>
+                          v!.length < 4 ? 'Min 4 characters' : null,
+                    ),
+                    const SizedBox(height: 32),
 
                     ElevatedButton(
-                      onPressed: _isLoading ? null : _handleLogin,
+                      onPressed: _isLoading ? null : _handleRegister,
                       style: AppTheme.primaryButtonStyle.copyWith(
                         padding: WidgetStateProperty.all(
                             const EdgeInsets.symmetric(vertical: 16)),
@@ -179,47 +188,19 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
-                          : const Text('Sign In'),
+                          : const Text('Direct Setup'),
                     ),
-                    const SizedBox(height: 20),
-
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('OR',
-                              style: TextStyle(
-                                  color: AppTheme.textSecondary, fontSize: 11)),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
-                    OutlinedButton.icon(
-                      onPressed: _isLoading ? null : _handleGoogleLogin,
-                      icon: const Icon(LucideIcons.chrome,
-                          color: Colors.blue, size: 20),
-                      label: const Text('Continue with Google'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account? ",
+                        const Text('Already have an account? ',
                             style: TextStyle(
                                 color: AppTheme.textSecondary, fontSize: 13)),
                         GestureDetector(
-                          onTap: () => Navigator.pushReplacementNamed(
-                              context, '/register'),
-                          child: const Text('Sign Up',
+                          onTap: () =>
+                              Navigator.pushReplacementNamed(context, '/login'),
+                          child: const Text('Sign In',
                               style: TextStyle(
                                   color: AppTheme.primary,
                                   fontWeight: FontWeight.bold,
@@ -265,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required String hint,
     required IconData icon,
     bool obscureText = false,
-    Widget? suffixIcon,
+    TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return Column(
@@ -280,9 +261,9 @@ class _LoginScreenState extends State<LoginScreen> {
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+          keyboardType: keyboardType,
           validator: validator,
           decoration: AppTheme.inputDecoration(hint, icon).copyWith(
-            suffixIcon: suffixIcon,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),

@@ -335,3 +335,70 @@ Successfully created Flutter mobile application with production-ready architectu
 - ✅ Dashboard displays correctly
 - ✅ Hot reload ready for development
 - ✅ Production-ready code structure
+
+## [2026-02-12] Offline-First Session Management & UI Refinement
+
+**Change Type:** Major
+
+**Decision Made:**
+Refactored authentication and session management to support robust offline-first "multiple type logins" without data loss on standard logout. Upgraded all dependencies to latest stable versions and implemented a premium iOS-like aesthetic using the Inter font family.
+
+**Implementation:**
+1. **Auth Session Logic:**
+   - Logout now preserves the local database, enabling user data retention across sessions.
+   - Authentication now rigorously syncs user profiles with both SharedPreferences and SQLite `users` table.
+   - initialization flow refined to restore full user context from persistent storage.
+2. **Dependency Management:**
+   - Upgraded all packages to their latest stable versions (`flutter pub upgrade --major-versions`).
+   - Integrated `google_fonts` for premium typography.
+3. **Premium Design System:**
+   - Switched primary font to **Inter** for high legibility and premium feel.
+   - Refined `AppTheme` with modernized input decorations, button styles, and card layouts.
+4. **Code Quality & Architecture:**
+   - Finalized removal of `ApiService` dependencies from core flows (`main.dart`, `ResetPasswordScreen`).
+   - Resolved multiple lint errors and naming inconsistencies in the `regular_payments` module.
+
+**Impact:**
+- Performance: Improved dependency stability and local data access patterns.
+- Security: Robust local session handling and Google Identity parity.
+- UX: Premium typography and refined UI components provide an iOS-standard experience.
+- Maintainability: Dependency versions are now up-to-date, reducing technical debt.
+
+**Rollback Strategy:**
+- Git commits track pre-upgrade state.
+- Database Version 2 migration is backward compatible for columns.
+- **Hotfix:** Resolved `google_sign_in` 7.x migration issues by switching to `GoogleSignIn.instance`, adding mandatory `initialize()` call, and migrating `signIn()` to `authenticate()` with stream-based identity capture.
+- **Runtime Fix:** Handled `clientConfigurationError` on Android where `serverClientId` is missing. Initialization is now non-fatal, allowing the app to start cleanly even if Google Sign-In is misconfigured. Created `docs/GOOGLE_SIGNIN_SETUP.md` for user guidance.
+
+## [2026-02-12] Identity, Authorization & UI Enhancement
+
+**Change Type:** Major
+
+**Decision Made:**
+Implemented a robust, local database-backed identity system with personalized greetings, full name support, and premium UI refinements. This establishes a "Digital Wallet" identity where user data is correctly linked to verified local accounts.
+
+**Implementation:**
+1. **Database Schema Upgrade (v4):**
+   - Added `full_name` and `password` columns to the `users` table.
+   - Refactored `DatabaseHelper` to support structured registration and profile management.
+2. **Identity Support:**
+   - Modified `AuthProvider` to handle `fullName` and local password verification.
+   - Enhanced `RegisterScreen` with a "Full Name" field and robust input validation.
+   - Updated `ProfileScreen` to allow manual editing of `fullName` and `username`.
+3. **UI/UX Polish:**
+   - Replaced "Good Morning" with a dynamic `_getTimeBasedGreeting()` system.
+   - Prioritized `fullName` over `username` in greetings for deep personalization.
+   - Improved the "Digital Wallet" aesthetic in `ProfileScreen` with glassmorphic elements.
+4. **Resiliency & Fixes:**
+   - Resolved `google_sign_in` 7.1.1 constructor errors by migrating to the `instance` singleton pattern.
+   - Sanitized input fields and improved error feedback in Auth flows.
+
+**Impact:**
+- UX: Personalization and premium design trends increase user engagement.
+- Security: Real passcode/password verification for local accounts.
+- Performance: Efficient SQLite queries for identity restoration.
+
+**Rollback Strategy:**
+- Database schema preserves existing columns; revert `AuthProvider` to identity-agnostic mode if needed.
+
+Date: 2026-02-12
