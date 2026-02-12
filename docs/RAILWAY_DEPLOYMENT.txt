@@ -1,0 +1,242 @@
+RAILWAY DEPLOYMENT GUIDE - PRODUCTION READY
+
+OVERVIEW
+This guide documents the successful deployment of Expenze to Railway.
+The application uses PostgreSQL database and React frontend.
+
+
+DEPLOYMENT SUMMARY
+
+Status: ✓ Successfully Deployed
+Database: PostgreSQL (Railway managed)
+Frontend: React (built with Vite)
+Backend: Node.js/Express
+
+
+PREREQUISITES
+
+1. Railway account
+2. GitHub repository connected to Railway
+3. PostgreSQL service added to Railway project
+
+
+DEPLOYMENT STEPS
+
+1. CREATE RAILWAY PROJECT
+   - Go to railway.app
+   - New Project → Deploy from GitHub
+   - Select your repository
+   - Railway auto-detects Node.js app
+
+2. ADD POSTGRESQL SERVICE
+   - In your project, click "+ New"
+   - Select "Database" → "PostgreSQL"
+   - Railway provisions database automatically
+   - Services are auto-linked
+
+3. CONFIGURE APP SERVICE
+
+   Go to your app service → Settings:
+   
+   Build Command: npm run build
+   Start Command: npm start
+   
+   These commands:
+   - Install dependencies (npm install - automatic)
+   - Build frontend (npm run build)
+   - Start backend server (npm start)
+
+4. SET ENVIRONMENT VARIABLES
+
+   App Service → Variables tab → Add these:
+   
+   PORT=8080
+   JWT_SECRET=supersecretkey
+   DEFAULT_ADMIN_USERNAME=admin
+   DEFAULT_ADMIN_PASSWORD=admin
+   
+   Optional (Email OTP):
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=your-app-password
+
+5. LINK DATABASE (If not auto-linked)
+
+   App Service → Variables → New Variable → Add Reference:
+   - Variable name: DATABASE_URL
+   - Service: Postgres (select from dropdown)
+   - Variable: DATABASE_URL
+
+6. DEPLOY
+   - Push code to GitHub
+   - Railway auto-deploys
+   - Monitor logs for "Connected to PostgreSQL database"
+   - Check "Server running at http://0.0.0.0:8080"
+
+
+CODE FEATURES FOR RAILWAY
+
+The application automatically detects Railway environment:
+
+- Uses DATABASE_URL if available (Railway)
+- Falls back to PG* variables for local development
+- No code changes needed between environments
+- Frontend builds automatically during deployment
+
+
+ENVIRONMENT VARIABLES EXPLAINED
+
+DATABASE_URL (Auto-provided by Railway)
+- Complete PostgreSQL connection string
+- Automatically injected when Postgres service is linked
+- Format: postgresql://user:password@host:port/database
+
+PORT
+- Railway assigns this dynamically
+- Code uses process.env.PORT || 3000
+
+JWT_SECRET
+- Secret key for JWT token generation
+- Change in production for security
+
+DEFAULT_ADMIN_*
+- Creates admin user on first startup
+- Login: admin / admin (change immediately!)
+
+EMAIL_USER / EMAIL_PASS (Optional)
+- Gmail SMTP credentials for OTP emails
+- Uses App Password (not regular password)
+- If not set, app runs in dev mode (OTP shown in response)
+
+
+DATABASE INITIALIZATION
+
+On first startup, the application automatically:
+1. Connects to PostgreSQL
+2. Creates all required tables
+3. Seeds default admin user
+4. Ready to use!
+
+Tables created:
+- users
+- user_verifications (temp OTP storage)
+- categories
+- payment_templates
+- month_plans
+- salaries
+- payment_items
+
+
+ACCESSING YOUR DEPLOYMENT
+
+Railway provides a public URL:
+- Go to App Service → Settings → Domains
+- Railway generates: https://your-app.up.railway.app
+- Custom domain can be added here
+
+Login with default credentials:
+Username: admin
+Password: admin
+
+Change password immediately after first login!
+
+
+MONITORING & LOGS
+
+View Logs:
+- App Service → Deployments → Click latest
+- Real-time logs show all server activity
+
+Common Success Messages:
+✓ "Connected to PostgreSQL database"
+✓ "Server running at http://0.0.0.0:8080"
+✓ "Default admin user 'admin' created"
+
+
+TROUBLESHOOTING
+
+Issue: Build fails
+Fix: Check Build Command is set to "npm run build"
+     View build logs for specific errors
+
+Issue: Can't connect to database
+Fix: Ensure Postgres service is linked
+     Check DATABASE_URL exists in app variables
+
+Issue: Frontend 404 errors
+Fix: Verify frontend/dist folder was created during build
+     Check build logs for Vite build success
+
+Issue: Application crashes
+Fix: Check Start Command is "npm start"
+     Review deployment logs for errors
+
+
+LOCAL vs RAILWAY
+
+Local Development:
+- Uses .env file
+- PGHOST=localhost (Docker)
+- Manual database startup
+
+Railway Production:
+- Uses Railway variables
+- DATABASE_URL (auto-provided)
+- Managed database (always running)
+
+
+SECURITY NOTES
+
+✓ Change default admin password immediately
+✓ Update JWT_SECRET to a strong random value
+✓ Use Gmail App Password (not regular password)
+✓ .env file is gitignored (secrets safe)
+✓ Railway encrypts all environment variables
+
+
+UPDATING YOUR DEPLOYMENT
+
+To deploy changes:
+1. Commit code changes
+2. Push to GitHub
+3. Railway auto-deploys
+4. Monitor deployment logs
+
+Manual redeploy:
+- App Service → Latest Deployment → "Redeploy"
+
+
+COST INFORMATION
+
+Railway Pricing:
+- Hobby Plan: $5/month
+- Includes: 
+  * 500 hours of usage
+  * PostgreSQL database
+  * Deployments from GitHub
+  * Custom domains
+
+
+DEPLOYMENT CHECKLIST
+
+Before going live:
+□ PostgreSQL service added and linked
+□ All environment variables set
+□ Build and Start commands configured
+□ Code pushed to GitHub
+□ Deployment successful (check logs)
+□ Database tables created automatically
+□ Admin user can login
+□ Custom domain configured (optional)
+□ Default password changed
+□ Email OTP tested (if configured)
+
+
+SUPPORT & RESOURCES
+
+Railway Docs: https://docs.railway.app
+Project Dashboard: https://railway.app/dashboard
+GitHub Repo: (your repository)
+
+
+Last Updated: 30-Dec-2025
+Deployment Status: ✓ Production Ready
